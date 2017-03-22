@@ -7,9 +7,7 @@
 
 3) `sudo npm install`
 
-4) `sudo npm i -G nodemon` - quality of life improvement, soovitan!
-
-5) `nodemon server.js` või `node server`
+5) `nodemon server.js`(kui nodemon on installitud) või `node server`
 
 6) navigeeri brauseris localhost:3000/api, proovi /api/user, /api/user/dog
 
