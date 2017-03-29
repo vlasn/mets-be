@@ -3,18 +3,25 @@
  */
 const http = require("http");
 const express = require("express");
+const bodyParser = require('body-parser');
+
 const app = express(http);
+app.use(bodyParser.json()); // support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+
 
 //Example routing
 //Test this with localhost/api/user/dog
-const user = require('./routes/user');
-app.use('/api/user', user);
+const auth = require('./routes/auth');
+app.use('/api/auth', auth);
 
 
-//"blank response":
+///////////////////////////////////////////////////////////////////
+
 app.get("/api", (req,res)=>{
     res.json("Yes hello this is API");
 });
+
 
 app.listen("3000", ()=>{
     console.log("Server now listening on port 3000")
