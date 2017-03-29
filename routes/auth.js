@@ -15,24 +15,26 @@ router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true })); 
 
 router.post("/",(req, res)=>{
-    var email = req.body.email;
-    var password = req.body.password;
+    let email = req.body.email;
+    let password = req.body.password;
 
     userModel.find({ 'email': email, 'password': password }, function (err, docs) {
-        if(docs.length != 1){
-            res.status(400).send('400: Faulty request');
-        } else {
-            if (docs[0].email != email || docs[0].password != password){
-                res.send('Sellise parooli ja emaili kombinatsiooniga kasutajat ei eksisteeri!');
-            } else if(docs[0].email === email && docs[0].password === password){
-                res.send('Oled edukalt sisse logitud!');
-            }
+        if(docs.length !== 1 || docs[0].email != email || docs[0].password != password){
+            res.json({
+                status: "failure",
+                data: {
+                    msg: "Sellise parooli ja emaili kombinatsiooniga kasutajat ei eksisteeri!"
+                }
+            });
+        } else if(docs[0].email === email && docs[0].password === password){
+                res.json({
+                    status: "accept",
+                    data: {
+                        msg: "Oled edukalt sisse logitud"
+                    }
+                })
         }
     });
-});
-
-router.get('/', (req,res)=>{
-    res.status(400).send("400: Empty request")
 });
 
 module.exports = router;
