@@ -7,7 +7,7 @@ mongoose.connect('mongodb://localhost:27017/mets');
 const db = mongoose.connection;
 const userModel = require('./../models/users.js');
 db.on('error', console.error.bind(console,'connection:error'));
-db.once('open', function () {
+db.once('open', ()=>{
     console.log('MongoDB successfully connected');
 });
 
@@ -27,12 +27,12 @@ router.post("/",(req, res)=>{
                 }
             });
         } else if(docs[0].email === email && docs[0].password === password){
-                res.json({
-                    status: "accept",
-                    data: {
-                        msg: "Oled edukalt sisse logitud"
-                    }
-                })
+            res.json({
+                status: "accept",
+                data: {
+                    msg: "Oled edukalt sisse logitud"
+                }
+            })
         }
     });
 });
