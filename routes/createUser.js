@@ -3,17 +3,35 @@ const router = express.Router();
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
+const crypto = require('crypto');
+mongoose.Promise = global.Promise;
+const userModel = require('./../models/userModel.js');
+
+
 
 router.post("/",(req, res)=>{
-    let email = req.body.email;
+    let email = "ajutemail";
+    let hash = crypto.createHash('sha256').update(email+Date.now()).digest('hex');
+    console.log(hash);
 
-    userModel.save({ 'email': email, 'password': password }, function (err, docs) {
+    let user = new userModel({ 'email': email, 'hash': hash });
 
-    });
+    user.save()
+        .then(doc => console.log(doc), res.json("salvestatud"))
+        .catch(err => console.log(err))
+});
+
+router.get("/:hash",(req, res) => {
+    let hash = req.params.hash;
+    
+    userModel.find({ 'hash': hash }, function (err, docs) {
+        if (docs[0]) {}
+    }); 
+    
 });
 
 // hiljem läheb dotenvi
-let transporter = nodemailer.createTransport({
+/*let transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: 'metsahaldur.test@gmail.com',
@@ -36,6 +54,6 @@ transporter.sendMail(mailOptions, (error, info) => {
         return console.log(error);
     }
     console.log('Message %s sent: %s', info.messageId, info.response);
-});
+});*/
 
 module.exports = router;
