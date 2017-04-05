@@ -1,15 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const bodyParser = require('body-parser');
-
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/mets');
-const db = mongoose.connection;//active database
 const userModel = require('./../models/userModel.js');
-db.on('error', console.error.bind(console,'connection:error'));
-db.once('open', ()=>{
-    console.log('MongoDB successfully connected');
-});
 
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true })); 
