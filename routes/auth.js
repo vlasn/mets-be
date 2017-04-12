@@ -12,7 +12,7 @@ router.use(bodyParser.urlencoded({ extended: true }));
 router.post("/",(req, res)=>{
     let email = req.body.email;
     let password = req.body.password;
-
+//findOne vs massiiv[0]  NB!
     userModel.find({ 'email': email, 'password': password })
         .then(docs => {
             console.log(docs);

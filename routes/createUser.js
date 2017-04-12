@@ -42,13 +42,52 @@ router.get("/:hash",(req, res) => {
     userModel.find({ 'hash': hash })
         .then(docs => {
             if (docs[0].hash === hash) {
+
                 console.log("found user with email", docs[0].email);
                 res.json({
-                    vastus: "found user with email"
+                    status: "accept",
+                    data: {
+                        email: docs[0].email
+                    }
                 });
             }
         })
-        .catch(err => console.log(err))
+        .catch(err => {
+            console.log(err)
+            res.send("midagi läks valesti")
+        })
+});
+
+router.post("/pass", (req, res) => {
+    let email = req.body.email;
+    let password = req.body.password;
+    let hash = req.body.hash;
+    
+    let conditions = {email: email, hash: hash}, 
+        update = {password: password, hash: Date.now()}
+        
+    userModel.update(conditions, update, (err, raw) => {
+        if (err){
+            console.log(err)
+            res.json({
+                status: "failure",
+                data: {
+                msg: "viga"
+                }
+            })
+        } 
+
+        console.log(raw)
+        res.json({
+            status: "accept",
+            data: {
+                msg: "parool on muudetud!"
+            }
+        })
+        
+    });
+
+    
 });
 
 const sendMagicLink = (email, hash) => {
