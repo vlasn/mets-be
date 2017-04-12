@@ -3,7 +3,8 @@ const userSchema = mongoose.Schema({
 
     email: String,
     password: String,
-    hash: String
+    hash: String,
+    //role: String
 
 
 });
