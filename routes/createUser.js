@@ -7,18 +7,58 @@ const crypto = require('crypto');
 mongoose.Promise = global.Promise;
 const userModel = require('./../models/userModel.js');
 
-
-
 router.post("/",(req, res) => {
-    let email = "thetloffline@gmail.com"
-    let hash = crypto.createHash('sha256').update(email+Date.now()).digest('hex')
-    let role = req.body.role
+    let action = req.body.action
+    let email = req.body.email
+    let hash = crypto.createHash('sha256').update(email).digest('hex')
+    switch(action){
+        case "create":
+            let role = req.body.role
+            let user = new userModel({ 
+                email: email, 
+                hash: { 
+                    hash: hash, 
+                    created: Date.now()
+                },
+                roles: [{title: role}] 
+            })
+            user.save()
+                .then(doc => console.log(doc), res.json("emailile saadeti üks maagiline link"))
+                    .then(() => sendMagicLink(email, hash))
+                .catch(err => console.log(err))
+            break
+        case "forgot":
+            let conditions = {email: req.body.email}, 
+                update = { hash: { hash:hash, created: Date.now()   }}
+
+            userModel.findOneAndUpdate(conditions, update, {new: true})
+                .then(user => {
+                    console.log(user)
+                    if (!user) { return Promise.reject('ei leidnud kasutajat/juba valideeritud') }
+                })
+                .then(()=>{
+                        sendMagicLink(email, hash)
+                        return res.json({
+                            status: "accept",
+                            data: {
+                                msg: "link saadeti emailile"
+                            }
+                        })
+                })
+                
+                .catch(err => {
+                    console.log(err)
+                    return res.status(403).send("midagi läks valesti")
+                })
+            break
+        default:
+            return res.send("action type unspecified")   
+    }
 
     // kontrollida, kas sisselogitud kasutajal on õigus seda rolli luua
     // if(req.body.sisselogitudkasutaja.roles )
 
     // NB! kui hash.created ja Date.now() vahe ületab 24h siis peab see hash ära aeguma !!!
-    let user = new userModel({ email: email, hash: { hash: hash, created: Date.now()}, roles: [{title: role}] })
 
     /*
     let role = req.body.role;
@@ -36,10 +76,7 @@ router.post("/",(req, res) => {
     }
     */
 
-    user.save()
-        .then(doc => console.log(doc), res.json("salvestatud"))
-        .then(() => sendMagicLink(email, hash))
-        .catch(err => console.log(err))
+
 });
 
 router.get("/:hash",(req, res) => {
@@ -69,11 +106,11 @@ router.post("/pass", (req, res) => {
     let email = req.body.email
     let password = req.body.password
     let hash = req.body.hash.hash
-
+    console.log(req.body)
     // validated välja eksistents === kasutaja on valideeritud, hashi kaotame ära
-    let conditions = {email: email, hash: {hash:hash}}, 
+    let conditions = {email: email, 'hash.hash':hash}, 
         update = {password: password, hash: { validated: Date.now() }}
-
+    console.log(conditions)
     userModel.findOneAndUpdate(conditions, update, {new: true})
         .then(user => {
             console.log(user)
@@ -88,7 +125,7 @@ router.post("/pass", (req, res) => {
         })
         .catch(err => {
             console.log(err)
-            return res.status(403).send("midagi läks valesti")
+            return res.status(403).send("midagi läks valesti/juba valideeritud")
         })
 });
 
