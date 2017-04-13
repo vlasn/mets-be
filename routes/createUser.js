@@ -10,9 +10,13 @@ const userModel = require('./../models/userModel.js');
 
 
 router.post("/",(req, res) => {
-    let email = "gnesselmann@gmail.com";
-    let hash = crypto.createHash('sha256').update(email+Date.now()).digest('hex');
-    console.log(hash);
+    let email = "thetloffline@gmail.com"
+    let hash = crypto.createHash('sha256').update(email+Date.now()).digest('hex')
+    let role = req.body.role
+    // kontrollida, kas sisselogitud kasutajal on õigus seda rolli kasutada
+
+    let user = new userModel({ 'email': email, 'hash': hash, roles: [{title: role}] })
+
     
   /*  let role = req.body.role;
     
@@ -28,7 +32,6 @@ router.post("/",(req, res) => {
         return "midagi läks valesti."
     }
     */
-    let user = new userModel({ 'email': email, 'hash': hash })
 
     user.save()
         .then(doc => console.log(doc), res.json("salvestatud"))
@@ -37,26 +40,29 @@ router.post("/",(req, res) => {
 });
 
 router.get("/:hash",(req, res) => {
-    let hash = req.params.hash;
+    let hash = req.params.hash
     
-    userModel.find({ 'hash': hash })
-        .then(docs => {
-            if (docs[0].hash === hash) {
+    userModel.findOne({ 'hash': hash })
+        .then(user => {
 
-                console.log("found user with email", docs[0].email);
-                res.json({
-                    status: "accept",
-                    data: {
-                        email: docs[0].email
-                    }
-                });
-            }
+            if (!user) { return Promise.reject('ei leidnud kasutajat'); }
+
+            console.log("found user with email", user.email)
+            return res.json({
+                status: "accept",
+                data: {
+                    email: user.email
+                }
+            });
+
         })
         .catch(err => {
             console.log(err)
-            res.send("midagi läks valesti")
+            return res.status(403).send("ei leidnud kasutajat")
+
         })
 });
+
 
 router.post("/pass", (req, res) => {
     let email = req.body.email;
@@ -66,28 +72,22 @@ router.post("/pass", (req, res) => {
     let conditions = {email: email, hash: hash}, 
         update = {password: password, hash: Date.now()}
         
-    userModel.update(conditions, update, (err, raw) => {
-        if (err){
-            console.log(err)
-            res.json({
-                status: "failure",
-                data: {
-                msg: "viga"
-                }
-            })
-        } 
+    userModel.findOneAndUpdate(conditions, update, {new: true})
+    .then(user => {
+        console.log(user)
+        if (!user) { return Promise.reject('ei leidnud kasutajat'); }
 
-        console.log(raw)
-        res.json({
+        return res.json({
             status: "accept",
             data: {
                 msg: "parool on muudetud!"
             }
-        })
-        
-    });
-
-    
+        }) 
+    })
+    .catch(err => {
+        console.log(err)
+        return res.status(403).send("midagi läks valesti")
+    })
 });
 
 const sendMagicLink = (email, hash) => {

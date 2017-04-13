@@ -12,28 +12,24 @@ router.use(bodyParser.urlencoded({ extended: true }));
 router.post("/",(req, res)=>{
     let email = req.body.email;
     let password = req.body.password;
-//findOne vs massiiv[0]  NB!
-    userModel.find({ 'email': email, 'password': password })
-        .then(docs => {
-            console.log(docs);
-            if(docs.length !== 1 || docs[0].email != email || docs[0].password != password){
-                res.json({
-                    status: "failure",
-                    data: {
-                        msg: "Sellise parooli ja emaili kombinatsiooniga kasutajat ei eksisteeri!"
-                    }
-                });
-            } else if(docs[0].email === email && docs[0].password === password){
-                res.json({
-                    status: "accept",
-                    data: {
-                        msg: "Oled edukalt sisse logitud"
-                    }
-                })
-            }
-        })
-    .catch(e => console.log(e));
+    
+    userModel.findOne({ 'email': email, 'password': password, 'roles.disabled': null }) 
+        .then(foundUserDoc => {
 
+            if (!foundUserDoc) { return Promise.reject('Sellise parooli ja emaili kombinatsiooniga kasutajat ei eksisteeri!'); }
+
+            res.json({
+                status: "accept",
+                data: {
+                    msg: "Oled edukalt sisse logitud"
+                }
+            })
+        })
+       .catch(err => {
+            console.log(err)
+            return res.status(403).send("Sellise parooli ja emaili kombinatsiooniga kasutajat ei eksisteeri!")
+        })
+        
 });
 
 
