@@ -13,12 +13,15 @@ router.post("/",(req, res) => {
     let email = "thetloffline@gmail.com"
     let hash = crypto.createHash('sha256').update(email+Date.now()).digest('hex')
     let role = req.body.role
-    // kontrollida, kas sisselogitud kasutajal on õigus seda rolli kasutada
 
-    let user = new userModel({ 'email': email, 'hash': hash, roles: [{title: role}] })
+    // kontrollida, kas sisselogitud kasutajal on õigus seda rolli luua
+    // if(req.body.sisselogitudkasutaja.roles )
 
-    
-  /*  let role = req.body.role;
+    // NB! kui hash.created ja Date.now() vahe ületab 24h siis peab see hash ära aeguma !!!
+    let user = new userModel({ email: email, hash: { hash: hash, created: Date.now()}, roles: [{title: role}] })
+
+    /*
+    let role = req.body.role;
     
     switch(role) {
     case "client":
@@ -59,35 +62,34 @@ router.get("/:hash",(req, res) => {
         .catch(err => {
             console.log(err)
             return res.status(403).send("ei leidnud kasutajat")
-
         })
 });
 
-
 router.post("/pass", (req, res) => {
-    let email = req.body.email;
-    let password = req.body.password;
-    let hash = req.body.hash;
-    
-    let conditions = {email: email, hash: hash}, 
-        update = {password: password, hash: Date.now()}
-        
-    userModel.findOneAndUpdate(conditions, update, {new: true})
-    .then(user => {
-        console.log(user)
-        if (!user) { return Promise.reject('ei leidnud kasutajat'); }
+    let email = req.body.email
+    let password = req.body.password
+    let hash = req.body.hash.hash
 
-        return res.json({
-            status: "accept",
-            data: {
-                msg: "parool on muudetud!"
-            }
-        }) 
-    })
-    .catch(err => {
-        console.log(err)
-        return res.status(403).send("midagi läks valesti")
-    })
+    // validated välja eksistents === kasutaja on valideeritud, hashi kaotame ära
+    let conditions = {email: email, hash: {hash:hash}}, 
+        update = {password: password, hash: { validated: Date.now() }}
+
+    userModel.findOneAndUpdate(conditions, update, {new: true})
+        .then(user => {
+            console.log(user)
+            if (!user) { return Promise.reject('ei leidnud kasutajat/juba valideeritud') }
+
+            return res.json({
+                status: "accept",
+                data: {
+                    msg: "parool on muudetud!"
+                }
+            }) 
+        })
+        .catch(err => {
+            console.log(err)
+            return res.status(403).send("midagi läks valesti")
+        })
 });
 
 const sendMagicLink = (email, hash) => {
@@ -107,7 +109,6 @@ const sendMagicLink = (email, hash) => {
         text: 'Hello world ?',
         html: `<a href="http://localhost:3000/api/auth/create/${hash}">Magic</a>`
     };
-
 
     mailTransporter.sendMail(mailFieldOptions, (error, info) => {
         if (error) {

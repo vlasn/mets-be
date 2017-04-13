@@ -13,10 +13,10 @@ router.post("/",(req, res)=>{
     let email = req.body.email;
     let password = req.body.password;
     
-    userModel.findOne({ 'email': email, 'password': password, 'roles.disabled': null }) 
+    userModel.findOne({ 'email': email, 'password': password, 'hash.validated':{ $exists:true }, 'roles.disabled': null }) 
         .then(foundUserDoc => {
 
-            if (!foundUserDoc) { return Promise.reject('Sellise parooli ja emaili kombinatsiooniga kasutajat ei eksisteeri!'); }
+            if (!foundUserDoc) { return Promise.reject('Sellise parooli ja emaili kombinatsiooniga valideeritud kasutajat ei eksisteeri!'); }
 
             res.json({
                 status: "accept",
@@ -27,7 +27,7 @@ router.post("/",(req, res)=>{
         })
        .catch(err => {
             console.log(err)
-            return res.status(403).send("Sellise parooli ja emaili kombinatsiooniga kasutajat ei eksisteeri!")
+            return res.status(403).send("Sellise parooli ja emaili kombinatsiooniga valideeritud kasutajat ei eksisteeri!")
         })
         
 });
