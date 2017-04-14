@@ -15,7 +15,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const auth = require('./routes/auth');
-app.use('/api/auth/login', auth);
+app.use('/api/auth', auth);
 
 const createUser = require('./routes/createUser');
 app.use('/api/auth/create', createUser);
