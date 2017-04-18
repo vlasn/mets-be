@@ -15,7 +15,7 @@ const userSchema = mongoose.Schema({
     },
 	lastLogin: {type: String},
     roles: [{ 
-    	title: {type: String},
+    	title: {type: String, required: true},
 		created: {type: Date, default: Date.now()},
 		disabled: {type: Boolean}
     }]
@@ -108,20 +108,39 @@ const sendMagicLink = (email, hash) => {
     });
 }
 
-const create = (email, res)=>{
+const create = (email, role, res)=>{
 	let hash = crypto.createHash('sha256').update(email).digest('hex')
     let user = new userModel({ 
         email: email, 
         hash: { 
             hash: hash, 
             created: Date.now()
-        }
-        // roles: [{title: role, created: Date.now()}] 
+        },
+        roles: [{
+            title: role, 
+            created: Date.now()
+        }] 
     })
     user.save()
-        .then(doc => console.log(doc), res.json("emailile saadeti üks maagiline link"))
+        /* .catch(err) won't catch mongoose errors, however, passing the err argument along the 
+        second callback function (which in turn needed to be added) for .then solved the problem
+
+        .then((doc)=>{if(doc){return Promise.reject('Sellise parooli ja emaili kombinatsiooniga valideeritud kasutajat ei eksisteeri!')}},)
             .then(() => sendMagicLink(email, hash))
-        .catch(err => console.log(err))
+                .then(doc => console.log(doc), res.json("emailile saadeti üks maagiline link"))
+        .catch(err => {
+            console.log(err)
+            return res.status(403).send("midagi läks valesti")
+        })*/
+        .then((doc)=>{
+            if(doc){
+                sendMagicLink(email, hash)
+                res.json("emailile saadeti üks maagiline link")
+            }
+        },
+        (err)=>{
+            res.json(err)
+        })
 }
 
 const forgot = (email, res)=>{
