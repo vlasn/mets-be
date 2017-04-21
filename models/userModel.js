@@ -6,7 +6,7 @@ mongoose.Promise = global.Promise
 
 const userSchema = mongoose.Schema({
 
-    email: {type: String, required: true},
+    email: {type: String, unique:true, required: true},
     password: String,
     hash: {
     	hash: {type: String, required: true},

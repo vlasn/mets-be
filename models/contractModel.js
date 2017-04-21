@@ -15,7 +15,7 @@ const contractSchema = mongoose.Schema({
         raielopetamine: Date,
         väljavedu: Date,
         raidmete_valjavedu: Date
-    }
+    },
     kinnistu_nimi: String,
     documents: {
         // needs a more descriptive name to it
@@ -30,7 +30,7 @@ const contractSchema = mongoose.Schema({
     katastritunnused: [{
         tunnus: String,
         nimi: String
-    }]
+    }],
     contract_creator: {type: String, required: true},
     created_timestamp: {type: Date, default: Date.now()},
     status: String

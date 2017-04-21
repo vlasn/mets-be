@@ -15,14 +15,19 @@ router.post("/login",(req, res)=> {
             res.json({
                 status: "accept",
                 data: {
-                    msg: "Oled edukalt sisse logitud"
+                    msg: "Oled sisse logitud!"
                 }
             })
         })
         .catch(err => {
             console.log(err)
-            return res.status(403).send("Sellise parooli ja emaili kombinatsiooniga valideeritud kasutajat ei eksisteeri!")
-        })
+            return res.json({
+			            status: "reject",
+			            data: {
+			                msg: "Sellise parooli ja emaili kombinatsiooniga valideeritud kasutajat ei eksisteeri!"
+		            	}
+        			})
+    	})
 })
 // hash verification - determining if the given hash is associated with an user document
 router.get("/verify/:hash",(req, res)=> {
