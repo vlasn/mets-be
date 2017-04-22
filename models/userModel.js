@@ -49,17 +49,19 @@ const login = (email, password)=>{
 
 const verify = hash => {return userModel.findOne({ 'hash.hash': hash })}
 
-const validate = (email, password, hash)=>{
-	let conditions = {
-            email: email, 
-            'hash.hash':hash}, 
-        update = {
-            password: password, 
-            hash: { 
-                validated: Date.now() 
+const validate = (password, confirmPassword, hash)=>{
+/*    if(password === confirmPassword){*/
+    	let conditions = { 'hash.hash':hash }, 
+            update = {
+                password: password,
+                hash: { 
+                    validated: Date.now() 
+                }
             }
-        }
-    return userModel.findOneAndUpdate(conditions, update, {new: true})
+        return userModel.findOneAndUpdate(conditions, update, {new: true})
+/*    } else {
+        return new Error("Paroolid ei klapi!")
+    }*/
 }
 
 const sendMagicLink = (email, hash) => {
@@ -88,7 +90,7 @@ const sendMagicLink = (email, hash) => {
     });
 }
 
-const create = (email, role)=>{
+const create = email=>{
 	let hash = crypto.createHash('sha256').update(email).digest('hex')
     let user = new userModel({ 
         email: email, 
