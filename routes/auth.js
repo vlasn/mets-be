@@ -54,9 +54,10 @@ router.get("/verify/:hash",(req, res)=> {
 })
 // user will be validated on successful hash exchange
 router.post("/validate",(req, res)=> {
-	userModel.validate(req.body.email, req.body.password, req.body.hash.hash)
-        .then( returnedUserDoc => {
-	        if (!returnedUserDoc) { return Promise.reject('ei leidnud kasutajat/juba valideeritud') }
+	if(req.body.password !== req.body.cpassword){throw "Paroolid ei klapi!"}
+	userModel.validate(req.body.password, req.body.cpassword, req.body.hash)
+        .then(returnedUserDoc => {
+	        if (!returnedUserDoc) { return Promise.reject('Ei leidnud kasutajat!') }
 
 	        return res.json({
 	            status: "accept",
@@ -70,7 +71,7 @@ router.post("/validate",(req, res)=> {
 	        return res.json({
 		                status: "reject",
 		                data: {
-		                    msg: "Midagi läks valesti... :("
+		                    msg: "Midagi läks valesti... :(" || err
 		                }
             		})
 	    })
