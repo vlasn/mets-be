@@ -10,9 +10,16 @@ router.use(bodyParser.urlencoded({ extended: true }))
 router.post("/login",(req, res)=> {
 	userModel.login(req.body.email, req.body.password)
 		.then(foundUserDoc => {
+			console.log(foundUserDoc)
             if (!foundUserDoc) { return Promise.reject('Sellise parooli ja emaili kombinatsiooniga kasutajat ei eksisteeri!') }
             console.log(foundUserDoc.email + " logis sisse " + new Date().toLocaleString())
-            return res.json(responseFactory("accept","Oled sisse logitud!"))
+	        	let data = {
+	        		lastLogin: foundUserDoc.lastLogin,
+	        		roles: foundUserDoc.roles,
+	        		personal_data: foundUserDoc.personal_data
+	        	}
+	        	userModel.lastLogin(foundUserDoc.email)
+            return res.json(responseFactory("accept","Oled sisse logitud!", data))
         })
         .catch(err => {
             console.log(err)
@@ -35,19 +42,34 @@ router.get("/verify/:hash",(req, res)=> {
 // user will be validated on successful hash exchange
 router.post("/validate",(req, res)=> {
 	let rb = req.body
-	if(rb.hash && rb.hash.length == 64){
-		if(rb.password === rb.cpassword){
-			userModel.validate(rb.password, rb.cpassword, rb.hash)
-	        .then(returnedUserDoc => {
-		        if (!returnedUserDoc) { return Promise.reject('Ei leidnud kasutajat!') }
-		        return res.json(responseFactory("accept","Kasutaja valideeritud! (logi sisse nupp vms)"))
-		    })
-		    .catch(err => {
-		        console.log(err)
-		        return res.json(responseFactory("reject","Midagi läks valesti... :("))
-		    })
-		} else {return res.json(responseFactory("reject","Paroolid ei klapi!"))}
-	} else {return res.json(responseFactory("reject","Räsi on vigane!"))}
+	userModel.verify(req.body.hash)
+		.then(foundUser => {
+			if(foundUser){
+				let created = foundUser.hash.created.getTime()
+				let d = Date.now()
+				let difference = d - created
+				if(difference >= 86400000){
+					return res.json(responseFactory("reject","Valideerimislink on aegunud!"))
+				} else if(difference < 86400000){
+					if(rb.hash && rb.hash.length == 64){
+						if(rb.password === rb.cpassword){
+							userModel.validate(rb.password, rb.cpassword, rb.hash)
+					        .then(returnedUserDoc => {
+						        if (!returnedUserDoc) { return Promise.reject('Ei leidnud kasutajat!') }
+						        return res.json(responseFactory("accept","Kasutaja valideeritud! (logi sisse nupp vms)"))
+						    })
+						    .catch(err => {
+						        console.log(err)
+						        return res.json(responseFactory("reject","Midagi läks valesti... :("))
+						    })
+						} else {return res.json(responseFactory("reject","Paroolid ei klapi!"))}
+					} else {return res.json(responseFactory("reject","Räsi on vigane!"))}					
+				}
+			} else {
+				return res.json(responseFactory("reject","Midagi läks valesti... :("))
+			}
+		})
+		.catch(err => console.log(err))
 })
 
 router.post("/create",(req, res)=> {
@@ -99,12 +121,11 @@ router.post("/contract/create",(req, res)=>{
 
 
 
-const responseFactory = (status, msg)=>{
+const responseFactory = (status, msg, data)=>{
 	return {
 		status: status,
-		data: {
-			msg: msg
-		}
+		msg: msg,
+		data: data
 	}
 }
 

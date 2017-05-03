@@ -16,7 +16,6 @@ const contractSchema = mongoose.Schema({
         väljavedu: Date,
         raidmete_valjavedu: Date
     },
-    kinnistu_nimi: String,
     documents: {
         // needs a more descriptive name to it
         // values of these will be a FILEPATH
@@ -62,7 +61,7 @@ const create = (email, documents, hinnatabel, contract_creator, created_timestam
                         res.json({
                             status: "accept",
                             data: {
-                                msg: "Lepingu loodud!"
+                                msg: "Leping loodud!"
                             }
                         })
                     }
