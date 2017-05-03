@@ -13,13 +13,13 @@ const userSchema = mongoose.Schema({
 		created: {type: Date, default: Date.now()},
     	validated: {type: Date}
     },
-	lastLogin: {type: String},
+	lastLogin: {type: Date},
     roles: [{
-        role: {type: String, default: "client"},
-    	job_title: String,
+        role: String,
 		created: {type: Date, default: Date.now()},
-		disabled: {type: Boolean}
+		disabled: Boolean
     }],
+    job_title: String,
     // isikuandmed
     personal_data: {
         nimi: String,
@@ -47,17 +47,26 @@ const login = (email, password)=>{
     }))
 }
 
+const lastLogin = email=>{
+    console.log("kutsuti")
+    let conditions = {'email':email}, 
+        update = {
+            lastLogin: Date.now()
+        }    
+    userModel.findOneAndUpdate(conditions, update, ()=>{})
+}
+
 const verify = hash => {return userModel.findOne({ 'hash.hash': hash })}
 
 const validate = (password, confirmPassword, hash)=>{
-    	let conditions = { 'hash.hash':hash }, 
-            update = {
-                password: password,
-                hash: { 
-                    validated: Date.now() 
-                }
+	let conditions = { 'hash.hash':hash }, 
+        update = {
+            password: password,
+            hash: { 
+                validated: Date.now() 
             }
-        return userModel.findOneAndUpdate(conditions, update, {new: true})
+        }
+    return userModel.findOneAndUpdate(conditions, update, {new: true})
 }
 
 const sendMagicLink = (email, hash) => {
@@ -90,10 +99,11 @@ const create = email => {
 	let hash = crypto.createHash('sha256').update(email).digest('hex')
     let user = new userModel({ 
         email: email, 
-        hash: { 
+        hash: {
             hash: hash, 
             created: Date.now()
         },
+        roles: [{}]
     })
     return user.save()
 }
@@ -113,6 +123,7 @@ module.exports = {
 	validate,
 	create,
 	forgot,
-    sendMagicLink
+    sendMagicLink,
+    lastLogin
 }
 
