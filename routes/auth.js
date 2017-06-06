@@ -98,28 +98,36 @@ router.post("/create",(req, res)=> {
 
 router.post("/forgot",(req, res)=> {
 	userModel.forgot(req.body.email)
-	    .then(user => {
-            console.log(user)
-            if (!user) { return Promise.reject('Ei leidnud kasutajat!') }
-	        return res.json(responseFactory("accept","Valideerimislink saadeti emailile!"))
-        })
-        .catch(err => {
-            console.log(err)
-            return res.json(responseFactory("reject","Midagi läks valesti... :("))
-        })
+	  .then(user => {
+	      console.log(user)
+	      if (!user) { return Promise.reject('Ei leidnud kasutajat!') }
+	      return res.json(responseFactory("accept","Valideerimislink saadeti emailile!"))
+	  })
+	  .catch(err => {
+	      console.log(err)
+	      return res.json(responseFactory("reject","Midagi läks valesti... :("))
+	  })
 })
 
 router.post("/contract/create",(req, res)=>{
 	console.log(req.body)
 	contractModel.create(
 		req.body.email,
+		req.body.metsameister,
 		req.body.documents,
 		req.body.hinnatabel,
-		req.body.contract_creator,
-		req.body.created_timestamp, res)
+		req.body.contract_creator, res)
 })
 
-
+router.post("/contract/fetch",(req, res)=>{
+	contractModel.fetchAllClientRelated(req.body.email)
+		.then(docs => {
+			console.log(docs)
+		})
+		.catch(err => {
+			console.log(err)
+		})
+})
 
 const responseFactory = (status, msg, data)=>{
 	return {
