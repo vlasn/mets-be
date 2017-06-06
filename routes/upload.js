@@ -7,7 +7,7 @@ app = express.Router()
 
 app.use(fileUpload())
  
-app.post('/file', function(req, res) {
+app.post('/xlsx', function(req, res) {
   if (!req.files)
     return res.status(400).send('No files were uploaded.')
  
@@ -18,9 +18,8 @@ app.post('/file', function(req, res) {
 
   if(sampleFileExt == 'xlsx'){
   	sampleFile.mv(`/var/www/mets-be/uploaded_files/${sampleFile.name}`, function(err) {
-    
-    if (err)
-      return res.status(500).send(err)
+    	if (err) return res.status(500).send(err)
+
     	res.send('File uploaded!')
   	})
   } else {
