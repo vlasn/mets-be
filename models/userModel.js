@@ -86,7 +86,7 @@ const sendMagicLink = (email, hash) => {
         to: `${email}`,
         subject: 'Hello ✔',
         text: 'Hello world ?',
-        html: `<a href="${HOSTNAME}/api/auth/create/${hash}">Magic</a>`
+        html: `<a href="${HOSTNAME}/api/auth/validate/${hash}">Magic</a>`
     };
 
     mailTransporter.sendMail(mailFieldOptions, (error, info) => {
