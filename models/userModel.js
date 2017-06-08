@@ -1,7 +1,9 @@
 const mongoose = require('mongoose')
 const nodemailer = require('nodemailer')
 const crypto = require('crypto')
-
+const HOSTNAME= process.env.HOSTNAME
+const EMAIL_LOGIN = process.env.EMAIL_LOGIN
+const EMAIL_PASS = process.env.EMAIL_PASS
 mongoose.Promise = global.Promise
 
 const userSchema = mongoose.Schema({
@@ -74,8 +76,8 @@ const sendMagicLink = (email, hash) => {
     let mailTransporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-            user: 'metsahaldur.test@gmail.com',
-            pass: 'Tug3v!"#'
+            user: EMAIL_LOGIN,
+            pass: EMAIL_PASS
         }
     });
 
@@ -84,7 +86,7 @@ const sendMagicLink = (email, hash) => {
         to: `${email}`,
         subject: 'Hello ✔',
         text: 'Hello world ?',
-        html: `<a href="http://localhost:3000/api/auth/create/${hash}">Magic</a>`
+        html: `<a href="${HOSTNAME}/api/auth/create/${hash}">Magic</a>`
     };
 
     mailTransporter.sendMail(mailFieldOptions, (error, info) => {

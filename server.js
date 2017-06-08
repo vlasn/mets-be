@@ -5,6 +5,8 @@ app = express(http),
 mongoose = require('mongoose'),
 xlsx = require('xlsx')
 
+require("dotenv").config()
+
 mongoose.connect('mongodb://localhost:27017/mets')
 const db = mongoose.connection
 db.on('error', console.error.bind(console,'connection:error'))
