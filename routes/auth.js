@@ -3,6 +3,7 @@ const router = express.Router()
 const bodyParser = require('body-parser')
 const userModel = require('./../models/userModel.js')
 const contractModel = require('./../models/contractModel.js')
+const masterPricelistModel = require('./../models/masterPricelistModel.js')
 
 router.use(bodyParser.json())
 router.use(bodyParser.urlencoded({ extended: true }))
@@ -36,7 +37,7 @@ router.get("/verify/:hash",(req, res)=> {
     	})
 	    .catch(err => {
 	        console.log(err)
-	        return res.json(responseFactory("accept","Midagi läks valesti... :("))
+	        return res.json(responseFactory("reject","Midagi läks valesti... :("))
 	    })
 })
 // user will be validated on successful hash exchange
@@ -126,6 +127,20 @@ router.post("/contract/fetch",(req, res)=>{
 		})
 		.catch(err => {
 			console.log(err)
+		})
+})
+
+// add 1 row to master_pricelist
+router.post("/master_pricelist/add",(req, res)=>{
+	masterPricelistModel.insert(req.body)
+		.then(docs => {
+			console.log("Sisestati " + docs.length + " rida")
+			res.send(responseFactory("accept","Sisestati " + docs.length + " rida"))
+		})
+		.catch(err => {
+			console.log("Veateade:")
+			console.log(err)
+			res.send(responseFactory("reject","Midagi läks valesti... :("))
 		})
 })
 
