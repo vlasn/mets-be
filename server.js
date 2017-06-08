@@ -13,8 +13,8 @@ db.once('open', ()=> console.log('MongoDB successfully connected'))
 const auth = require('./routes/auth')
 app.use('/api/auth', auth)
 
-const routeupload = require('./routes/upload')
-app.use('/api/upload', routeupload)
+const xlsx_import = require('./routes/import')
+app.use('/api/import_xlsx', xlsx_import)
 
 app.get("/api", (req,res)=>{
 	// should return a comprehensive list of endpoints so they're all
@@ -23,33 +23,34 @@ app.get("/api", (req,res)=>{
 })
 
 // excel file parsing and printing out first row (in object form)
-var workbook = xlsx.readFile('oigeakt.xlsx')
+/*var workbook = xlsx.readFile('oigeakt.xlsx')
 var sheet_name_list = workbook.SheetNames
 sheet_name_list.forEach(function(y) {
-    var worksheet = workbook.Sheets[y]
-    var headers = {}
-    var data = []
-    for(z in worksheet) {
-        if(z[0] === '!') continue;
-        //parse out the column, row, and value
-        var col = z.substring(0,1)
-        var row = parseInt(z.substring(1))
-        var value = worksheet[z].v
+  var worksheet = workbook.Sheets[y]
+  var headers = {}
+  var data = []
+  for(z in worksheet) {
+      if(z[0] === '!') continue;
+      //parse out the column, row, and value
+      var col = z.substring(0,1)
+      var row = parseInt(z.substring(1))
+      var value = worksheet[z].v
 
-        //store header names
-        if(row == 1) {
-            headers[col] = value
-            continue;
-        }
+      //store header names
+      if(row == 1) {
+          headers[col] = value
+          continue;
+      }
 
-        if(!data[row]) data[row]={}
-        data[row][headers[col]] = value
-    }
-    //drop those first two rows which are empty
-    data.shift()
-    data.shift()
-    console.log(data[0])
-})
+      if(!data[row]) data[row]={}
+      data[row][headers[col]] = value
+  }
+  //drop those first two rows which are empty
+  data.shift()
+  data.shift()
+  //console.log(data[0])
+  console.log(data.length)
+})*/
 
 // file upload testing
 
