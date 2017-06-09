@@ -1,9 +1,10 @@
 const mongoose = require('mongoose')
-const nodemailer = require('nodemailer')
-const crypto = require('crypto')
-const HOSTNAME= process.env.HOSTNAME
-const EMAIL_LOGIN = process.env.EMAIL_LOGIN
-const EMAIL_PASS = process.env.EMAIL_PASS
+nodemailer = require('nodemailer'),
+crypto = require('crypto'),
+HOSTNAME= process.env.HOSTNAME,
+EMAIL_LOGIN = process.env.EMAIL_LOGIN,
+EMAIL_PASS = process.env.EMAIL_PASS
+
 mongoose.Promise = global.Promise
 
 const userSchema = mongoose.Schema({
@@ -17,7 +18,8 @@ const userSchema = mongoose.Schema({
     },
 	lastLogin: {type: Date},
     roles: [{
-        role: {type: String, required: true},
+        //        role: {type: String, required: true},
+        role: String,
 		created: {type: Date, default: Date.now()},
 		disabled: Boolean
     }],
@@ -79,7 +81,7 @@ const sendMagicLink = (email, hash) => {
             user: EMAIL_LOGIN,
             pass: EMAIL_PASS
         }
-    });
+    })
 
     let mailFieldOptions = {
         from: '"Metsahaldur Test 👻" <metsahaldur.test@gmail.com>',
@@ -87,18 +89,18 @@ const sendMagicLink = (email, hash) => {
         subject: 'Hello ✔',
         text: 'Hello world ?',
         html: `<a href="${HOSTNAME}/validate/${hash}">Magic</a>`
-    };
+    }
 
     mailTransporter.sendMail(mailFieldOptions, (error, info) => {
         if (error) {
             return console.log(error);
         }
         console.log('Message %s sent: %s', info.messageId, info.response);
-    });
+    })
 }
 
 const create = email => {
-	let hash = crypto.createHash('sha256').update(email).digest('hex')
+	let hash = crypto.createHash('sha256').update(Date.now()).digest('hex')
     let user = new userModel({ 
         email: email, 
         hash: {

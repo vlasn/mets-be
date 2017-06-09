@@ -36,7 +36,10 @@ const checkForMatch = (incomingRow) => {
         .then(doc=>{
           if(doc) {
             console.log(doc)
-            return resolve(true)
+            incomingRow.vaste = doc._id
+            return resolve(
+              incomingRow
+            )
           }
           resolve(false)
         })

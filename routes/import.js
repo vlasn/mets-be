@@ -2,7 +2,9 @@ const express = require('express'),
 fileUpload = require('express-fileupload'),
 app = express.Router(),
 xlsx = require('xlsx'),
-masterPricelist = require('./../models/masterPricelistModel.js')
+masterPricelist = require('./../models/masterPricelistModel.js'),
+auth = require('./auth.js'),
+responseFactory = auth.responseFactory
 
 // default options 
 //app.use(bodyParser.urlencoded({ extended: true }))
@@ -55,14 +57,20 @@ app.post('/xlsx', function(req, res) {
             //console.log(data.length)
           })
 
+          var checked = {
+            vasteta: [],
+            vastega: []
+          }
           var promises = []
           for(let row of data){
             // 1 promise iga row'i kohta
             var promise = masterPricelist.checkForMatch(row)
               .then(result=>{
                 if(result){
+                  checked.vastega.push(result)
                   matches = matches + 1
                 } else {
+                  //checked.vasteta.push(row)
                   mismatches = mismatches + 1
                 }
                 //console.log("result: " , result)
@@ -75,7 +83,8 @@ app.post('/xlsx', function(req, res) {
           // miks return oli? @Romil
           Promise.all(promises)
             .then(()=>{
-              res.send('Leiti ' + matches + ' vastet ja ' + mismatches + ' ebakõla')
+              res.json(responseFactory("accept",'Leiti ' + matches + ' vaste(t) ja ' + mismatches + ' ebakõla', checked))
+              //res.send('Leiti ' + matches + ' vaste(t) ja ' + mismatches + ' ebakõla')
             })
   	})
   } else {

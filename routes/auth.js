@@ -24,7 +24,7 @@ router.post("/login",(req, res)=> {
         })
         .catch(err => {
             console.log(err)
-            return res.json(responseFactory("reject","Sellise parooli ja emaili kombinatsiooniga kasutajat ei eksisteeri!"))
+            return res.json(responseFactory("reject", err))
     	})
 })
 // hash verification - determining if the given hash is associated with an user document
@@ -135,12 +135,12 @@ router.post("/master_pricelist/add",(req, res)=>{
 	masterPricelistModel.insert(req.body)
 		.then(docs => {
 			console.log("Sisestati " + docs.length + " rida")
-			res.send(responseFactory("accept","Sisestati " + docs.length + " rida"))
+			res.json(responseFactory("accept","Sisestati " + docs.length + " rida"))
 		})
 		.catch(err => {
 			console.log("Veateade:")
 			console.log(err)
-			res.send(responseFactory("reject","Midagi läks valesti... :("))
+			res.json(responseFactory("reject","Midagi läks valesti... :("))
 		})
 })
 
