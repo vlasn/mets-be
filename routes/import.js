@@ -15,72 +15,73 @@ app.post('/xlsx', function(req, res) {
   // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file 
   let sampleFile = req.files.file
   let sampleFileExt = req.files.file.name.split('.').pop()
-  console.log(sampleFileExt)
 
   if(sampleFileExt == 'xlsx'){
-  	sampleFile.mv(`/var/www/mets-be/uploaded_files/${sampleFile.name}`, function(err) {
+    let loc = `/var/www/mets-be/uploaded_files/${sampleFile.name}`
+  	sampleFile.mv(loc, function(err) {
     	if (err) return res.status(500).send(err)
 
       // some parsing logic
       // 1) find matches from master_pricelist
-      findPricelistMatches(sampleFile)
-      // structureBasedOnCadastres(sampleFile)
 
+          var matches = 0
+          var mismatches = 0
+          var workbook = xlsx.readFile(loc)
+          var sheet_name_list = workbook.SheetNames
+          var data = []
+          sheet_name_list.forEach(function(y) {
+            var worksheet = workbook.Sheets[y]
+            var headers = {}
+            for(z in worksheet) {
+                if(z[0] === '!') continue;
+                //parse out the column, row, and value
+                var col = z.substring(0,1)
+                var row = parseInt(z.substring(1))
+                var value = worksheet[z].v
 
+                //store header names
+                if(row == 1) {
+                    headers[col] = value
+                    continue;
+                }
 
+                if(!data[row]) data[row]={}
+                data[row][headers[col]] = value
+            }
+            //drop those first two rows which are empty
+            data.shift()
+            data.shift()
+            //console.log(data[0])
+            //console.log(data.length)
+          })
 
-    	res.send('File uploaded!')
+          var promises = []
+          for(let row of data){
+            // 1 promise iga row'i kohta
+            var promise = masterPricelist.checkForMatch(row)
+              .then(result=>{
+                if(result){
+                  matches = matches + 1
+                } else {
+                  mismatches = mismatches + 1
+                }
+                //console.log("result: " , result)
+              })
+            promises.push(promise)
+          }
+
+          // enne oli rida selline
+          // return Promise.all(promises)
+          // miks return oli? @Romil
+          Promise.all(promises)
+            .then(()=>{
+              res.send('Leiti ' + matches + ' vastet ja ' + mismatches + ' ebakõla')
+            })
   	})
   } else {
   	res.send('Incorrect file type!')
   }
 })
-
-const findPricelistMatches = (data) => {
-// parse the excel file into an array of objects
-  var matches
-  var workbook = xlsx.readFile(data)
-  var sheet_name_list = workbook.SheetNames
-  sheet_name_list.forEach(function(y) {
-    var worksheet = workbook.Sheets[y]
-    var headers = {}
-    var data = []
-    for(z in worksheet) {
-        if(z[0] === '!') continue;
-        //parse out the column, row, and value
-        var col = z.substring(0,1)
-        var row = parseInt(z.substring(1))
-        var value = worksheet[z].v
-
-        //store header names
-        if(row == 1) {
-            headers[col] = value
-            continue;
-        }
-
-        if(!data[row]) data[row]={}
-        data[row][headers[col]] = value
-    }
-    //drop those first two rows which are empty
-    data.shift()
-    data.shift()
-    //console.log(data[0])
-    //console.log(data.length)
-  })
-
-  // traversing the array of row objects 
-  // searching for matches in masterpricelist
-
-  for(let row of data){
-
-    console.log(row)
-    if(masterPricelist.checkForMatch){
-      matches += 1
-    }
-  }
-  return matches
-}
-
 
 const structureBasedOnCadastres = (data) => {
 
