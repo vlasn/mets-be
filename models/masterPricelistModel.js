@@ -18,29 +18,42 @@ const masterPricelistSchema = mongoose.Schema({
     profit: Number,
     total_price: {type: Number, required: true}
 
-}, {collection: 'master_pricelist'})
+})
 
-const masterPricelistModel = mongoose.model('', masterPricelistSchema)
+const masterPricelistModel = mongoose.model('masterprice', masterPricelistSchema)
 
 const insert = (data) => {
     return masterPricelistModel.insertMany(data)
 }
 
 const checkForMatch = (incomingRow) => {
-    masterPricelistModel.findOne({ 
-        'destination': new RegExp(incomingRow.Ostja, "i")
-    }).then(docs=>{
-        console.log(docs)
-        if(docs != null) return true
-        return false
-    }).catch(err=>{
-        console.log(err)
-        return false
+    let promise = new Promise((resolve, reject)=>{
+      masterPricelistModel.findOne({
+        destination: incomingRow.Ostja,
+/*        tree_species: incomingRow.puuliik,
+        quality: incomingRow.kvaliteet*/
+        }, '_id')
+        .then(doc=>{
+          if(doc) {
+            console.log(doc)
+            return resolve(true)
+          }
+          resolve(false)
+        })
+        .catch(err=>{
+          console.log(err)
+          resolve(false)
+        })
     })
+    // tagastab selle boolean väärtuse millega promise resolviti
+    return promise
 }
+
+
 
 module.exports = {
 	masterPricelistModel,
-    insert
+  insert,
+  checkForMatch
 }
 

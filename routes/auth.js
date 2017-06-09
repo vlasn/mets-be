@@ -152,4 +152,7 @@ const responseFactory = (status, msg, data)=>{
 	}
 }
 
-module.exports = router
+module.exports = {
+	router,
+	responseFactory
+}
