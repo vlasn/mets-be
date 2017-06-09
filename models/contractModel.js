@@ -1,5 +1,8 @@
-const mongoose = require('mongoose')
-const userModel = require('./userModel.js').userModel
+const mongoose = require('mongoose'),
+userModel = require('./userModel.js').userModel,
+auth = require('./../routes/auth.js'),
+responseFactory = auth.responseFactory
+
 mongoose.Promise = global.Promise
 
 const contractSchema = mongoose.Schema({
@@ -36,55 +39,38 @@ const contractSchema = mongoose.Schema({
 
 const contractModel = mongoose.model('contract', contractSchema)
 
-
 const create = (email, metsameister, documents, hinnatabel, contract_creator, res)=>{
   //console.log(userModel)
   userModel.findOne({ 'email': email })
-  .then(foundClient => {
-    if (!foundClient) {return Promise.reject('Sellise emailiga klienti ei eksisteeri!')}
-    if (foundClient) {
-      console.log("Found user with email (creating new contract): " + foundClient.email)
-      console.log("Kohe peaksin looma lepingu!")
-      let contract = new contractModel({
-        esindajad: email,
-        metsameister: metsameister,
-        documents: documents,
-        hinnatabel: hinnatabel,
-        contract_creator: contract_creator,
-        created_timestamp: Date.now()
-      })
+      .then(foundClient => {
+        if (!foundClient) {return Promise.reject('Sellise emailiga klienti ei eksisteeri!')}
+        if (foundClient) {
+          console.log("Found user with email (creating new contract): " + foundClient.email)
+          console.log("Kohe peaksin looma lepingu!")
+          let contract = new contractModel({
+            esindajad: email,
+            metsameister: metsameister,
+            documents: documents,
+            hinnatabel: hinnatabel,
+            contract_creator: contract_creator,
+            created_timestamp: Date.now()
+          })
 
-      contract.save()
-        .then((doc)=>{
-            if(doc){
-                res.json({
-                    status: "accept",
-                    data: {
-                        msg: "Leping loodud!"
-                    }
-                })
-            }
-        },
-        (err)=>{
-            console.log(err)
-            res.json({
-                status: "reject",
-                data: {
-                    msg: "Midagi läks valesti... :("
-                }
-            })
-        })
-    }
-  })
-  .catch(err => {
-    console.log(err)
-    return res.json({
-        status: "reject",
-        data: {
-            msg: "Midagi läks valesti... :("
+          return contract.save()
         }
-    })
-  })
+      })
+      .then((doc)=>{
+          if(doc){
+              res.json(responseFactory("accept","Leping loodud!"))
+          }
+        })
+      .catch(err => {
+        console.log("Veateade:",err)
+        return res.json({
+            status: "reject",
+            msg: err
+        })
+      })
 }
 
 const fetchAllClientRelated = (client_email)=>{
