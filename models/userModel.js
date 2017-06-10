@@ -100,7 +100,9 @@ const sendMagicLink = (email, hash) => {
 }
 
 const create = email => {
-	let hash = crypto.createHash('sha256').update(Date.now()).digest('hex')
+    let d = (Date.now()).valueOf().toString()
+    console.log(d)
+	let hash = crypto.createHash('sha256').update(d).digest('hex')
     let user = new userModel({ 
         email: email, 
         hash: {

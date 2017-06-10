@@ -1,14 +1,14 @@
 const express = require('express')
-const router = express.Router()
-const bodyParser = require('body-parser')
-const userModel = require('./../models/userModel.js')
-const contractModel = require('./../models/contractModel.js')
-const masterPricelistModel = require('./../models/masterPricelistModel.js')
+router = express.Router(),
+bodyParser = require('body-parser'),
+userModel = require('./../models/userModel.js'),
+contractModel = require('./../models/contractModel.js'),
+masterPricelistModel = require('./../models/masterPricelistModel.js')
 
 router.use(bodyParser.json())
 router.use(bodyParser.urlencoded({ extended: true }))
 
-router.post("/login",(req, res)=> {
+/*router.post("/login",(req, res)=> {
 	userModel.login(req.body.email, req.body.password)
 		.then(foundUserDoc => {
 			console.log(foundUserDoc)
@@ -27,6 +27,7 @@ router.post("/login",(req, res)=> {
             return res.json(responseFactory("reject", err))
     	})
 })
+
 // hash verification - determining if the given hash is associated with an user document
 router.get("/verify/:hash",(req, res)=> {
 	userModel.verify(req.params.hash)
@@ -40,6 +41,7 @@ router.get("/verify/:hash",(req, res)=> {
 	        return res.json(responseFactory("reject","Midagi läks valesti... :("))
 	    })
 })
+
 // user will be validated on successful hash exchange
 router.post("/validate",(req, res)=> {
 	let rb = req.body
@@ -75,16 +77,6 @@ router.post("/validate",(req, res)=> {
 
 router.post("/create",(req, res)=> {
 	userModel.create(req.body.email)
-	        /* .catch(err) won't catch mongoose errors, however, passing the err argument along the 
-	    second callback function (which in turn needed to be added) for .then solved the problem
-
-	    .then((doc)=>{if(doc){return Promise.reject('Sellise parooli ja emaili kombinatsiooniga valideeritud kasutajat ei eksisteeri!')}},)
-	        .then(() => sendMagicLink(email, hash))
-	            .then(doc => console.log(doc), res.json("emailile saadeti üks maagiline link"))
-	    .catch(err => {
-	        console.log(err)
-	        return res.status(403).send("midagi läks valesti")
-	    })*/
 	    .then((doc)=>{
 	        if(doc){
 	            userModel.sendMagicLink(doc.email, doc.hash.hash)
@@ -97,21 +89,23 @@ router.post("/create",(req, res)=> {
 	    })
 })
 
+// 
 router.post("/forgot",(req, res)=> {
 	userModel.forgot(req.body.email)
 	  .then(user => {
-	      console.log(user)
-	      if (!user) { return Promise.reject('Ei leidnud kasutajat!') }
+	      //console.log(user)
+	      if (!user) {return Promise.reject('Ei leidnud kasutajat!')}
 	      return res.json(responseFactory("accept","Valideerimislink saadeti emailile!"))
 	  })
 	  .catch(err => {
 	      console.log(err)
 	      return res.json(responseFactory("reject","Midagi läks valesti... :("))
 	  })
-})
+})*/
 
+// creates a new contract
 router.post("/contract/create",(req, res)=>{
-	console.log(req.body)
+	//console.log(req.body)
 	contractModel.create(
 		req.body.email,
 		req.body.metsameister,
@@ -120,9 +114,11 @@ router.post("/contract/create",(req, res)=>{
 		req.body.contract_creator, res)
 })
 
+// returns all contracts related to user email
 router.post("/contract/fetch",(req, res)=>{
 	contractModel.fetchAllClientRelated(req.body.email)
 		.then(docs => {
+			if (!docs) {return Promise.reject('Ei leidnud lepinguid!')}
 			console.log(docs)
 		})
 		.catch(err => {
@@ -130,7 +126,7 @@ router.post("/contract/fetch",(req, res)=>{
 		})
 })
 
-// add 1 row to master_pricelist
+// add rows to master_pricelist
 router.post("/master_pricelist/add",(req, res)=>{
 	masterPricelistModel.insert(req.body)
 		.then(docs => {
@@ -138,8 +134,7 @@ router.post("/master_pricelist/add",(req, res)=>{
 			res.json(responseFactory("accept","Sisestati " + docs.length + " rida"))
 		})
 		.catch(err => {
-			console.log("Veateade:")
-			console.log(err)
+			console.log("Veateade:",err)
 			res.json(responseFactory("reject","Midagi läks valesti... :("))
 		})
 })
@@ -152,7 +147,4 @@ const responseFactory = (status, msg, data)=>{
 	}
 }
 
-module.exports = {
-	router,
-	responseFactory
-}
+module.exports = {router,responseFactory}
