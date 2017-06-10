@@ -1,6 +1,6 @@
 const express = require('express'),
 fileUpload = require('express-fileupload'),
-app = express.Router(),
+router = express.Router(),
 xlsx = require('xlsx'),
 masterPricelist = require('./../models/masterPricelistModel.js'),
 auth = require('./auth.js'),
@@ -9,9 +9,9 @@ responseFactory = auth.responseFactory
 // default options 
 //app.use(bodyParser.urlencoded({ extended: true }))
 
-app.use(fileUpload())
+router.use(fileUpload())
  
-app.post('/xlsx', function(req, res) {
+router.post('/xlsx', function(req, res) {
   if (!req.files) return res.status(400).send('No files were uploaded.')
  
   // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file 
@@ -96,4 +96,4 @@ const structureBasedOnCadastres = (data) => {
 
 }
 
-module.exports = app
+module.exports = {router}

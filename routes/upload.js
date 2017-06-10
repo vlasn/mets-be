@@ -1,18 +1,18 @@
 const express = require('express'),
 fileUpload = require('express-fileupload'),
-app = express.Router(),
+router = express.Router(),
 auth = require('./auth.js'),
 responseFactory = auth.responseFactory
 
-app.use(fileUpload())
+router.use(fileUpload())
 
-app.post('/pdf', function(req, res) {
+router.post('/pdf', function(req, res) {
   if (!req.files) return res.status(400).send('No files were uploaded.')
  
   // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file 
   let sampleFile = req.files.file
   let sampleFileExt = req.files.file.name.split('.').pop()
-  console.log(sampleFileExt)
+  //console.log(sampleFileExt)
 
   if(sampleFileExt == 'pdf'){
     let loc = `/var/www/mets-be/uploaded_files/${sampleFile.name}`
@@ -25,6 +25,4 @@ app.post('/pdf', function(req, res) {
   }
 })
 
-module.exports = {
-	app
-}
+module.exports = {router}

@@ -1,0 +1,601 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"MON",
+				"MONGO_USER"
+			],
+			[
+				"MO",
+				"MONGO_PASS"
+			],
+			[
+				"master",
+				"masterPricelistModel"
+			],
+			[
+				"ce",
+				"checkForMatch"
+			],
+			[
+				"mast",
+				"masterPricelist"
+			],
+			[
+				"mas",
+				"masterPricelist"
+			],
+			[
+				"in",
+				"incomingRow"
+			],
+			[
+				"find",
+				"findPricelistMatches"
+			],
+			[
+				"sam",
+				"sampleFile"
+			],
+			[
+				"dia",
+				"diameter_max"
+			],
+			[
+				"maste",
+				"masterPricelistModel"
+			],
+			[
+				"con",
+				"contractModel"
+			],
+			[
+				"samp",
+				"sampleFileExt"
+			],
+			[
+				"get",
+				"getElementById"
+			],
+			[
+				"tota",
+				"totalBrowserActivity"
+			],
+			[
+				"abs",
+				"absTimer"
+			],
+			[
+				"ac",
+				"activeUrl"
+			],
+			[
+				"lis",
+				"listenToThis"
+			],
+			[
+				"tab",
+				"tabactive"
+			],
+			[
+				"th",
+				"threatLevel"
+			],
+			[
+				"toggl",
+				"toggleActiveWhitelist"
+			],
+			[
+				"t",
+				"threatLevel"
+			],
+			[
+				"sli",
+				"sliderLevel"
+			],
+			[
+				"slider",
+				"sliderLevel"
+			],
+			[
+				"slid",
+				"sliderInput"
+			],
+			[
+				"re",
+				"request"
+			],
+			[
+				"sl",
+				"sliderValue"
+			],
+			[
+				"des",
+				"destructuredRequest"
+			],
+			[
+				"page",
+				"pageSize"
+			],
+			[
+				"c",
+				"currentpage"
+			],
+			[
+				"another",
+				"anotherWhitelist"
+			],
+			[
+				"anot",
+				"anotherWhitelist"
+			],
+			[
+				"a",
+				"anotherWhitelist"
+			],
+			[
+				"this",
+				"thisSliderUrl"
+			],
+			[
+				"user",
+				"userActivity"
+			],
+			[
+				"loca",
+				"localStorage"
+			],
+			[
+				"pdf",
+				"pdfData"
+			],
+			[
+				"nu",
+				"nullifyContinuousUse"
+			],
+			[
+				"loa",
+				"loaderView"
+			],
+			[
+				"vahemik_",
+				"vahemik_algus"
+			],
+			[
+				"vahe",
+				"vahemik_lopp"
+			],
+			[
+				"n",
+				"notifikatsiooniNupp"
+			],
+			[
+				"yhenda",
+				"yhendageenid"
+			],
+			[
+				"uu",
+				"uus_alleel2"
+			],
+			[
+				"res",
+				"responseFactory"
+			],
+			[
+				"found",
+				"foundUserDoc"
+			],
+			[
+				"yh",
+				"yhenda"
+			],
+			[
+				"Yhenda",
+				"yhendatud_geen"
+			],
+			[
+				"uus",
+				"uus_alleel"
+			],
+			[
+				"fou",
+				"foundUserDoc"
+			],
+			[
+				"creat",
+				"created_timestamp"
+			],
+			[
+				"cont",
+				"contract_creator"
+			],
+			[
+				"hinna",
+				"hinnatabel_snapshot"
+			],
+			[
+				"par",
+				"parseFloat"
+			],
+			[
+				"arv",
+				"arvud"
+			],
+			[
+				"req",
+				"req"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 354.0,
+		"last_filter": "Package Control: ",
+		"selected_items":
+		[
+			[
+				"Package Control: ",
+				"Package Control: List Packages"
+			],
+			[
+				"sublime",
+				"SublimeLinter: Disable Debug Mode"
+			],
+			[
+				"enable",
+				"SublimeLinter: Enable Linting"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 446.0
+	},
+	"console":
+	{
+		"height": 160.0,
+		"history":
+		[
+			"eslint --init"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/C/Users/Greg/Desktop/New Text Document.txt",
+		"/C/Users/Greg/Documents/metsahaldur/test_droplet.txt",
+		"/C/mets/www/mets-be/server.js",
+		"/C/mets/www/mets-be/routes/upload.js",
+		"/C/mets/www/mets-be/.gitignore",
+		"/C/mets/www/mets-be/models/masterPricelistModel.js",
+		"/C/mets/www/mets-be/routes/auth.js",
+		"/C/mets/www/mets-be/models/contractModel.js",
+		"/C/mets/www/mets-be/models/userModel.js",
+		"/C/Users/Greg/Desktop/mongotut.txt",
+		"/C/chrome_extension/content.js",
+		"/C/mets/www/mets-be/.env",
+		"/C/mets/www/mets-be/x.env",
+		"/C/mets/www/mets-be/models/logModel.js",
+		"/C/mets/www/mets-be/package.json",
+		"/C/Users/Greg/Downloads/jattack-enum-2e.java",
+		"/C/Users/Greg/Desktop/New Text Document (2).txt",
+		"/C/chrome_extension/bg.js",
+		"/C/Users/Greg/Desktop/votm.html",
+		"/C/Users/Greg/Desktop/js/ui.js",
+		"/C/chrome_extension/options.js",
+		"/C/chrome_extension/options.html",
+		"/C/chrome_extension/styles.css",
+		"/C/Users/Greg/AppData/Local/Temp/7zO08392DA5/votm.html",
+		"/C/Users/Greg/Desktop/¯_(ツ)_¯",
+		"/C/chrome_extension/manifest.json",
+		"/C/Users/Greg/Desktop/pipedrive.sql",
+		"/C/Users/Greg/AppData/Local/Temp/scp44485/var/www/pipedrive/index.jade",
+		"/C/Users/Greg/AppData/Local/Temp/scp18312/var/www/pipedrive/package.json",
+		"/C/Users/Greg/AppData/Local/Temp/scp14192/var/www/pipedrive/app.js",
+		"/C/Users/Greg/AppData/Local/Temp/scp26260/var/www/pipedrive/.gitignore",
+		"/C/Users/Greg/Documents/metsahaldur/New Text Document.txt",
+		"/C/Users/Greg/Documents/metsahaldur/New Text Document (2).txt",
+		"/C/Users/Greg/AppData/Local/Temp/scp58011/home2/g/gregn/public_html/nutiklubi.txt",
+		"/C/Users/Greg/Documents/package.json",
+		"/C/Users/Greg/Documents/New Text Document.txt",
+		"/C/chrome_extension/.git/config",
+		"/C/Users/Greg/AppData/Local/Temp/scp47542/var/www/pipedrive/app.js",
+		"/C/chrome_extension/popup.js",
+		"/C/mets/www/mets-be/sitt.json",
+		"/C/mets/www/mets-be/puta.json",
+		"/C/mets/www/mets-be/setup.md",
+		"/C/Users/Greg/Desktop/Test task - Profiles/Test task - Profiles.md",
+		"/C/mets/www/mets-be/sitt.txt",
+		"/C/Users/Greg/Desktop/Andmete muutmist lubava klassi eksemplari kasutami",
+		"/D/crypto/key.txt",
+		"/C/Users/Greg/AppData/Local/Temp/scp31708/home/gregness/algoritmid/loomapuu.c",
+		"/C/Users/Greg/AppData/Local/Temp/scp31831/home/gregness/algoritmid/puu.c",
+		"/C/chrome_extension/popup.html",
+		"/C/Users/Greg/AppData/Local/Temp/scp12032/var/www/proj/app.js",
+		"/C/Users/Greg/AppData/Local/Temp/scp19009/var/www/geenid/app.js",
+		"/C/Users/Greg/AppData/Local/Temp/scp16045/home2/g/gregn/public_html/mithril3/app.js",
+		"/C/Users/Greg/AppData/Local/Temp/scp14183/home2/g/gregn/public_html/mithril3/styles.css",
+		"/C/Users/Greg/Desktop/python.c",
+		"/C/Users/Greg/Desktop/KT.c",
+		"/C/Users/Greg/AppData/Local/Temp/scp53531/home/gregness/algoritmid/KT.c",
+		"/C/Users/Greg/AppData/Local/Temp/scp37985/var/www/geenid/app.js",
+		"/C/Users/Greg/AppData/Local/Temp/scp35174/home/gregness/algoritmid/python.c",
+		"/C/Users/Greg/AppData/Local/Temp/scp16160/var/www/geenid/app.js",
+		"/C/Users/Greg/AppData/Local/Temp/scp28740/var/www/geenid/app.js",
+		"/C/mets/www/mets-be/models/New Text Document (2).txt",
+		"/C/mets/www/mets-be/models/New Text Document.txt",
+		"/C/Users/Greg/AppData/Local/Temp/scp45812/home/gregness/algoritmid/djikstra.c",
+		"/C/Users/Greg/AppData/Local/Temp/scp48541/home/gregness/algoritmid/python.c",
+		"/C/Users/Greg/AppData/Local/Temp/Temp1_solarized.zip/solarized/README.md",
+		"/C/mets/www/greg_custom_fe/src/app.js",
+		"/C/Users/Greg/AppData/Local/Temp/scp21607/var/www/fe/public/index.html",
+		"/C/Users/Greg/AppData/Local/Temp/scp19108/var/www/fe/package.json",
+		"/C/Users/Greg/AppData/Local/Temp/scp17789/var/www/joogid/package.json",
+		"/C/Users/Greg/AppData/Local/Temp/scp27086/var/www/joogid/app.js",
+		"/C/Users/Greg/AppData/Local/Temp/scp53869/var/www/fe/webpack.config.js",
+		"/C/Users/Greg/AppData/Local/Temp/scp14329/var/www/fe/build/index.html",
+		"/C/mets/www/greg_custom_fe/public/index.html",
+		"/C/joogid/app.js",
+		"/C/joogid/package.json",
+		"/C/Users/Greg/AppData/Local/Temp/scp24191/var/www/be/app.js",
+		"/C/Users/Greg/AppData/Local/Temp/scp25227/var/www/be/package.json",
+		"/C/Users/Greg/AppData/Local/Temp/scp49355/var/www/joogid/app.js",
+		"/C/Users/Greg/AppData/Local/Temp/scp50534/var/www/joogid/package.json",
+		"/C/mets/www/mets-be/routes/createUser.js",
+		"/C/mets/www/mets-fe/src/app.js",
+		"/C/mets/www/mets-fe/src/components/InputField.js",
+		"/C/mets/www/mets-fe/src/components/WideButton.js",
+		"/C/mets/www/mets-fe/src/components/LoginForm.js",
+		"/C/Users/Greg/AppData/Local/Temp/scp02535/var/www/joogid/package.json",
+		"/C/Users/Greg/AppData/Local/Temp/scp20014/home/gregness/java/t09tervikveeb/app.js",
+		"/C/Users/Greg/AppData/Local/Temp/scp57657/var/www/joogid/app.js",
+		"/C/Users/Greg/AppData/Local/Temp/scp56255/var/www/be/app.js",
+		"/C/Users/Greg/Documents/TLÜ/Arduino/libraries/readme.txt",
+		"/C/Users/Greg/Documents/TLÜ/Arduino/libraries/HT1632_LedMatrix-master/README",
+		"/C/Users/Greg/Documents/TLÜ/Arduino/libraries/HT1632_LedMatrix-master/examples/HT1632_test/HT1632_test.pde",
+		"/C/Users/Greg/Documents/Arduino/libraries/HT1632-master/DisplayToolbox.cpp",
+		"/C/Users/Greg/Documents/Arduino/libraries/Tone-master/wiring.cpp",
+		"/C/Users/Greg/Documents/TLÜ/eesti_Saaremaa.txt",
+		"/C/Users/Greg/Documents/TLÜ/seosed.txt",
+		"/C/Users/Greg/Documents/TLÜ/Arduino/libraries/HT1632_LedMatrix-master/HT1632_LedMatrix.cpp",
+		"/C/Users/Greg/Documents/TLÜ/Arduino/libraries/HT1632_LedMatrix-master/examples/USB_HT1632_Matrix/USB_HT1632_Matrix.pde",
+		"/C/Users/Greg/AppData/Local/Temp/scp56915/home/gregness/algoritmid/kohad.txt",
+		"/C/Users/Greg/AppData/Local/Temp/scp56614/home/gregness/algoritmid/seosed.txt",
+		"/C/Users/Greg/AppData/Local/Temp/scp52127/home/gregness/algoritmid/djikstra.c",
+		"/C/Users/Greg/AppData/Local/Temp/scp31015/home/gregness/algoritmid/dijikstra.c",
+		"/C/Users/Greg/AppData/Local/Temp/scp44937/home/gregness/algoritmid/kohad.txt",
+		"/C/Users/Greg/AppData/Local/Temp/scp44005/home/gregness/algoritmid/seosed.txt",
+		"/C/Users/Greg/AppData/Local/Temp/scp31224/home/gregness/java/elekter1/Takisti220Oomi.java",
+		"/C/Users/Greg/AppData/Local/Temp/scp29797/home/gregness/java/elekter1/Kasutus1.java",
+		"/C/Users/Greg/AppData/Local/Temp/scp31070/home/gregness/java/elekter1/Takisti.java",
+		"/C/Users/Greg/AppData/Local/Temp/scp31634/home/gregness/java/elekter1/Tarbija.java",
+		"/C/Users/Greg/Desktop/oxy.txt",
+		"/D/p.asc",
+		"/C/mets/www/mets-be/routes/New Text Document.txt",
+		"/C/Users/Greg/AppData/Local/Temp/scp28714/home/jaagup/public_html/2017/prpohi/naited/12/elekter1/Tarbija.java",
+		"/C/Users/Greg/AppData/Local/Temp/scp26848/home/jaagup/public_html/2017/prpohi/naited/12/elekter1/Kasutus1.java",
+		"/C/Users/Greg/AppData/Local/Temp/scp26930/home/jaagup/public_html/2017/prpohi/naited/12/elekter1/Takisti220Oomi.java",
+		"/C/Users/Greg/AppData/Local/Temp/scp41416/home/gregness/java/t07/src/main/java/greg/Liides.java",
+		"/C/Users/Greg/AppData/Local/Temp/scp43240/home/gregness/java/t07/src/main/java/greg/UusLiides.java",
+		"/C/Users/Greg/AppData/Local/Temp/scp45179/home/gregness/java/t07/src/main/java/greg/Kroon.java",
+		"/C/Users/Greg/AppData/Local/Temp/scp47242/home/gregness/java/t07/src/main/java/greg/App.java",
+		"/C/Users/Greg/AppData/Local/Temp/scp41264/home/gregness/java/t07/src/main/java/greg/Neto.java",
+		"/C/Users/Greg/Desktop/mongo.js",
+		"/C/Users/Greg/AppData/Roaming/Sublime Text 3/Packages/User/SublimeLinter.sublime-settings",
+		"/C/mets/www/mets-be/settings.jshintrc",
+		"/C/Users/Greg/AppData/Roaming/Sublime Text 3/Packages/SublimeLinter/SublimeLinter.sublime-settings",
+		"/C/Users/Greg/AppData/Local/Temp/scp29145/home/gregness/java/liidesed/RuuduFunktsioon.java",
+		"/C/Users/Greg/AppData/Local/Temp/scp43533/home/gregness/java/liidesed/KordajaFunktsioon.java",
+		"/C/Users/Greg/AppData/Local/Temp/scp31781/home/gregness/java/liidesed/AstmeFunktsioon.java",
+		"/C/Users/Greg/AppData/Local/Temp/scp25187/home/gregness/java/liidesed/Funktsioon.java",
+		"/C/Users/Greg/AppData/Local/Temp/scp36138/home/gregness/java/liidesed/Kasutus1.java",
+		"/C/Users/Greg/AppData/Local/Temp/scp46132/home/gregness/java/liidesed/TeisendajaFunktsioon.java"
+	],
+	"find":
+	{
+		"height": 30.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"create",
+			"hash",
+			"findOne",
+			"response",
+			"find",
+			"console.log",
+			"upload",
+			"verify",
+			"find",
+			"sliderScale",
+			"reminder",
+			"hidden",
+			"I'm",
+			"okei",
+			"reminder",
+			"sendMessage",
+			"whitelist",
+			"tabs kohal",
+			"sliderLevel",
+			"edit",
+			"applyRegu",
+			"sliderLevel",
+			"add",
+			"another",
+			"storage",
+			"fetchFrom",
+			"sliderLevel",
+			"kas",
+			"localStorage",
+			"whitelist",
+			"storage",
+			"reminder",
+			"alter",
+			"sendMEss",
+			"sendMess",
+			"w = window\nd = document\nstorage = chrome.storage.local\nw.activityDecayTimeout\n\nconst userActivity = {\n\treset: ()=>{\n\t\tconsole.log(\"<< resetTimer was called/user did something >>\")\n\t\tw.clearTimeout(w.activityDecayTimeout)\n\t\tw.activityDecayTimeout = w.setTimeout(userActivity.sendInactive, 15000)\n\t\tuserActivity.removeListeners()\n\t\tuserActivity.sendActive()\n\t\tw.setTimeout(userActivity.addListeners, 5000)\n\t},\n\n\tsendActive: ()=>{\n\t\tconsole.log(\"<< user went active >>\")\n\t\tchrome.runtime.sendMessage({tabactive: true})\t\t\n\t},\n\n\tsendInactive: ()=>{\n\t\tconsole.log(\"<< user went inactive/AFK >>\")\n\t\tchrome.runtime.sendMessage({tabactive: false})\n\t\tuserActivity.addListeners()\t\t\n\t},\n\n\taddListeners: ()=>{\n\t\td.addEventListener('mousedown', userActivity.reset, false)\n\t\td.addEventListener('onclick', userActivity.reset, false)\n\t\td.addEventListener('oncontextmenu', userActivity.reset, false)\n\t\td.addEventListener('onkeypress', userActivity.reset, false)\n\t\td.addEventListener('scroll', userActivity.reset, false)\n\t\td.addEventListener('wheel', userActivity.reset, false)\n\t\td.addEventListener('touchmove', userActivity.reset, false)\t\t\t\n\t},\n\n\tremoveListeners: ()=>{\n\t\td.removeEventListener('mousedown', userActivity.reset, false)\n\t\td.addEventListener('onclick', userActivity.reset, false)\n\t\td.addEventListener('oncontextmenu', userActivity.reset, false)\n\t\td.removeEventListener('onkeypress', userActivity.reset, false)\n\t\td.removeEventListener('scroll', userActivity.reset, false)\n\t\td.removeEventListener('wheel', userActivity.reset, false)\n\t\td.removeEventListener('touchmove', userActivity.reset, false)\t\t\t\n\t},\n\n\talterDomElements: () => {\n\t\tlet p = document.getElementsByTagName(\"p\"),\n\t\ti = document.getElementsByTagName(\"i\"),\n\t\ta = document.getElementsByTagName(\"a\"),\n\t\tul = document.getElementsByTagName(\"ul\"),\n\t\tli = document.getElementsByTagName(\"li\"),\n\t\tspan = document.getElementsByTagName(\"span\"),\n\t\tdiv = document.getElementsByTagName(\"div\")\n\t\tvar domElements = [span, a, p, div]\n\n\t\tfor (var k = 0 ; k < domElements.length; k++) {\n\t\t\tfor (var j = 0; j < domElements[k].length; j++) {\n\t\t\t\t(domElements[k])[j].style.color = \"red\";\n\t\t\t\t(domElements[k])[j].style.background = \"red\";\n\t\t\t\t(domElements[k])[j].style.backgroundColor = \"red\"\n\t\t\t}\n\t\t}\n\t},\n\n\tapplyRegulations: () => {\n\t\tlet level = localStorage.getItem(\"sliderLevel\")\n\t\tconsole.log(\"content says: \" + level)\n\n\t},\n\n\tinit: ()=>{\n\n\t\tuserActivity.addListeners()\n\t\tuserActivity.applyRegulations()\n\n\t\tchrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{\n\t\t\t// messes with css OR blocks all functionality (?)\n\t\t\tif(request.alterDomTrue) {\n\t\t\t\tuserActivity.alterDomElements()\n\t\t\t// means that the regulations just got altered and a reload is in order\n\t\t\t} else if(request.regulatorLevel){\n\t\t\t\tconsole.log(\"supper tore sain käte!!!!!!!!!!!\")\n\t\t\t\t//location.reload()\n\t\t\t\tstorage.get(bigData, (data)=>{\n\t\t\t\t\tconsole.log(result.data)\n\t\t\t\t})\n\t\t\t}\n\t\t})\n\n\t}\n}\nuserActivity.init()\n\n\n",
+			"userActivity",
+			"= ",
+			"userActivity",
+			"localS",
+			"switch",
+			"sendmessage",
+			"listener",
+			";",
+			"regulator",
+			"message",
+			"joonista",
+			"json",
+			"sendMessage",
+			"local",
+			"()",
+			"continuous",
+			"continuos",
+			"otsi",
+			"valjasta",
+			"yhenda",
+			"kuvan",
+			"];\n",
+			"validate",
+			"install",
+			"map",
+			"Home",
+			".now",
+			"46.101",
+			"localhost",
+			"if",
+			"console",
+			"tone"
+		],
+		"highlight": false,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 30.0
+	},
+	"input":
+	{
+		"height": 66.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "server.sublime-project",
+	"replace":
+	{
+		"height": 56.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 150.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
