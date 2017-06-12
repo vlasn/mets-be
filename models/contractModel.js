@@ -39,50 +39,25 @@ const contractSchema = mongoose.Schema({
 
 const contractModel = mongoose.model('contract', contractSchema)
 
-const create = (email, metsameister, documents, hinnatabel, contract_creator, res)=>{
-  //console.log(userModel)
-  userModel.findOne({ 'email': email })
-      .then(foundClient => {
-        if (!foundClient) {return Promise.reject('Sellise emailiga klienti ei eksisteeri!')}
-        if (foundClient) {
-          console.log("Found user with email (creating new contract): " + foundClient.email)
-          console.log("Kohe peaksin looma lepingu!")
-          let contract = new contractModel({
-            esindajad: email,
-            metsameister: metsameister,
-            documents: documents,
-            hinnatabel: hinnatabel,
-            contract_creator: contract_creator,
-            created_timestamp: Date.now()
-          })
-
-          return contract.save()
-        }
-      })
-      .then((doc)=>{
-          if(doc){
-              res.json(responseFactory("accept","Leping loodud!"))
-          }
-        })
-      .catch(err => {
-        console.log("Veateade:",err)
-        return res.json({
-            status: "reject",
-            msg: err
-        })
-      })
+const create = (new_contract)=>{
+  let contract = new contractModel({
+    esindajad: new_contract.email,
+    metsameister: new_contract.metsameister,
+    documents: new_contract.documents,
+    hinnatabel: new_contract.hinnatabel,
+    contract_creator: new_contract.contract_creator,
+    created_timestamp: Date.now()
+  })
+  return contract.save()
 }
 
 const fetchAllClientRelated = (client_email)=>{
   return (contractModel.find({ esindajad: client_email }))
 }
 
-
-
 const insertById = (contract_id, file_name)=>{
   let conditions = {'_id': contract_id}, 
       update = {'documents.leping': file_name}
-
   return contractModel.findOneAndUpdate(conditions, update, {new: true})
 }
 

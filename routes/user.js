@@ -22,7 +22,6 @@ router.post("/login",(req, res)=> {
   	userModel.lastLogin(foundUserDoc.email)
     return res.json(responseFactory("accept","Oled sisse logitud!", data))
   })
-
   .catch(err => {
     console.log(err)
     return res.json(responseFactory("reject", err))
@@ -31,16 +30,8 @@ router.post("/login",(req, res)=> {
 
 router.post("/create",(req, res)=> {
 	userModel.create(req.body.email)
-      /* .catch(err) won't catch mongoose errors, however, passing the err argument along the 
-  second callback function (which in turn needed to be added) for .then solved the problem
-
-  .then((doc)=>{if(doc){return Promise.reject('Sellise parooli ja emaili kombinatsiooniga valideeritud kasutajat ei eksisteeri!')}},)
-      .then(() => sendMagicLink(email, hash))
-          .then(doc => console.log(doc), res.json("emailile saadeti üks maagiline link"))
-  .catch(err => {
-      console.log(err)
-      return res.status(403).send("midagi läks valesti")
-  })*/
+  /* mongoose .save then wants 2 arguments, callback fn for
+  success and second fn for error handling*/
   .then((doc)=>{
     if(doc){
       userModel.sendMagicLink(doc.email, doc.hash.hash)
