@@ -4,6 +4,7 @@ router = express.Router(),
 xlsx = require('xlsx'),
 masterPricelist = require('./../models/masterPricelistModel.js'),
 helper = require('./helper.js'),
+path = require('path')
 responseFactory = helper.responseFactory
 
 // default options 
@@ -19,7 +20,8 @@ router.post('/xlsx', function(req, res) {
   let sampleFileExt = req.files.file.name.split('.').pop()
 
   if(sampleFileExt == 'xlsx'){
-    let loc = `/var/www/mets-be/uploaded_files/${sampleFile.name}`
+	console.log(__dirname)
+	let loc = path.resolve(__dirname, `../uploaded_files/${sampleFile.name}`)
   	sampleFile.mv(loc, function(err) {
     	if (err) return res.status(500).send(err)
 
