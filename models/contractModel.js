@@ -77,9 +77,19 @@ const fetchAllClientRelated = (client_email)=>{
   return (contractModel.find({ esindajad: client_email }))
 }
 
+
+
+const insertById = (contract_id, file_name)=>{
+  let conditions = {'_id': contract_id}, 
+      update = {'documents.leping': file_name}
+
+  return contractModel.findOneAndUpdate(conditions, update, {new: true})
+}
+
 module.exports = {
 	contractModel,
-    create,
-    fetchAllClientRelated
+  create,
+  fetchAllClientRelated,
+  insertById
 }
 

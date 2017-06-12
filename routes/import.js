@@ -4,7 +4,7 @@ router = express.Router(),
 xlsx = require('xlsx'),
 masterPricelist = require('./../models/masterPricelistModel.js'),
 helper = require('./helper.js'),
-path = require('path')
+path = require('path'),
 responseFactory = helper.responseFactory
 
 // default options 
@@ -61,7 +61,8 @@ router.post('/xlsx', function(req, res) {
 
           var checked = {
             vasteta: [],
-            vastega: []
+            vastega: [],
+            status: "initialized"
           }
           var promises = []
           for(let row of data){
@@ -84,10 +85,10 @@ router.post('/xlsx', function(req, res) {
           // return Promise.all(promises)
           // miks return oli? @Romil
           Promise.all(promises)
-            .then(()=>{
-              res.json(responseFactory("accept",'Leiti ' + matches + ' vaste(t) ja ' + mismatches + ' ebakõla', checked))
-              //res.send('Leiti ' + matches + ' vaste(t) ja ' + mismatches + ' ebakõla')
-            })
+          .then(()=>{
+            res.json(responseFactory("accept",'Leiti ' + matches + ' vaste(t) ja ' + mismatches + ' ebakõla', checked))
+            //res.send('Leiti ' + matches + ' vaste(t) ja ' + mismatches + ' ebakõla')
+          })
   	})
   } else {
   	res.send('Incorrect file type!')

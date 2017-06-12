@@ -52,11 +52,10 @@ const login = (email, password)=>{
 }
 
 const lastLogin = email=>{
-    console.log("kutsuti")
     let conditions = {'email':email}, 
         update = {
             lastLogin: Date.now()
-        }    
+    }    
     userModel.findOneAndUpdate(conditions, update, ()=>{})
 }
 

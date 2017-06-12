@@ -1,28 +1,51 @@
 const express = require('express'),
-fileUpload = require('express-fileupload'),
+multer = require('multer'),
 router = express.Router(),
 helper = require('./helper.js'),
-responseFactory = helper.responseFactory
+responseFactory = helper.responseFactory,
+contractModel = require('./../models/contractModel.js'),
+path = require('path')
 
-router.use(fileUpload())
-
-router.post('/pdf', function(req, res) {
-  if (!req.files) return res.status(400).send('No files were uploaded.')
- 
-  // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file 
-  let sampleFile = req.files.file
-  let sampleFileExt = req.files.file.name.split('.').pop()
-  //console.log(sampleFileExt)
-
-  if(sampleFileExt == 'pdf'){
-    let loc = `/var/www/mets-be/uploaded_files/${sampleFile.name}`
-  	sampleFile.mv(loc, function(err) {
-    	if (err) return res.status(500).send(err)
-    	res.json(responseFactory("accept","File was uploaded!"))
-    })
-  } else {
-  	res.send('Incorrect file type!')
+const loc = path.resolve(__dirname, `../uploaded_files/`),
+storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, loc)
+  },
+  filename: function (req, file, cb) {
+  	let name = file.originalname.split('.').shift()
+  	let ext = "." + file.originalname.split('.').pop()
+    cb(null, name + '_' + Date.now() + ext)
   }
+}),
+upload = multer({
+	storage: storage,
+	fileFilter: function (req, file, cb) {
+    if (path.extname(file.originalname) !== '.pdf') return cb(new Error('Only pdfs are allowed'))
+    cb(null, true)
+  }
+}).single('leping')
+
+router.post('/leping', function (req, res) {
+	upload(req, res, function (err) {
+    if (err || req.fileValidationError || !req.file){
+    	console.log(err)
+    	return res.json(responseFactory("reject","Something went wrong... :("))
+   	}
+    console.log(req.body)
+    res.json(responseFactory("accept","File was uploaded!"))
+  })
+})
+
+router.post('/metsateatis', function (req, res) {
+	upload(req, res, function (err) {
+    if (err){
+    	console.log(err)
+    	res.json(responseFactory("reject","Something went wrong... :("))
+   	}
+    console.log(req.body)
+    res.json(responseFactory("accept","File was uploaded!"))
+  })
 })
 
 module.exports = {router}
+
