@@ -70,7 +70,7 @@ router.post('/xlsx', function(req, res) {
                   checked.vastega.push(result)
                   matches = matches + 1
                 } else {
-                  //checked.vasteta.push(row)
+                  checked.vasteta.push(row)
                   mismatches = mismatches + 1
                 }
                 //console.log("result: " , result)
