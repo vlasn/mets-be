@@ -18,11 +18,15 @@ mongoose.connect('mongodb://46.101.154.79:27017/mets', options)
 mongoose.connection.on('error', console.error.bind(console,'connection:error'))
 mongoose.connection.once('open', ()=> console.log('MongoDB successfully connected'))
 
-const auth = require('./routes/auth')
-app.use('/api/auth', auth.router)
-
 const user = require('./routes/user')
 app.use('/api/user', user.router)
+
+const contract = require('./routes/contract')
+app.use('/api/contract', contract.router)
+
+const pricelist = require('./routes/pricelist')
+app.use('/api/pricelist', pricelist.router)
+
 // for importing files to the system
 // data extraction + storage
 const _import = require('./routes/import')

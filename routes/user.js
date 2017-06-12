@@ -2,8 +2,8 @@ const express = require('express')
 router = express.Router(),
 bodyParser = require('body-parser'),
 userModel = require('./../models/userModel.js'),
-auth = require('./auth.js'),
-responseFactory = auth.responseFactory
+helper = require('./helper.js'),
+responseFactory = helper.responseFactory
 
 router.use(bodyParser.json())
 router.use(bodyParser.urlencoded({extended: true}))

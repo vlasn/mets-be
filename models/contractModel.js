@@ -1,7 +1,7 @@
 const mongoose = require('mongoose'),
 userModel = require('./userModel.js').userModel,
-auth = require('./../routes/auth.js'),
-responseFactory = auth.responseFactory
+helper = require('./../routes/helper.js'),
+responseFactory = helper.responseFactory
 
 mongoose.Promise = global.Promise
 

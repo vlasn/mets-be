@@ -1,8 +1,8 @@
 const express = require('express'),
 fileUpload = require('express-fileupload'),
 router = express.Router(),
-auth = require('./auth.js'),
-responseFactory = auth.responseFactory
+helper = require('./helper.js'),
+responseFactory = helper.responseFactory
 
 router.use(fileUpload())
 

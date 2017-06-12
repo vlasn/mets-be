@@ -3,8 +3,8 @@ fileUpload = require('express-fileupload'),
 router = express.Router(),
 xlsx = require('xlsx'),
 masterPricelist = require('./../models/masterPricelistModel.js'),
-auth = require('./auth.js'),
-responseFactory = auth.responseFactory
+helper = require('./helper.js'),
+responseFactory = helper.responseFactory
 
 // default options 
 //app.use(bodyParser.urlencoded({ extended: true }))
