@@ -15,6 +15,7 @@ router.post("/login",(req, res)=> {
     if (!foundUserDoc) {return Promise.reject('Sellise parooli ja emaili kombinatsiooniga kasutajat ei eksisteeri!')}
     console.log(foundUserDoc.email + " logis sisse " + new Date().toLocaleString())
   	let data = {
+      user_id: foundUserDoc._id,
   		lastLogin: foundUserDoc.lastLogin,
   		roles: foundUserDoc.roles,
   		personal_data: foundUserDoc.personal_data
@@ -29,9 +30,7 @@ router.post("/login",(req, res)=> {
 })
 
 router.post("/create",(req, res)=> {
-	userModel.create(req.body.email)
-  /* mongoose .save then wants 2 arguments, callback fn for
-  success and second fn for error handling*/
+	userModel.create(req.body)
   .then((doc)=>{
     if(doc){
       userModel.sendMagicLink(doc.email, doc.hash.hash)
