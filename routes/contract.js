@@ -28,7 +28,7 @@ router.post("/create",(req, res)=>{
 })
 
 // returns all contracts related to given email
-router.post("/fetch",(req, res)=>{
+router.post("/fetchAll",(req, res)=>{
   contractModel.fetchAllClientRelated(req.body.email)
   .then(docs => {
     if (!docs) {return Promise.reject('Ei leidnud lepinguid!')}
@@ -37,6 +37,18 @@ router.post("/fetch",(req, res)=>{
   .catch(err => {
     res.json(responseFactory("reject", err))
   })
+})
+
+router.get("/fetch", (req, res)=>{
+  let cadastre = req.query.cadastre
+  let metsameister = req.query.metsameister
+  let status = req.query.status
+  contractModel.fetch(cadastre, metsameister, status)
+  .then(docs=>{
+    if(!docs || docs === null){return Promise.reject('Ei leidnud selliseid lepinguid!')}
+    res.json(responseFactory("accept", "The documents as per requested, my good sir", docs))
+  })
+  .catch(err=>console.log(err))
 })
 
 module.exports={router}

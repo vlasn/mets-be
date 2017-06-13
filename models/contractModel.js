@@ -46,6 +46,8 @@ const create = (new_contract)=>{
     documents: new_contract.documents,
     hinnatabel: new_contract.hinnatabel,
     contract_creator: new_contract.contract_creator,
+    katastritunnused: new_contract.katastritunnused,
+    status: new_contract.status,
     created_timestamp: Date.now()
   })
   return contract.save()
@@ -53,6 +55,14 @@ const create = (new_contract)=>{
 
 const fetchAllClientRelated = (client_email)=>{
   return (contractModel.find({ esindajad: client_email }))
+}
+
+const fetch = (cadastre, metsameister, status)=>{
+  return (contractModel.find({ 
+  	$or: [{'katastritunnused.tunnus': {$regex: cadastre}}, {'katastritunnused.nimi': { $regex: cadastre }}],
+  	metsameister: {$regex: metsameister},
+  	status: status
+  }))
 }
 
 const insertById = (contract_id, file_name)=>{
@@ -65,6 +75,7 @@ module.exports = {
 	contractModel,
   create,
   fetchAllClientRelated,
-  insertById
+  insertById,
+  fetch
 }
 
