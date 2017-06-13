@@ -8,33 +8,32 @@ EMAIL_PASS = process.env.EMAIL_PASS
 mongoose.Promise = global.Promise
 
 const userSchema = mongoose.Schema({
-    email: {type: String, unique:true, required: true},
-    password: String,
-    hash: {
-    	hash: {type: String, required: true},
-		created: {type: Date, default: Date.now()},
-    	validated: {type: Date}
-    },
+  email: {type: String, unique:true, required: true},
+  password: String,
+  hash: {
+  	hash: {type: String, required: true},
+    created: {type: Date, default: Date.now()},
+  	validated: {type: Date}
+  },
 	lastLogin: {type: Date},
-    roles: [{
-        //        role: {type: String, required: true},
-        role: String,
-		created: {type: Date, default: Date.now()},
-		disabled: Boolean
-    }],
-    job_title: String,
-    // isikuandmed
-    personal_data: {
-        nimi: String,
-        tel_nr: Number,
-        aadress: String,
-        isikukood: Number,
-        dok_nr: String,
-        eraisik: Boolean,
-        juriidiline_isik: Boolean,
-        reg_nr: Number,
-        kmk_nr: Number
-    }
+  roles: [{
+    role: {type: String, required: true},
+  	created: {type: Date, default: Date.now()},
+  	disabled: Boolean
+  }],
+  job_title: String,
+  // isikuandmed
+  personal_data: {
+      nimi: String,
+      tel_nr: Number,
+      aadress: String,
+      isikukood: Number,
+      dok_nr: String,
+      eraisik: Boolean,
+      juriidiline_isik: Boolean,
+      reg_nr: Number,
+      kmk_nr: Number
+  }
 })
 
 const userModel = mongoose.model('user',userSchema)
@@ -86,16 +85,29 @@ const sendMagicLink = (email, hash) => {
     })
 }
 
-const create = email => {
+const create = new_user => {
   let d = (Date.now()).valueOf().toString()
 	let hash = crypto.createHash('sha256').update(d).digest('hex')
   let user = new userModel({ 
-      email: email, 
-      hash: {
-          hash: hash, 
-          created: Date.now()
-      },
-      roles: [{role:"banana"}]
+    email: new_user.email, 
+    hash: {
+        hash: hash, 
+        created: Date.now()
+    },
+    roles: [{role:"client"}],
+    job_title: new_user.job_title,
+    // isikuandmed
+    personal_data: {
+        nimi: new_user.personal_data.nimi,
+        tel_nr: new_user.personal_data.tel_nr,
+        aadress: new_user.personal_data.address,
+        isikukood: new_user.personal_data.isikukood,
+        dok_nr: new_user.personal_data.dok_nr,
+        eraisik: new_user.personal_data.eraisik,
+        juriidiline_isik: new_user.personal_data.juriidiline_isik,
+        reg_nr: new_user.personal_data.reg_nr,
+        kmk_nr: new_user.personal_data.kmk_nr
+    }
   })
   return user.save()
 }

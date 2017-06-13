@@ -27,7 +27,7 @@ upload = multer({
 
 router.post('/leping', function (req, res) {
 	upload(req, res, function (err) {
-    if (err || req.fileValidationError || !req.file){
+    if (err){
     	console.log(err)
     	return res.json(responseFactory("reject","Something went wrong... :("))
    	}
