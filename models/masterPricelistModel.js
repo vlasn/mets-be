@@ -17,7 +17,6 @@ const masterPricelistSchema = mongoose.Schema({
     transport_price: Number,
     profit: Number,
     total_price: {type: Number, required: true}
-
 })
 
 const masterPricelistModel = mongoose.model('masterprice', masterPricelistSchema)
@@ -27,29 +26,28 @@ const insert = (data) => {
 }
 
 const checkForMatch = (incomingRow) => {
-    let promise = new Promise((resolve, reject)=>{
-      masterPricelistModel.findOne({
-        destination: incomingRow.Ostja,
+  let promise = new Promise((resolve, reject)=>{
+    masterPricelistModel.findOne({
+      destination: incomingRow.Ostja,
 /*        tree_species: incomingRow.puuliik,
-        quality: incomingRow.kvaliteet*/
-        }, '_id')
-        .then(doc=>{
-          if(doc) {
-            console.log(doc)
-            incomingRow.vaste = doc._id
-            return resolve(
-              incomingRow
-            )
-          }
-          resolve(false)
-        })
-        .catch(err=>{
-          console.log(err)
-          resolve(false)
-        })
-    })
-    // tagastab selle boolean väärtuse millega promise resolviti
-    return promise
+      quality: incomingRow.kvaliteet*/
+      }, '_id')
+      .then(doc=>{
+        if(doc) {
+          console.log("Vaste millegile: ",doc)
+          incomingRow.vaste = doc._id
+          // tagastab vaste
+          return resolve(incomingRow)
+        }
+        resolve(false)
+      })
+      .catch(err=>{
+        console.log(err)
+        resolve(false)
+      })
+  })
+  // tagastab selle boolean väärtuse millega promise resolviti
+  return promise
 }
 
 

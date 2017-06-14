@@ -112,6 +112,10 @@ const create = new_user => {
   return user.save()
 }
 
+const findUser = (param)=>{
+  return userModel.findOne({ $or: [{ 'personal_data.nimi': {$regex: param} }, { 'email': {$regex: param} }]})
+}
+
 const forgot = email => {
 	let hash = crypto.createHash('sha256').update(email).digest('hex')
 	let conditions = {email: email}, 
@@ -129,6 +133,7 @@ module.exports = {
 	forgot,
   sendMagicLink,
   lastLogin,
-  findByEmail
+  findByEmail,
+  findUser
 }
 
