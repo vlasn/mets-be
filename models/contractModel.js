@@ -59,9 +59,13 @@ const fetchAllClientRelated = (client_email)=>{
 
 const fetch = (cadastre, metsameister, status)=>{
   return (contractModel.find({ 
-  	$or: [{'katastritunnused.tunnus': {$regex: cadastre}}, {'katastritunnused.nimi': { $regex: cadastre }}],
+  	$or: [
+      {'katastritunnused.tunnus': {$regex: cadastre}}, 
+      {'katastritunnused.nimi': { $regex: cadastre }},
+      {'esindajad': { $regex: cadastre }}
+    ],
   	metsameister: {$regex: metsameister},
-  	status: status
+  	status: status||$all
   }))
 }
 
