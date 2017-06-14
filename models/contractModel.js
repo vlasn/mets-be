@@ -65,7 +65,7 @@ const fetch = (cadastre, metsameister, status)=>{
       {'esindajad': { $regex: cadastre }}
     ],
   	metsameister: {$regex: metsameister},
-  	status: status||$all
+  	status: status
   }))
 }
 
