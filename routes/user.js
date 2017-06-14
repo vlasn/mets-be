@@ -92,6 +92,14 @@ router.post("/validate",(req, res)=> {
 	})
 })
 
+router.post("/finduser", (req, res)=>{
+  userModel.findUser(req.body.q)
+  .then(doc=>{
+    res.json(responseFactory("accept", "Ole lahke", doc))
+  })
+  .catch(console.log)
+})
+
 router.post("/forgot",(req, res)=> {
 	userModel.forgot(req.body.email)
   .then(user => {
