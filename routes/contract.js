@@ -51,4 +51,25 @@ router.get("/fetch", (req, res)=>{
   .catch(err=>console.log(err))
 })
 
+router.put("/update/:id", (req,res)=>{
+  let id = req.params.id
+  let key = req.body.key
+  let value = req.body.value
+  let remove = !!req.body.remove
+  contractModel.updateContractLine(id,key,value, remove)
+    .then(d => {
+      if(!d || d===null) {
+        console.log(`Couldn't find document ${id} to update.`)
+        res.json(responseFactory('reject','Kirjet ei leitud!'))
+      } else {
+        console.log(`${key} of document ${id} is now ${value}`)
+        res.json(responseFactory('accept','ok',d))
+      }
+    })
+    .catch(e => {
+      console.log(e)
+      res.json(responseFactory('reject','okou',e))
+    })
+})
+
 module.exports={router}
