@@ -2,6 +2,7 @@ const express = require('express'),
 fileUpload = require('express-fileupload'),
 router = express.Router(),
 xlsx = require('xlsx'),
+bodyParser = require('body-parser'),
 masterPricelist = require('./../models/masterPricelistModel.js'),
 importModel = require('./../models/importModel.js'),
 helper = require('./helper.js'),
@@ -10,7 +11,8 @@ responseFactory = helper.responseFactory
 
 // default options 
 //app.use(bodyParser.urlencoded({ extended: true }))
-
+router.use(bodyParser.json())
+router.use(bodyParser.urlencoded({extended: true}))
 router.use(fileUpload())
  
 // when a file is initially imported into the system
@@ -43,8 +45,22 @@ router.post('/xlsx/new', (req, res)=>{
         for(z in worksheet) {
           if(z[0] === '!') continue;
           //parse out the column, row, and value
-          var col = z.substring(0,1)
-          var row = parseInt(z.substring(1))
+					if(z.length < 3){
+
+						var col = z.substring(0,1)
+	          //console.log("col on: ",col)
+	          
+	          console.log("z on: ",z)
+	          var row = parseInt(z.substring(1))
+        	} else if(z.length > 2){
+
+        		var col = z.substring(0,2)
+	          //console.log("col on: ",col)
+	          
+	          console.log("z on: ",z)
+	          var row = parseInt(z.substring(2))
+
+        	}
           var value = worksheet[z].v
 
           //store header names
@@ -63,15 +79,18 @@ router.post('/xlsx/new', (req, res)=>{
         //console.log(data[0])
         //console.log(data.length)
       })
-    
-      parseDocument(data)
+    	
+    	parseDocument(data)
       .then(d=>{
       	importModel.insertDoc(d)
       	.then(ok=>{
       		res.json(responseFactory("accept", "Here you go sir", ok))
+      	},
+      	err=>{
+      		res.send(err)
       	})
       })
-      .catch(err=>res.json(responseFactory("reject", err)))
+      .catch(err=>res.json(responseFactory("rejectXOXO", err)))
 
   	})
   } else {
@@ -80,6 +99,7 @@ router.post('/xlsx/new', (req, res)=>{
 })
 
 router.post('/xlsx/update', (req, res)=>{
+	//console.log(req.body)
    parseDocument(req.body)
   .then(d=>{
   	if(d.unmatched.length > 0){
@@ -88,10 +108,7 @@ router.post('/xlsx/update', (req, res)=>{
   	} else if(d.unmatched.length == 0 && d.matched.length > 0){
   		destructureDocument(d)
   		.then(results=>{
-
-  		})
-  		.catch(err=>{
-  			res.send(err)
+  			res.send(results)
   		})
   	}
   })
@@ -101,45 +118,75 @@ router.post('/xlsx/update', (req, res)=>{
 // a document will be sent here FROM initial import endpoint
 const parseDocument = (documentObj) => {
 
-/*  var parsedObj = {
-    unmatched: [],
-    matched: [],
-    veoselehed: [],
-    status: "pending"
-  }*/
-  documentObj.matched = []
+	//console.log(documentObj)
+  if(!documentObj.matched) {documentObj.matched = []}
   documentObj.veoselehed = []
   documentObj.status = "pending"
 
-  console.log("documentObj on: ",documentObj)
+  //console.log("documentObj on: ",documentObj)
 
   var promises = []
   for(let row of documentObj.unmatched){
-    // 1 promise iga row'i kohta
     var promise = masterPricelist.checkForMatch(row)
       .then(result=>{
         if(result){
-        	let index = documentObj.unmatched.indexOf(result)
+        	let index = documentObj.unmatched.indexOf(row)
         	console.log(index)
-        	let item = documentObj.unmatched.slice(index, index+1)
         	documentObj.unmatched.splice(index,1)
-          parsedObj.matched.push(result)
+          documentObj.matched.push(result)
         }
-        //console.log("result: " , result)
       })
     promises.push(promise)
   }
+
   return Promise.all(promises)
   .then(()=>{
-  	if(parsedObj.unmatched.length > 0) {parsedObj.status = "reject"}
-  	else if(parsedObj.unmatched.length == 0 && parsedObj.matched.length > 0) {parsedObj.status = "accept"}
-  	//console.log(parsedObj)
-    return parsedObj
+  	if(documentObj.unmatched.length > 0) {documentObj.status = "reject"}
+  	else if(documentObj.unmatched.length == 0 && documentObj.matched.length > 0) {documentObj.status = "accept"}
+  	console.log(documentObj)
+    return documentObj
   })
 }
 
 const destructureDocument = (fullyParsedDoc) => {
-	
+	let promise = new Promise((resolve,reject)=>{
+
+
+		if(fullyParsedDoc.unmatched.length == 0 && fullyParsedDoc.matched.length > 0){
+			for(let row of fullyParsedDoc.matched){
+				if(fullyParsedDoc.matched.indexOf(row) == 0){
+					fullyParsedDoc.veoselehed[0] = {
+						VL_nr: row['Elvise VL nr'],
+						cadastre: row[''],
+						rows: []
+					}
+					fullyParsedDoc.veoselehed[0].rows.push(row)
+				} else if(fullyParsedDoc.matched.indexOf(row) > 0){
+					let len = fullyParsedDoc.veoselehed.length
+					for(let el of fullyParsedDoc.veoselehed){
+						if(row['Elvise VL nr'] == el.VL_nr){
+							el.rows.push(row)
+							break
+						} else if(row['Elvise VL nr'] != el.VL_nr){
+							fullyParsedDoc.veoselehed[len] = {
+								VL_nr: row['Elvise VL nr'],
+								rows: []
+							}
+							fullyParsedDoc.veoselehed[len].rows.push(row)
+							break
+						}
+					}
+				}
+			}
+			//console.log(fullyParsedDoc)
+			resolve(fullyParsedDoc)
+		} else {resolve(fullyParsedDoc)}
+	})
+
+	return promise
+	.then(val=>{
+		return val
+	})
 }
 
 router.get('/fetch', (req, res)=>{
