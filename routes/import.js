@@ -15,7 +15,7 @@ router.use(fileUpload())
  
 // when a file is initially imported into the system
 // this endpoint is used only once per imported document (.xlsx)
-router.post('/xlsx', (req, res)=>{
+router.post('/xlsx/new', (req, res)=>{
   if (!req.files) return res.status(400).send('No files were uploaded.')
  
   // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file 
@@ -31,7 +31,9 @@ router.post('/xlsx', (req, res)=>{
       var mismatches = 0
       var workbook = xlsx.readFile(loc)
       var sheet_name_list = workbook.SheetNames
-      var data = []
+      var data = {
+      	unmatched: []
+      }
 
       sheet_name_list.forEach(function(y) {
 
@@ -51,25 +53,23 @@ router.post('/xlsx', (req, res)=>{
             continue;
           }
 
-          if(!data[row]) data[row]={}
-          data[row][headers[col]] = value
+          if(!data.unmatched[row]) data.unmatched[row]={}
+          data.unmatched[row][headers[col]] = value
         }
 
         //drop those first two rows which are empty
-        data.shift()
-        data.shift()
+        data.unmatched.shift()
+        data.unmatched.shift()
         //console.log(data[0])
         //console.log(data.length)
       })
-
+    
       parseDocument(data)
       .then(d=>{
       	importModel.insertDoc(d)
       	.then(ok=>{
-
       		res.json(responseFactory("accept", "Here you go sir", ok))
       	})
-      	
       })
       .catch(err=>res.json(responseFactory("reject", err)))
 
@@ -79,26 +79,51 @@ router.post('/xlsx', (req, res)=>{
   }
 })
 
+router.post('/xlsx/update', (req, res)=>{
+   parseDocument(req.body)
+  .then(d=>{
+  	if(d.unmatched.length > 0){
+
+  		res.json(responseFactory("accept", "Needs attention", d))
+  	} else if(d.unmatched.length == 0 && d.matched.length > 0){
+  		destructureDocument(d)
+  		.then(results=>{
+
+  		})
+  		.catch(err=>{
+  			res.send(err)
+  		})
+  	}
+  })
+  .catch(err=>res.json(responseFactory("reject", err)))
+})
+
 // a document will be sent here FROM initial import endpoint
 const parseDocument = (documentObj) => {
-  var matched = 0
-  var unmatched = 0
-  var parsedObj = {
+
+/*  var parsedObj = {
     unmatched: [],
     matched: [],
+    veoselehed: [],
     status: "pending"
-  }
+  }*/
+  documentObj.matched = []
+  documentObj.veoselehed = []
+  documentObj.status = "pending"
+
+  console.log("documentObj on: ",documentObj)
+
   var promises = []
-  for(let row of documentObj){
+  for(let row of documentObj.unmatched){
     // 1 promise iga row'i kohta
     var promise = masterPricelist.checkForMatch(row)
       .then(result=>{
         if(result){
+        	let index = documentObj.unmatched.indexOf(result)
+        	console.log(index)
+        	let item = documentObj.unmatched.slice(index, index+1)
+        	documentObj.unmatched.splice(index,1)
           parsedObj.matched.push(result)
-          matched = matched + 1
-        } else {
-          parsedObj.unmatched.push(row)
-          unmatched = unmatched + 1
         }
         //console.log("result: " , result)
       })
@@ -108,13 +133,13 @@ const parseDocument = (documentObj) => {
   .then(()=>{
   	if(parsedObj.unmatched.length > 0) {parsedObj.status = "reject"}
   	else if(parsedObj.unmatched.length == 0 && parsedObj.matched.length > 0) {parsedObj.status = "accept"}
-  	console.log(parsedObj)
+  	//console.log(parsedObj)
     return parsedObj
   })
 }
 
 const destructureDocument = (fullyParsedDoc) => {
-
+	
 }
 
 router.get('/fetch', (req, res)=>{
