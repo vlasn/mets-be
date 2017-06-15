@@ -40,9 +40,9 @@ router.post("/fetchAll",(req, res)=>{
 })
 
 router.get("/fetch", (req, res)=>{
-  let cadastre = req.query.cadastre
-  let metsameister = req.query.metsameister
-  let status = req.query.status
+  let cadastre = req.query.cadastre //search term
+  let metsameister = req.query.metsameister //person
+  let status = req.query.status //status
   contractModel.fetch(cadastre, metsameister, status)
   .then(docs=>{
     if(!docs || docs === null){return Promise.reject('Ei leidnud selliseid lepinguid!')}
