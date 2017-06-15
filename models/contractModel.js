@@ -1,39 +1,39 @@
-const mongoose = require('mongoose'),
-userModel = require('./userModel.js').userModel,
-helper = require('./../routes/helper.js'),
-responseFactory = helper.responseFactory
+const mongoose = require('mongoose')
+  userModel = require('./userModel.js').userModel,
+  helper = require('./../routes/helper.js'),
+  responseFactory = helper.responseFactory
 
 mongoose.Promise = global.Promise
 
 const contractSchema = mongoose.Schema({
-    // eelloodud kasutaja(d)
-    esindajad: [String],
-    // varemloodud kasutaja - metsahalduri töötaja
-    metsameister: String,
-    // metsahalduri töötaja
-    projektijuht: String,
-    dates: {
-        raielopetamine: Date,
-        väljavedu: Date,
-        raidmete_valjavedu: Date
-    },
-    documents: {
-        // needs a more descriptive name to it
-        // values of these will be a FILEPATH
-        leping: String,
-        metsateatis: String
-    },
-    hinnatabel: {
-        timestamp: {type: Date, default: Date.now()},
-        snapshot: {type: String, required: true}
-    },
-    katastritunnused: [{
-        tunnus: String,
-        nimi: String
-    }],
-    contract_creator: {type: String, required: true},
-    created_timestamp: {type: Date, default: Date.now()},
-    status: String
+  // eelloodud kasutaja(d)
+  esindajad: [String],
+  // varemloodud kasutaja - metsahalduri töötaja
+  metsameister: String,
+  // metsahalduri töötaja
+  projektijuht: String,
+  dates: {
+    raielopetamine: Date,
+    väljavedu: Date,
+    raidmete_valjavedu: Date
+  },
+  documents: {
+    // needs a more descriptive name to it
+    // values of these will be a FILEPATH
+    leping: String,
+    metsateatis: String
+  },
+  hinnatabel: {
+    timestamp: {type: Date, default: Date.now()},
+    snapshot: {type: String, required: true}
+  },
+  katastritunnused: [{
+    tunnus: String,
+    nimi: String
+  }],
+  contract_creator: {type: String, required: true},
+  created_timestamp: {type: Date, default: Date.now()},
+  status: String
 
 })
 
@@ -57,26 +57,46 @@ const fetchAllClientRelated = (client_email)=>{
   return (contractModel.find({ esindajad: client_email }))
 }
 
+//very basic, needs
+const updateContractLine = (id, key, value, remove=false) => {
+  let action = null
+  if(key=='esindajad'||key=='katastritunnused'){
+    action = remove ? '$pull' : '$push'
+  } else if (key=='metsameister' || key=='projektijuht') {
+    action = remove ? '$unset' : '$set'
+  } else {
+    return Promise.reject('Sellise key-ga updatemiseks leiad mõne teise endpointi ka.')
+  }
+  /*
+    Vajab dates objekti uuendamiseks edasist query-buildingut
+   */
+  let opt = {new: true}
+  let update = {[action]:{[key]:value}}
+  console.log(update)
+  return(contractModel.findOneAndUpdate({_id: id}, update, opt))
+}
+
 const fetch = (cadastre, metsameister, status)=>{
   return (contractModel.find({ 
-  	$or: [
+    $or: [
       {'katastritunnused.tunnus': {$regex: cadastre}}, 
       {'katastritunnused.nimi': { $regex: cadastre }},
       {'esindajad': { $regex: cadastre }}
     ],
-  	metsameister: {$regex: metsameister},
-  	status: {$regex: status}
+    metsameister: {$regex: metsameister},
+    status: {$regex: status}
   }))
 }
 
 const insertById = (contract_id, file_name)=>{
   let conditions = {'_id': contract_id}, 
-      update = {'documents.leping': file_name}
+    update = {'documents.leping': file_name}
   return contractModel.findOneAndUpdate(conditions, update, {new: true})
 }
 
 module.exports = {
-	contractModel,
+  contractModel,
+  updateContractLine,
   create,
   fetchAllClientRelated,
   insertById,
