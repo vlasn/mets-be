@@ -4,6 +4,7 @@ router = express.Router(),
 xlsx = require('xlsx'),
 bodyParser = require('body-parser'),
 masterPricelist = require('./../models/masterPricelistModel.js'),
+pricelist = require('./../models/southNorthPricelistModel.js'),
 importModel = require('./../models/importModel.js'),
 helper = require('./helper.js'),
 path = require('path'),
@@ -43,30 +44,21 @@ router.post('/xlsx/new', (req, res)=>{
         var headers = {}
 
         for(z in worksheet) {
-          if(z[0] === '!') continue;
+          if(z[0] === '!') continue
           //parse out the column, row, and value
 					if(z.length < 3){
-
 						var col = z.substring(0,1)
-	          //console.log("col on: ",col)
-	          
-	          console.log("z on: ",z)
 	          var row = parseInt(z.substring(1))
         	} else if(z.length > 2){
-
         		var col = z.substring(0,2)
-	          //console.log("col on: ",col)
-	          
-	          console.log("z on: ",z)
 	          var row = parseInt(z.substring(2))
-
         	}
           var value = worksheet[z].v
 
           //store header names
           if(row == 1) {
             headers[col] = value
-            continue;
+            continue
           }
 
           if(!data.unmatched[row]) data.unmatched[row]={}
@@ -82,7 +74,7 @@ router.post('/xlsx/new', (req, res)=>{
     	
     	parseDocument(data)
       .then(d=>{
-      	importModel.insertDoc(d)
+      	importModel.newDoc(d)
       	.then(ok=>{
       		res.json(responseFactory("accept", "Here you go sir", ok))
       	},
@@ -99,16 +91,27 @@ router.post('/xlsx/new', (req, res)=>{
 })
 
 router.post('/xlsx/update', (req, res)=>{
-	//console.log(req.body)
    parseDocument(req.body)
   .then(d=>{
   	if(d.unmatched.length > 0){
-
+		  importModel.updateDoc(d)
+    	.then(ok=>{
+    		res.json(responseFactory("accept", "Uploaded to MongoDB", ok))
+    	},
+    	err=>{
+    		res.send(err)
+    	})
   		res.json(responseFactory("accept", "Needs attention", d))
   	} else if(d.unmatched.length == 0 && d.matched.length > 0){
   		destructureDocument(d)
   		.then(results=>{
-  			res.send(results)
+	  		importModel.updateDoc(results)
+	    	.then(ok=>{
+	    		res.json(responseFactory("accept", "Uploaded to MongoDB", ok))
+	    	},
+	    	err=>{
+	    		res.send(err)
+	    	})
   		})
   	}
   })
@@ -127,7 +130,7 @@ const parseDocument = (documentObj) => {
 
   var promises = []
   for(let row of documentObj.unmatched){
-    var promise = masterPricelist.checkForMatch(row)
+    var promise = pricelist.checkForMatch(row)
       .then(result=>{
         if(result){
         	let index = documentObj.unmatched.indexOf(row)
@@ -157,7 +160,7 @@ const destructureDocument = (fullyParsedDoc) => {
 				if(fullyParsedDoc.matched.indexOf(row) == 0){
 					fullyParsedDoc.veoselehed[0] = {
 						VL_nr: row['Elvise VL nr'],
-						cadastre: row[''],
+						cadastre: row['Katastritunnus'],
 						rows: []
 					}
 					fullyParsedDoc.veoselehed[0].rows.push(row)
@@ -170,6 +173,7 @@ const destructureDocument = (fullyParsedDoc) => {
 						} else if(row['Elvise VL nr'] != el.VL_nr){
 							fullyParsedDoc.veoselehed[len] = {
 								VL_nr: row['Elvise VL nr'],
+								cadastre: row['Katastritunnus'],
 								rows: []
 							}
 							fullyParsedDoc.veoselehed[len].rows.push(row)

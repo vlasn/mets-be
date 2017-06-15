@@ -12,7 +12,7 @@ const importSchema = mongoose.Schema({
 
 const importModel = mongoose.model('import', importSchema)
 
-const insertDoc = (imported_doc)=>{
+const newDoc = (imported_doc)=>{
   let doc = new importModel({
     matched: imported_doc.matched,
     unmatched: imported_doc.unmatched,
@@ -25,12 +25,12 @@ const insertDoc = (imported_doc)=>{
 
 const updateDoc = (doc)=>{
   let conditions = {_id: doc._id}
-  return userModel.findOneAndUpdate(conditions, doc, {new: true})
+  return importModel.findOneAndUpdate(conditions, doc, {new: true})
 }
 
 const retrieve = ()=>{
   return importModel.find({}).sort('-date')
 }
 
-module.exports = {importModel, insertDoc, retrieve}
+module.exports = {importModel, newDoc, retrieve, updateDoc}
 

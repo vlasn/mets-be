@@ -3,20 +3,23 @@ const mongoose = require('mongoose')
 mongoose.Promise = global.Promise
 
 const masterPricelistSchema = mongoose.Schema({
-    destination: {type: String, required: true},
-    tree_species: {type: String, required: true},
-    assortment: {type: String, required: true},
-    diameter_min: {type: Number, required: true},
-    diameter_max: {type: Number, required: true},
-    length_min: {type: Number, required: true},
-    length_max: {type: Number, required: true},
-    quality: {type: String, required: true},
-    euro_per_festmeter: {type: Number, required: true},
-    harvesting_price: Number,
-    brush_works_price: Number,
-    transport_price: Number,
-    profit: Number,
-    total_price: {type: Number, required: true}
+  region: String,
+  rows: [{
+      destination: {type: String, required: true},
+      tree_species: {type: String, required: true},
+      assortment: {type: String, required: true},
+      diameter_min: {type: Number, required: true},
+      diameter_max: {type: Number, required: true},
+      length_min: {type: Number, required: true},
+      length_max: {type: Number, required: true},
+      quality: {type: String, required: true},
+      euro_per_festmeter: {type: Number, required: true},
+      harvesting_price: Number,
+      brush_works_price: Number,
+      transport_price: Number,
+      profit: Number,
+      total_price: {type: Number, required: true}
+    }]
 })
 
 const masterPricelistModel = mongoose.model('masterprice', masterPricelistSchema)
@@ -28,15 +31,14 @@ const insert = (data) => {
 const checkForMatch = (incomingRow) => {
   let promise = new Promise((resolve, reject)=>{
     masterPricelistModel.findOne({
-      destination: incomingRow.Ostja,
+      
+      destination: incomingRow['Ostja'],
 /*        tree_species: incomingRow.puuliik,
       quality: incomingRow.kvaliteet*/
       }, '_id')
       .then(doc=>{
         if(doc) {
-          console.log("Vaste millegile: ",doc)
           incomingRow.vaste = doc._id
-          // tagastab vaste
           return resolve(incomingRow)
         }
         resolve(false)
