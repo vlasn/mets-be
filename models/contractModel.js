@@ -61,7 +61,7 @@ const fetch = (cadastre, metsameister, status)=>{
   return (contractModel.find({ 
   	$or: [{'katastritunnused.tunnus': {$regex: cadastre}}, {'katastritunnused.nimi': { $regex: cadastre }}],
   	metsameister: {$regex: metsameister},
-  	status: status
+  	status: {$regex: status}
   }))
 }
 

@@ -120,8 +120,8 @@ const forgot = email => {
 	let hash = crypto.createHash('sha256').update(email).digest('hex')
 	let conditions = {email: email}, 
         update = { hash: { hash:hash, created: Date.now() }}
-    sendMagicLink(email, hash)
-    return userModel.findOneAndUpdate(conditions, update, {new: true})
+  sendMagicLink(email, hash)
+  return userModel.findOneAndUpdate(conditions, update, {new: true})
 }
 
 module.exports = {
