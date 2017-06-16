@@ -14,6 +14,12 @@ const options = {
 	}
 }
 
+let peeter = mongoose.Types.ObjectId()
+let peeter1 = mongoose.Types.ObjectId()
+let peeter2 = mongoose.Types.ObjectId()
+let peeter3 = mongoose.Types.ObjectId()
+console.log(peeter,peeter1,peeter2,peeter3)
+
 mongoose.connect('mongodb://46.101.154.79:27017/mets', options)
 mongoose.connection.on('error', console.error.bind(console,'connection:error'))
 mongoose.connection.once('open', ()=> console.log('MongoDB successfully connected'))
