@@ -101,11 +101,11 @@ router.post('/xlsx/new', (req, res)=>{
       	.then(ok=>{
       		res.json(responseFactory("accept", "Here you go sir", ok))
       	},
-      	err=>{
-      		res.send(err)
+      	e=>{
+      		res.send(e)
       	})
       })
-      .catch(err=>res.json(responseFactory("rejectXOXO", err)))
+      .catch(e=>res.json(responseFactory("rejectXOXO", e)))
 
   	})
   } else {
@@ -116,22 +116,16 @@ router.post('/xlsx/new', (req, res)=>{
 router.post('/xlsx/update', (req, res)=>{
   importModel.updateDoc(req.body)
   .then(d=>{
-    console.log("d on: ",d)
     res.json(responseFactory("accept","Here's the updated data, sir" , d))
   })
-  .catch(err=>res.json(responseFactory("reject", err)))
+  .catch(e=>res.json(responseFactory("reject", e)))
 })
 
 // a document will be sent here FROM initial import endpoint
 const parseDocument = (documentObj) => {
-
-	//console.log(documentObj)
   if(!documentObj.matched) {documentObj.matched = []}
   documentObj.veoselehed = []
   documentObj.status = "pending"
-
-  //console.log("documentObj on: ",documentObj)
-
   var promises = []
   for(let row of documentObj.unmatched){
     if(!row._id) {row._id = mongoose.Types.ObjectId()}
@@ -151,15 +145,12 @@ const parseDocument = (documentObj) => {
   .then(()=>{
   	if(documentObj.unmatched.length > 0) {documentObj.status = "reject"}
   	else if(documentObj.unmatched.length == 0 && documentObj.matched.length > 0) {documentObj.status = "accept"}
-  	//console.log(documentObj)
     return documentObj
   })
 }
 
 const destructureDocument = (fullyParsedDoc) => {
 	let promise = new Promise((resolve,reject)=>{
-
-
 		if(fullyParsedDoc.unmatched.length == 0 && fullyParsedDoc.matched.length > 0){
 			for(let row of fullyParsedDoc.matched){
 				if(fullyParsedDoc.matched.indexOf(row) == 0){
@@ -187,14 +178,13 @@ const destructureDocument = (fullyParsedDoc) => {
 					}
 				}
 			}
-			//console.log(fullyParsedDoc)
 			resolve(fullyParsedDoc)
 		} else {resolve(fullyParsedDoc)}
 	})
 
 	return promise
-	.then(val=>{
-		return val
+	.then(d=>{
+		return d
 	})
 }
 

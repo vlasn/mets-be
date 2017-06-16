@@ -1,9 +1,9 @@
-const http = require("http")
+const http = require("http"),
 express = require("express"),
 app = express(http),
 mongoose = require('mongoose')
-require("dotenv").config()
-const MONGO_USER=process.env.MONGO_USER,
+require("dotenv").config(),
+MONGO_USER=process.env.MONGO_USER,
 MONGO_PASS=process.env.MONGO_PASS,
 MONGO_IP=process.env.MONGO_IP
 
