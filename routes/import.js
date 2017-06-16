@@ -46,13 +46,34 @@ router.post('/xlsx/new', (req, res)=>{
         for(z in worksheet) {
           if(z[0] === '!') continue
           //parse out the column, row, and value
-					if(z.length < 3){
+          //console.log(z)
+/*					if(z.length < 3){
+
 						var col = z.substring(0,1)
 	          var row = parseInt(z.substring(1))
         	} else if(z.length > 2){
         		var col = z.substring(0,2)
 	          var row = parseInt(z.substring(2))
-        	}
+        	}*/
+
+          let arr = z.split("")
+          let rowStart = null
+          let colStart = null
+          for(let l of arr){
+            if(isNaN(l) && colStart === null){
+              colStart = arr.indexOf(l)
+              console.log(colStart)
+              // tegemist on tähega
+            } else if(!isNaN(l) && rowStart == null){
+              rowStart = arr.indexOf(l)
+              console.log(rowStart)
+              // tegemist on numbriga
+            }
+          }
+        
+          var col = z.substring(colStart,rowStart)
+          var row = parseInt(z.substring(rowStart, arr.length))
+
           var value = worksheet[z].v
 
           //store header names
@@ -134,7 +155,7 @@ const parseDocument = (documentObj) => {
       .then(result=>{
         if(result){
         	let index = documentObj.unmatched.indexOf(row)
-        	console.log(index)
+        	//console.log(index)
         	documentObj.unmatched.splice(index,1)
           documentObj.matched.push(result)
         }
@@ -146,7 +167,7 @@ const parseDocument = (documentObj) => {
   .then(()=>{
   	if(documentObj.unmatched.length > 0) {documentObj.status = "reject"}
   	else if(documentObj.unmatched.length == 0 && documentObj.matched.length > 0) {documentObj.status = "accept"}
-  	console.log(documentObj)
+  	//console.log(documentObj)
     return documentObj
   })
 }
