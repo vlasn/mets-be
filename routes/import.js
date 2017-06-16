@@ -7,6 +7,7 @@ masterPricelist = require('./../models/masterPricelistModel.js'),
 pricelist = require('./../models/southNorthPricelistModel.js'),
 importModel = require('./../models/importModel.js'),
 helper = require('./helper.js'),
+mongoose = require('mongoose'),
 path = require('path'),
 responseFactory = helper.responseFactory
 
@@ -59,14 +60,15 @@ router.post('/xlsx/new', (req, res)=>{
           let arr = z.split("")
           let rowStart = null
           let colStart = null
+          // console.log("isnan: ",isNaN(""),"parseint: ", )
           for(let l of arr){
             if(isNaN(l) && colStart === null){
               colStart = arr.indexOf(l)
-              console.log(colStart)
+              //console.log(colStart)
               // tegemist on tähega
             } else if(!isNaN(l) && rowStart == null){
               rowStart = arr.indexOf(l)
-              console.log(rowStart)
+              //console.log(rowStart)
               // tegemist on numbriga
             }
           }
@@ -112,29 +114,10 @@ router.post('/xlsx/new', (req, res)=>{
 })
 
 router.post('/xlsx/update', (req, res)=>{
-   parseDocument(req.body)
+  importModel.updateDoc(req.body)
   .then(d=>{
-  	if(d.unmatched.length > 0){
-		  importModel.updateDoc(d)
-    	.then(ok=>{
-    		res.json(responseFactory("accept", "Uploaded to MongoDB", ok))
-    	},
-    	err=>{
-    		res.send(err)
-    	})
-  		res.json(responseFactory("accept", "Needs attention", d))
-  	} else if(d.unmatched.length == 0 && d.matched.length > 0){
-  		destructureDocument(d)
-  		.then(results=>{
-	  		importModel.updateDoc(results)
-	    	.then(ok=>{
-	    		res.json(responseFactory("accept", "Uploaded to MongoDB", ok))
-	    	},
-	    	err=>{
-	    		res.send(err)
-	    	})
-  		})
-  	}
+    console.log("d on: ",d)
+    res.json(responseFactory("accept","Here's the updated data, sir" , d))
   })
   .catch(err=>res.json(responseFactory("reject", err)))
 })
@@ -151,6 +134,7 @@ const parseDocument = (documentObj) => {
 
   var promises = []
   for(let row of documentObj.unmatched){
+    if(!row._id) {row._id = mongoose.Types.ObjectId()}
     var promise = pricelist.checkForMatch(row)
       .then(result=>{
         if(result){

@@ -24,9 +24,12 @@ const newDoc = (imported_doc)=>{
 }
 
 const updateDoc = (doc)=>{
-  let conditions = {_id: doc._id}
-  return importModel.findOneAndUpdate(conditions, doc, {new: true})
+  let conditions = {'unmatched': {$elemMatch:{_id: mongoose.Types.ObjectId(doc.row_id)}}}
+  let update = {'$set': {'unmatched.$': doc.new}}
+  return importModel.findOneAndUpdate(conditions, update, {new: true})
 }
+
+
 
 const retrieve = ()=>{
   return importModel.find({}).sort('-date')
