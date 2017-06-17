@@ -40,41 +40,29 @@ router.post('/xlsx/new', (req, res)=>{
 
         for(let z in worksheet) {
           if(z[0] === '!') continue
-
-          let arr = z.split("")
-          let rowStart = null
-          let colStart = null
-
-          for(let l of arr){
-            if(isNaN(l) && colStart === null){
-              colStart = arr.indexOf(l)
-            } else if(!isNaN(l) && rowStart === null){
-              rowStart = arr.indexOf(l)
-            }
-          }
-        
-          let col = z.substring(colStart,rowStart)
-          let row = parseInt(z.substring(rowStart, arr.length))
+          let c = "", r = ""
+          for(s of z) isNaN(s) ? c+=s : r+=s
+          r = parseInt(r)
           let value = worksheet[z].v
 
           //store header names
-          if(row == 1) {
-            headers[col] = value
+          if(r == 1) {
+            headers[c] = value
             continue
           }
 
-          if(!data.unmatched[row]) data.unmatched[row]={}
-          data.unmatched[row][headers[col]] = value
+          if(!data.unmatched[r]) data.unmatched[r]={}
+          data.unmatched[r][headers[c]] = value
         }
 
-        //drop those first two rows which are empty
+        //drop those first two rs which are empty
         data.unmatched.shift()
         data.unmatched.shift()
       }
 
     	parse(data)
       .then(d=>{
-        console.log(d)
+        //console.log(d)
       	importModel.newDoc(d)
       	.then(ok=>{
       		res.json(responseFactory("accept", "Here you go sir", ok))
@@ -91,9 +79,9 @@ router.post('/xlsx/new', (req, res)=>{
   }
 })
 
-// FE sends in _id and altered version of the document.unmatched.$ row
-// BE finds that row in MongoDB by _id, applies the changes made by FE
-// then reparses the whole document and if there's no unmatched rows
+// FE sends in _id and altered version of the document.unmatched.$ r
+// BE finds that r in MongoDB by _id, applies the changes made by FE
+// then reparses the whole document and if there's no unmatched rs
 // the document will be destructured
 router.post('/xlsx/update', (req, res)=>{
   importModel.updateDoc(req.body)
@@ -106,45 +94,6 @@ router.post('/xlsx/update', (req, res)=>{
   })
   .catch(e=>res.json(responseFactory("reject", e)))
 })
-
-/*const destructureDocument = (fullyParsedDoc) => {
-	let promise = new Promise((resolve,reject)=>{
-		if(fullyParsedDoc.unmatched.length == 0 && fullyParsedDoc.matched.length > 0){
-			for(let row of fullyParsedDoc.matched){
-				if(fullyParsedDoc.matched.indexOf(row) == 0){
-					fullyParsedDoc.veoselehed[0] = {
-						VL_nr: row['Elvise VL nr'],
-						cadastre: row['Katastritunnus'],
-						rows: []
-					}
-					fullyParsedDoc.veoselehed[0].rows.push(row)
-				} else if(fullyParsedDoc.matched.indexOf(row) > 0){
-					let len = fullyParsedDoc.veoselehed.length
-					for(let el of fullyParsedDoc.veoselehed){
-						if(row['Elvise VL nr'] == el.VL_nr){
-							el.rows.push(row)
-							break
-						} else if(row['Elvise VL nr'] != el.VL_nr){
-							fullyParsedDoc.veoselehed[len] = {
-								VL_nr: row['Elvise VL nr'],
-								cadastre: row['Katastritunnus'],
-								rows: []
-							}
-							fullyParsedDoc.veoselehed[len].rows.push(row)
-							break
-						}
-					}
-				}
-			}
-			resolve(fullyParsedDoc)
-		} else {resolve(fullyParsedDoc)}
-	})
-
-	return promise
-	.then(d=>{
-		return d
-	})
-}*/
 
 router.get('/fetch', (req, res)=>{
   importModel.retrieve()
