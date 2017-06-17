@@ -42,8 +42,10 @@ const contractModel = mongoose.model('contract', contractSchema)
 const create = (new_contract)=>{
   let contract = new contractModel({
     esindajad: new_contract.email,
+    projektijuht: new_contract.projektijuht,
     metsameister: new_contract.metsameister,
     documents: new_contract.documents,
+    dates: new_contract.dates,
     hinnatabel: new_contract.hinnatabel,
     contract_creator: new_contract.contract_creator,
     katastritunnused: new_contract.katastritunnused,
