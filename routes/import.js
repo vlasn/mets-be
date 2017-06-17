@@ -4,6 +4,7 @@ router = express.Router(),
 xlsx = require('xlsx'),
 bodyParser = require('body-parser'),
 importModel = require('./../models/importModel.js'),
+pricelist = require('./../models/southNorthPricelistModel.js'),
 helper = require('./helper.js'),
 mongoose = require('mongoose'),
 path = require('path'),
@@ -79,6 +80,14 @@ router.post('/xlsx/new', (req, res)=>{
   }
 })
 
+pricelist.returnDistinct()
+.then(d=>{
+  console.log(d)
+})
+.catch(e=>{
+  console.log(e)
+})
+
 // FE sends in _id and altered version of the document.unmatched.$ r
 // BE finds that r in MongoDB by _id, applies the changes made by FE
 // then reparses the whole document and if there's no unmatched rs
@@ -96,11 +105,19 @@ router.post('/xlsx/update', (req, res)=>{
 })
 
 router.get('/fetch', (req, res)=>{
+  let response = {}
   importModel.retrieve()
-  .then(docs=>{
-    if(docs){res.json(responseFactory("accept", "Siin on stuffi", docs))}
+  .then(d=>{
+    if(!d) {return Promise.reject('Polnud docse')}
+    response.data = d
+    return pricelist.returnDistinct()
   })
-  .catch(err=>{console.log("err",err)})
+  .then(d=>{
+    response.dropdown = d
+    res.json(responseFactory("accept", "Siin on stuffi", response))
+  })
+    
+  .catch(err=>{res.send(err)})
 })
 
 module.exports = {router}

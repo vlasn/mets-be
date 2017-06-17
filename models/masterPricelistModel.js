@@ -52,8 +52,6 @@ const checkForMatch = (incomingRow) => {
   return promise
 }
 
-
-
 module.exports = {
 	masterPricelistModel,
   insert,
