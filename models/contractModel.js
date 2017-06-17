@@ -48,7 +48,7 @@ const create = (new_contract)=>{
     dates: new_contract.dates,
     hinnatabel: new_contract.hinnatabel,
     contract_creator: new_contract.contract_creator,
-    katastritunnused: new_contract.katastritunnused,
+    kinnistu: new_contract.kinnistu,
     status: new_contract.status,
     created_timestamp: Date.now()
   })
@@ -81,8 +81,8 @@ const updateContractLine = (id, key, value, remove=false) => {
 const fetch = (cadastre, metsameister, status)=>{
   return (contractModel.find({ 
     $or: [
-      {'katastritunnused.tunnus': {$regex: cadastre}}, 
-      {'katastritunnused.nimi': { $regex: cadastre }},
+      {'kinnistu.nimi': {$regex: cadastre}}, 
+      {'kinnistu.katastritunnused': { $regex: cadastre }},
       {'esindajad': { $regex: cadastre }}
     ],
     metsameister: {$regex: metsameister},
