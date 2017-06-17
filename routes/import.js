@@ -65,7 +65,7 @@ router.post('/xlsx/new', (req, res)=>{
         //console.log(d)
       	importModel.newDoc(d)
       	.then(ok=>{
-      		res.json(responseFactory("accept", "Here you go sir", ok))
+      		res.json(responseFactory("accept", "Matched: "+d.matched.length+" and unmatched: "+d.unmatched.length, ok))
       	},
       	e=>{
       		res.send(e)

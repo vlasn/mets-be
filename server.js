@@ -14,6 +14,9 @@ options = {
 	}
 }
 
+let nimi = "peeter"
+console.log(nimi.replace(/e/g,'a'))
+
 mongoose.connect(MONGO_IP, options)
 mongoose.connection.on('error', console.error.bind(console,'connection:error'))
 mongoose.connection.once('open', ()=> console.log('MongoDB successfully connected'))
