@@ -11,8 +11,6 @@ mongoose = require('mongoose'),
 path = require('path'),
 responseFactory = helper.responseFactory
 
-// default options 
-//app.use(bodyParser.urlencoded({ extended: true }))
 router.use(bodyParser.json())
 router.use(bodyParser.urlencoded({extended: true}))
 router.use(fileUpload())
@@ -31,51 +29,32 @@ router.post('/xlsx/new', (req, res)=>{
 	let loc = path.resolve(__dirname, `../uploaded_files/${sampleFile.name}`)
   	sampleFile.mv(loc, function(err) {
     	if (err) return res.status(500).send(err)
-      var matches = 0
-      var mismatches = 0
-      var workbook = xlsx.readFile(loc)
-      var sheet_name_list = workbook.SheetNames
-      var data = {
-      	unmatched: []
-      }
+      let workbook = xlsx.readFile(loc)
+      let sheet_name_list = workbook.SheetNames
+      let data = {unmatched: []}
 
-      sheet_name_list.forEach(function(y) {
+/*      sheet_name_list.forEach(function(y) {
 
         var worksheet = workbook.Sheets[y]
         var headers = {}
 
         for(z in worksheet) {
           if(z[0] === '!') continue
-          //parse out the column, row, and value
-          //console.log(z)
-/*					if(z.length < 3){
-
-						var col = z.substring(0,1)
-	          var row = parseInt(z.substring(1))
-        	} else if(z.length > 2){
-        		var col = z.substring(0,2)
-	          var row = parseInt(z.substring(2))
-        	}*/
 
           let arr = z.split("")
           let rowStart = null
           let colStart = null
-          // console.log("isnan: ",isNaN(""),"parseint: ", )
+
           for(let l of arr){
             if(isNaN(l) && colStart === null){
               colStart = arr.indexOf(l)
-              //console.log(colStart)
-              // tegemist on tähega
             } else if(!isNaN(l) && rowStart == null){
               rowStart = arr.indexOf(l)
-              //console.log(rowStart)
-              // tegemist on numbriga
             }
           }
         
           var col = z.substring(colStart,rowStart)
           var row = parseInt(z.substring(rowStart, arr.length))
-
           var value = worksheet[z].v
 
           //store header names
@@ -91,10 +70,47 @@ router.post('/xlsx/new', (req, res)=>{
         //drop those first two rows which are empty
         data.unmatched.shift()
         data.unmatched.shift()
-        //console.log(data[0])
-        //console.log(data.length)
-      })
-    	
+      })*/
+
+
+      for(let y of sheet_name_list){
+        let worksheet = workbook.Sheets[y]
+        let headers = {}
+
+        for(let z in worksheet) {
+          if(z[0] === '!') continue
+
+          let arr = z.split("")
+          let rowStart = null
+          let colStart = null
+
+          for(let l of arr){
+            if(isNaN(l) && colStart === null){
+              colStart = arr.indexOf(l)
+            } else if(!isNaN(l) && rowStart === null){
+              rowStart = arr.indexOf(l)
+            }
+          }
+        
+          let col = z.substring(colStart,rowStart)
+          let row = parseInt(z.substring(rowStart, arr.length))
+          let value = worksheet[z].v
+
+          //store header names
+          if(row == 1) {
+            headers[col] = value
+            continue
+          }
+
+          if(!data.unmatched[row]) data.unmatched[row]={}
+          data.unmatched[row][headers[col]] = value
+        }
+
+        //drop those first two rows which are empty
+        data.unmatched.shift()
+        data.unmatched.shift()
+      }
+
     	parseDocument(data)
       .then(d=>{
       	importModel.newDoc(d)
@@ -105,7 +121,7 @@ router.post('/xlsx/new', (req, res)=>{
       		res.send(e)
       	})
       })
-      .catch(e=>res.json(responseFactory("rejectXOXO", e)))
+      .catch(e=>res.json(responseFactory("reject", e)))
 
   	})
   } else {
@@ -116,6 +132,7 @@ router.post('/xlsx/new', (req, res)=>{
 router.post('/xlsx/update', (req, res)=>{
   importModel.updateDoc(req.body)
   .then(d=>{
+    // FE should reload with this payload
     res.json(responseFactory("accept","Here's the updated data, sir" , d))
   })
   .catch(e=>res.json(responseFactory("reject", e)))
