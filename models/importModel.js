@@ -29,7 +29,7 @@ const updateDoc = (d)=>{
   return importModel.findOneAndUpdate(conditions, update, {new: true})
 }
 
-const retrieve = () => {return importModel.find({}).sort('-date')}
+const retrieve = () => {return importModel.find({$or: [{status: "reject"},{status: "pending"}]}, {status: 1}).sort('-date')}
 
 module.exports = {importModel, newDoc, retrieve, updateDoc}
 
