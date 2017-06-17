@@ -5,9 +5,8 @@ mongoose = require('mongoose')
 require("dotenv").config(),
 MONGO_USER=process.env.MONGO_USER,
 MONGO_PASS=process.env.MONGO_PASS,
-MONGO_IP=process.env.MONGO_IP
-
-const options = {
+MONGO_IP=process.env.MONGO_IP,
+options = {
 	user: MONGO_USER,
 	pass: MONGO_PASS,
 	auth: {

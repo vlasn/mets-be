@@ -14,7 +14,7 @@ const checkForMatch = (incomingRow) => {
   let promise = new Promise((resolve, reject)=>{
     southNorthPricelistModel.findOne({
       
-      Sihtkoht: incomingRow['Ostja']
+      Sihtkoht: {$regex: incomingRow['Ostja']}
 /*        tree_species: incomingRow.puuliik,
       quality: incomingRow.kvaliteet*/
       }, '_id')

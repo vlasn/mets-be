@@ -3,13 +3,13 @@ fileUpload = require('express-fileupload'),
 router = express.Router(),
 xlsx = require('xlsx'),
 bodyParser = require('body-parser'),
-masterPricelist = require('./../models/masterPricelistModel.js'),
-pricelist = require('./../models/southNorthPricelistModel.js'),
 importModel = require('./../models/importModel.js'),
 helper = require('./helper.js'),
 mongoose = require('mongoose'),
 path = require('path'),
-responseFactory = helper.responseFactory
+responseFactory = helper.responseFactory,
+parse = require('./parse'),
+destructure = require('./destructure')
 
 router.use(bodyParser.json())
 router.use(bodyParser.urlencoded({extended: true}))
@@ -29,49 +29,10 @@ router.post('/xlsx/new', (req, res)=>{
 	let loc = path.resolve(__dirname, `../uploaded_files/${sampleFile.name}`)
   	sampleFile.mv(loc, function(err) {
     	if (err) return res.status(500).send(err)
+
       let workbook = xlsx.readFile(loc)
       let sheet_name_list = workbook.SheetNames
       let data = {unmatched: []}
-
-/*      sheet_name_list.forEach(function(y) {
-
-        var worksheet = workbook.Sheets[y]
-        var headers = {}
-
-        for(z in worksheet) {
-          if(z[0] === '!') continue
-
-          let arr = z.split("")
-          let rowStart = null
-          let colStart = null
-
-          for(let l of arr){
-            if(isNaN(l) && colStart === null){
-              colStart = arr.indexOf(l)
-            } else if(!isNaN(l) && rowStart == null){
-              rowStart = arr.indexOf(l)
-            }
-          }
-        
-          var col = z.substring(colStart,rowStart)
-          var row = parseInt(z.substring(rowStart, arr.length))
-          var value = worksheet[z].v
-
-          //store header names
-          if(row == 1) {
-            headers[col] = value
-            continue
-          }
-
-          if(!data.unmatched[row]) data.unmatched[row]={}
-          data.unmatched[row][headers[col]] = value
-        }
-
-        //drop those first two rows which are empty
-        data.unmatched.shift()
-        data.unmatched.shift()
-      })*/
-
 
       for(let y of sheet_name_list){
         let worksheet = workbook.Sheets[y]
@@ -111,8 +72,9 @@ router.post('/xlsx/new', (req, res)=>{
         data.unmatched.shift()
       }
 
-    	parseDocument(data)
+    	parse(data)
       .then(d=>{
+        console.log(d)
       	importModel.newDoc(d)
       	.then(ok=>{
       		res.json(responseFactory("accept", "Here you go sir", ok))
@@ -129,44 +91,23 @@ router.post('/xlsx/new', (req, res)=>{
   }
 })
 
+// FE sends in _id and altered version of the document.unmatched.$ row
+// BE finds that row in MongoDB by _id, applies the changes made by FE
+// then reparses the whole document and if there's no unmatched rows
+// the document will be destructured
 router.post('/xlsx/update', (req, res)=>{
   importModel.updateDoc(req.body)
   .then(d=>{
     // FE should reload with this payload
-    res.json(responseFactory("accept","Here's the updated data, sir" , d))
+    parse(d)
+    .then(d=>{
+      d.unmatched.length == 0 ? res.json(responseFactory("accept", "", destructure(d))) : res.json(responseFactory("accept", "", d))
+    })
   })
   .catch(e=>res.json(responseFactory("reject", e)))
 })
 
-// a document will be sent here FROM initial import endpoint
-const parseDocument = (documentObj) => {
-  if(!documentObj.matched) {documentObj.matched = []}
-  documentObj.veoselehed = []
-  documentObj.status = "pending"
-  var promises = []
-  for(let row of documentObj.unmatched){
-    if(!row._id) {row._id = mongoose.Types.ObjectId()}
-    var promise = pricelist.checkForMatch(row)
-      .then(result=>{
-        if(result){
-        	let index = documentObj.unmatched.indexOf(row)
-        	//console.log(index)
-        	documentObj.unmatched.splice(index,1)
-          documentObj.matched.push(result)
-        }
-      })
-    promises.push(promise)
-  }
-
-  return Promise.all(promises)
-  .then(()=>{
-  	if(documentObj.unmatched.length > 0) {documentObj.status = "reject"}
-  	else if(documentObj.unmatched.length == 0 && documentObj.matched.length > 0) {documentObj.status = "accept"}
-    return documentObj
-  })
-}
-
-const destructureDocument = (fullyParsedDoc) => {
+/*const destructureDocument = (fullyParsedDoc) => {
 	let promise = new Promise((resolve,reject)=>{
 		if(fullyParsedDoc.unmatched.length == 0 && fullyParsedDoc.matched.length > 0){
 			for(let row of fullyParsedDoc.matched){
@@ -203,7 +144,7 @@ const destructureDocument = (fullyParsedDoc) => {
 	.then(d=>{
 		return d
 	})
-}
+}*/
 
 router.get('/fetch', (req, res)=>{
   importModel.retrieve()

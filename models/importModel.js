@@ -12,28 +12,24 @@ const importSchema = mongoose.Schema({
 
 const importModel = mongoose.model('import', importSchema)
 
-const newDoc = (imported_doc)=>{
+const newDoc = (d)=>{
   let doc = new importModel({
-    matched: imported_doc.matched,
-    unmatched: imported_doc.unmatched,
-    veoselehed: [],
-    status: imported_doc.status,
+    matched: d.matched,
+    unmatched: d.unmatched,
+    veoselehed: d.veoselehed,
+    status: d.status,
     date: Date.now()
   })
   return doc.save()
 }
 
-const updateDoc = (doc)=>{
-  let conditions = {'unmatched': {$elemMatch:{_id: mongoose.Types.ObjectId(doc.row_id)}}}
-  let update = {'$set': {'unmatched.$': doc.new}}
+const updateDoc = (d)=>{
+  let conditions = {'unmatched': {$elemMatch:{_id: mongoose.Types.ObjectId(d.new._id)}}}
+  let update = {'$set': {'unmatched.$': d.new}}
   return importModel.findOneAndUpdate(conditions, update, {new: true})
 }
 
-
-
-const retrieve = ()=>{
-  return importModel.find({}).sort('-date')
-}
+const retrieve = () => {return importModel.find({}).sort('-date')}
 
 module.exports = {importModel, newDoc, retrieve, updateDoc}
 
