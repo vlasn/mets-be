@@ -27,10 +27,10 @@ const contractSchema = mongoose.Schema({
     timestamp: {type: Date, default: Date.now()},
     snapshot: {type: String, required: true}
   },
-  katastritunnused: [{
-    tunnus: String,
-    nimi: String
-  }],
+  katastritunnused: {
+    nimi: String,
+    tunnused: [String]
+  },
   contract_creator: {type: String, required: true},
   created_timestamp: {type: Date, default: Date.now()},
   status: String
