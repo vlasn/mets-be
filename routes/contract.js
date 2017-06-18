@@ -16,14 +16,14 @@ router.post("/create",(req, res)=>{
     if(!foundEmail){return Promise.reject("Sellise emailiga klienti ei leitud!")}
     contractModel.create(req.body)
     .then((createdContract)=>{
-      if(createdContract){return res.json(responseFactory("accept","Leping loodud!"))}
+      if(createdContract){res.status(200).json(responseFactory("accept","Leping loodud!"))}
     },
-    (err)=>{
-      return res.json(responseFactory("reject", err))
+    err=>{
+      res.status(500).json(responseFactory("reject", err))
     })
   })
   .catch(err=>{
-    res.json(responseFactory("reject", err))
+    res.status(500).json(responseFactory("reject", err))
   })
 })
 
@@ -32,10 +32,10 @@ router.post("/fetchAll",(req, res)=>{
   contractModel.fetchAllClientRelated(req.body.email)
   .then(docs => {
     if (!docs) {return Promise.reject('Ei leidnud lepinguid!')}
-    res.json(responseFactory("accept", "The documents as per requested, my good sir", docs))
+    res.status(200).json(responseFactory("accept", "The documents as per requested, my good sir", docs))
   })
   .catch(err => {
-    res.json(responseFactory("reject", err))
+    res.status(500).json(responseFactory("reject", err))
   })
 })
 
@@ -46,9 +46,9 @@ router.get("/fetch", (req, res)=>{
   contractModel.fetch(cadastre, metsameister, status)
   .then(docs=>{
     if(!docs || docs === null){return Promise.reject('Ei leidnud selliseid lepinguid!')}
-    res.json(responseFactory("accept", "The documents as per requested, my good sir", docs))
+    res.status(200).json(responseFactory("accept", "The documents as per requested, my good sir", docs))
   })
-  .catch(err=>console.log(err))
+  .catch(err=>res.status(500).json(responseFactory("reject", err)))
 })
 
 router.put("/update/:id", (req,res)=>{
@@ -60,15 +60,15 @@ router.put("/update/:id", (req,res)=>{
     .then(d => {
       if(!d || d===null) {
         console.log(`Couldn't find document ${id} to update.`)
-        res.json(responseFactory('reject','Kirjet ei leitud!'))
+        res.status(500).json(responseFactory('reject','Kirjet ei leitud!'))
       } else {
         console.log(`${key} of document ${id} is now ${value}`)
-        res.json(responseFactory('accept','ok',d))
+        res.status(200).json(responseFactory('accept','ok',d))
       }
     })
     .catch(e => {
       console.log(e)
-      res.json(responseFactory('reject','okou',e))
+      res.status(500).json(responseFactory('reject','okou',e))
     })
 })
 

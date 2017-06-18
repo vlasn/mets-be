@@ -7,20 +7,31 @@ mongoose.Promise = global.Promise
 const southNorthPricelistModel = mongoose.model('southnorth_price', pricelistSchema)
 
 const insert = (data) => {
-  return southNorthPricelistModel.insertMany(data)
+
+
+  let row = new southNorthPricelistModel({ 
+    Sihtkoht: data.Sihtkoht,
+    Puuliik: data.Puuliik,
+    Sortiment: data.Sortiment,
+    Diameeter_min: data.Diameeter_min,
+    Diameeter_max: data.Diameeter_max,
+    Pikkus_min: data.Pikkus_min,
+    Pikkus_max: data.Pikkus_max,
+    Kvaliteet: data.Kvaliteet,
+    Hind: data.Hind,
+    Ylestootamine: data.Ylestootamine,
+    Vosatood: data.Vosatood,
+    Vedu: data.Vedu,
+    Tasu: data.Tasu,
+    Tulu: data.Tulu
+  })
+  return row.save()
 }
 
-// puuliik, kvaliteet, hinna_gr_võti, pikkus
+// Puuliik, Kvaliteet, Diameeter_min, Diameeter_max, Pikkus_min, Pikkus_max
 
-const returnDistinct = () => {
-  return Promise.all([
-    southNorthPricelistModel.find().distinct("Puuliik").then(res => { return {'Puuliik': res} }),
-    southNorthPricelistModel.find().distinct("Kvaliteet").then(res => { return {'Kvaliteet': res} }),
-    southNorthPricelistModel.find().distinct("Diameeter_min").then(res =>{return {'Diameeter_min': res}}),
-    southNorthPricelistModel.find().distinct("Diameeter_max").then(res =>{return {'Diameeter_max': res}}),
-    southNorthPricelistModel.find().distinct("Pikkus_min").then(res =>{return {'Pikkus_min': res}}),
-    southNorthPricelistModel.find().distinct("Pikkus_max").then(res =>{return {'Pikkus_max': res}})
-  ])
+const returnDistinct = k => {
+  return southNorthPricelistModel.find().distinct(k)
 }
 
 const checkForMatch = (incomingRow) => {
