@@ -7,7 +7,7 @@ mongoose.Promise = global.Promise
 const southPricelistModel = mongoose.model('south_price', pricelistSchema)
 
 const insert = (data) => {
-  return southPricelistModel.insertMany(data)
+  return southPricelistModel.insert(data)
 }
 
 const checkForMatch = (incomingRow) => {
