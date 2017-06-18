@@ -29,10 +29,10 @@ router.post('/leping', function (req, res) {
 	upload(req, res, function (err) {
     if (err){
     	console.log(err)
-    	return res.json(responseFactory("reject","Something went wrong... :("))
+    	res.status(500).json(responseFactory("reject","Something went wrong... :("))
    	}
     console.log(req.body)
-    res.json(responseFactory("accept","File was uploaded!"))
+    res.status(200).json(responseFactory("accept","File was uploaded!"))
   })
 })
 
@@ -40,10 +40,10 @@ router.post('/metsateatis', function (req, res) {
 	upload(req, res, function (err) {
     if (err){
     	console.log(err)
-    	res.json(responseFactory("reject","Something went wrong... :("))
+    	res.status(500).json(responseFactory("reject","Something went wrong... :("))
    	}
     console.log(req.body)
-    res.json(responseFactory("accept","File was uploaded!"))
+    res.status(200).json(responseFactory("accept","File was uploaded!"))
   })
 })
 
