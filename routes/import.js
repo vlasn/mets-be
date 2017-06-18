@@ -66,17 +66,17 @@ router.post('/xlsx/new', (req, res)=>{
         //console.log(d)
       	importModel.newDoc(d)
       	.then(ok=>{
-      		res.json(responseFactory("accept", "Matched: "+d.matched.length+" and unmatched: "+d.unmatched.length, ok))
+      		res.status(200).json(responseFactory("accept", "Matched: "+d.matched.length+" and unmatched: "+d.unmatched.length, ok))
       	},
       	e=>{
-      		res.send(e)
+      		res.status(500).send(e)
       	})
       })
-      .catch(e=>res.json(responseFactory("reject", e)))
+      .catch(e=>res.status(500).json(responseFactory("reject", e)))
 
   	})
   } else {
-  	res.send('Incorrect file type!')
+  	res.status(400).send('Incorrect file type!')
   }
 })
 
@@ -90,10 +90,10 @@ router.post('/xlsx/update', (req, res)=>{
     // FE should reload with this payload
     parse(d)
     .then(d=>{
-      d.unmatched.length == 0 ? res.json(responseFactory("accept", "", destructure(d))) : res.json(responseFactory("accept", "", d))
+      d.unmatched.length == 0 ? res.status(200).json(responseFactory("accept", "", destructure(d))) : res.status(200).json(responseFactory("accept", "", d))
     })
   })
-  .catch(e=>res.json(responseFactory("reject", e)))
+  .catch(e=>res.status(500).json(responseFactory("reject", e)))
 })
 
 router.get('/fetch', (req, res)=>{
@@ -106,10 +106,10 @@ router.get('/fetch', (req, res)=>{
   })
   .then(d=>{
     response.dropdown = d
-    res.json(responseFactory("accept", "Siin on stuffi", response))
+    res.status(200).json(responseFactory("accept", "Siin on stuffi", response))
   })
     
-  .catch(err=>{res.send(err)})
+  .catch(err=>{res.status(500).send(err)})
 })
 
 router.get('/fieldOpts/:fieldKey', (req, res)=>{
