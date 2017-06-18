@@ -10,17 +10,10 @@ const insert = (data) => {
   return southNorthPricelistModel.insertMany(data)
 }
 
-// puuliik, kvaliteet, hinna_gr_võti, pikkus
+// Puuliik, Kvaliteet, Diameeter_min, Diameeter_max, Pikkus_min, Pikkus_max
 
-const returnDistinct = () => {
-  return Promise.all([
-    southNorthPricelistModel.find().distinct("Puuliik").then(res => { return {'Puuliik': res} }),
-    southNorthPricelistModel.find().distinct("Kvaliteet").then(res => { return {'Kvaliteet': res} }),
-    southNorthPricelistModel.find().distinct("Diameeter_min").then(res =>{return {'Diameeter_min': res}}),
-    southNorthPricelistModel.find().distinct("Diameeter_max").then(res =>{return {'Diameeter_max': res}}),
-    southNorthPricelistModel.find().distinct("Pikkus_min").then(res =>{return {'Pikkus_min': res}}),
-    southNorthPricelistModel.find().distinct("Pikkus_max").then(res =>{return {'Pikkus_max': res}})
-  ])
+const returnDistinct = k => {
+  return southNorthPricelistModel.find().distinct(k)
 }
 
 const checkForMatch = (incomingRow) => {
