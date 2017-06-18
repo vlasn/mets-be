@@ -2,6 +2,7 @@ const http = require("http"),
 express = require("express"),
 app = express(http),
 mongoose = require('mongoose')
+morgan = require("morgan"),
 require("dotenv").config(),
 MONGO_USER=process.env.MONGO_USER,
 MONGO_PASS=process.env.MONGO_PASS,
@@ -14,8 +15,7 @@ options = {
 	}
 }
 
-let nimi = "peeter"
-console.log(nimi.replace(/e/g,'a'))
+app.use(morgan('dev'))
 
 mongoose.connect(MONGO_IP, options)
 mongoose.connection.on('error', console.error.bind(console,'connection:error'))
