@@ -61,19 +61,17 @@ const fetchAllClientRelated = (client_email)=>{
 
 //very basic, needs
 const updateContractLine = (id, key, value, remove=false) => {
-  let action = null
-  if(key=='esindajad'||key=='katastritunnused'){
-    action = remove ? '$pull' : '$push'
-  } else if (key=='metsameister' || key=='projektijuht') {
-    action = remove ? '$unset' : '$set'
-  } else {
-    return Promise.reject('Sellise key-ga updatemiseks leiad mõne teise endpointi ka.')
-  }
   /*
     Vajab dates objekti uuendamiseks edasist query-buildingut
    */
+  if(key==='katastritunnused'){
+    update = {$set : {'kinnistu.katastritunnused': value}}
+  } else if(key==='kinnistu') {
+    update = {$set: {'kinnistu.nimi': value}}
+  } else {
+    update = {$set:{[key]:value}}
+  }
   let opt = {new: true}
-  let update = {[action]:{[key]:value}}
   console.log(update)
   return(contractModel.findOneAndUpdate({_id: id}, update, opt))
 }
