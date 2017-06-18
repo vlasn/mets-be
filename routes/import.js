@@ -80,14 +80,6 @@ router.post('/xlsx/new', (req, res)=>{
   }
 })
 
-pricelist.returnDistinct()
-.then(d=>{
-  console.log(d)
-})
-.catch(e=>{
-  console.log(e)
-})
-
 // FE sends in _id and altered version of the document.unmatched.$ r
 // BE finds that r in MongoDB by _id, applies the changes made by FE
 // then reparses the whole document and if there's no unmatched rs
@@ -118,6 +110,14 @@ router.get('/fetch', (req, res)=>{
   })
     
   .catch(err=>{res.send(err)})
+})
+
+router.get('/fieldOpts/:fieldKey', (req, res)=>{
+  pricelist.returnDistinct(req.params.fieldKey)
+  .then(d=>{
+    res.status(200).json(responseFactory("accept", "Siin on stuffi", d))
+  })
+  .catch(err=>{res.status(500).send(err)})
 })
 
 module.exports = {router}
