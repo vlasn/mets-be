@@ -116,8 +116,9 @@ router.get('/fetch', (req, res)=>{
 router.get('/fieldOpts/:fieldKey', (req, res)=>{
   pricelist.returnDistinct(req.params.fieldKey)
   .then(d=>{
+    let r
     if(req.params.fieldKey.includes("Diameeter") || req.params.fieldKey.includes("Pikkus")) {
-      let r = d.filter((t)=>{return typeof t === 'number'})
+      r = d.filter((t)=>{return typeof t === 'number'})
     } else {
       r = d
     }
