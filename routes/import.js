@@ -85,37 +85,40 @@ router.post('/xlsx/new', (req, res)=>{
 // then reparses the whole document and if there's no unmatched rs
 // the document will be destructured
 router.post('/xlsx/update', (req, res)=>{
+  console.log(req.body)
   importModel.updateDoc(req.body)
   .then(d=>{
     // FE should reload with this payload
-    parse(d)
-    .then(d=>{
+    //parse(d)
+/*    .then(d=>{
+      if()
       d.unmatched.length == 0 ? res.status(200).json(responseFactory("accept", "", destructure(d))) : res.status(200).json(responseFactory("accept", "", d))
-    })
+    })*/
+    console.log(d)
+    pricelist.checkForMatch(d)
+    .then(d=>{res.send(d)})
   })
   .catch(e=>res.status(500).json(responseFactory("reject", e)))
 })
 
 router.get('/fetch', (req, res)=>{
-  let response = {}
-  importModel.retrieve()
+  let id = req.query.id
+  importModel.retrieve(id)
   .then(d=>{
     if(!d) {return Promise.reject('Polnud docse')}
-    response.data = d
-    return pricelist.returnDistinct()
+    res.status(200).json(responseFactory("accept", "Siin on stuffi", d))
   })
-  .then(d=>{
-    response.dropdown = d
-    res.status(200).json(responseFactory("accept", "Siin on stuffi", response))
-  })
-    
   .catch(err=>{res.status(500).send(err)})
 })
+
+
 
 router.get('/fieldOpts/:fieldKey', (req, res)=>{
   pricelist.returnDistinct(req.params.fieldKey)
   .then(d=>{
-    let r = d.filter((t)=>{return typeof t === 'number'})
+    if(req.params.fieldKey.includes("Diameeter") || req.params.fieldKey.includes("Pikkus")) {
+      let r = d.filter((t)=>{return typeof t === 'number'})
+    }
     res.status(200).json(responseFactory("accept", "Siin on stuffi", r))
   })
   .catch(err=>{res.status(500).send(err)})

@@ -24,12 +24,18 @@ const newDoc = (d)=>{
 }
 
 const updateDoc = (d)=>{
-  let conditions = {'unmatched': {$elemMatch:{_id: mongoose.Types.ObjectId(d.new._id)}}}
-  let update = {'$set': {'unmatched.$': d.new}}
-  return importModel.findOneAndUpdate(conditions, update, {new: true})
+  let conditions = {'unmatched': {$elemMatch:{_id: d._id}}}
+  let update = {'$set': {'unmatched.$': d}}
+  return importModel.update(conditions, update)
 }
 
-const retrieve = () => {return importModel.find({$or: [{status: "reject"},{status: "pending"}]}, {status: 1}).sort('-date')}
+const retrieve = (id) => {
+  console.log(id)
+  if(id) {return importModel.find({_id: id})}
+  return importModel.find({$or: [{status: "reject"},{status: "pending"}]}, {status: 1}).sort('-date')
+
+  
+}
 
 module.exports = {importModel, newDoc, retrieve, updateDoc}
 

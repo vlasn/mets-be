@@ -32,6 +32,10 @@ const returnDistinct = k => {
   return southNorthPricelistModel.find().distinct(k)
 }
 
+const returnTemplate = () => {
+  return southNorthPricelistModel.find({})
+}
+
 const checkForMatch = (incomingRow) => {
   if(incomingRow['hinna gr  "võti"'] == "praak") {incomingRow['hinna gr  "võti"'] = ""}
   //console.log(x.split('-')[0])
@@ -59,5 +63,5 @@ const checkForMatch = (incomingRow) => {
   return promise
 }
 
-module.exports = {southNorthPricelistModel, insert, checkForMatch, returnDistinct}
+module.exports = {southNorthPricelistModel, insert, checkForMatch, returnDistinct, returnTemplate}
 
