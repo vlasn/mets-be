@@ -7,8 +7,6 @@ mongoose.Promise = global.Promise
 const southNorthPricelistModel = mongoose.model('southnorth_price', pricelistSchema)
 
 const insert = (data) => {
-
-
   let row = new southNorthPricelistModel({ 
     Sihtkoht: data.Sihtkoht,
     Puuliik: data.Puuliik,
