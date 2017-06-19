@@ -118,6 +118,8 @@ router.get('/fieldOpts/:fieldKey', (req, res)=>{
   .then(d=>{
     if(req.params.fieldKey.includes("Diameeter") || req.params.fieldKey.includes("Pikkus")) {
       let r = d.filter((t)=>{return typeof t === 'number'})
+    } else {
+      r = d
     }
     res.status(200).json(responseFactory("accept", "Siin on stuffi", r))
   })
