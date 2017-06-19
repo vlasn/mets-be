@@ -115,7 +115,8 @@ router.get('/fetch', (req, res)=>{
 router.get('/fieldOpts/:fieldKey', (req, res)=>{
   pricelist.returnDistinct(req.params.fieldKey)
   .then(d=>{
-    res.status(200).json(responseFactory("accept", "Siin on stuffi", d))
+    let r = d.filter((t)=>{return typeof t === 'number'})
+    res.status(200).json(responseFactory("accept", "Siin on stuffi", r))
   })
   .catch(err=>{res.status(500).send(err)})
 })
