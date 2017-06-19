@@ -85,18 +85,27 @@ router.post('/xlsx/new', (req, res)=>{
 // then reparses the whole document and if there's no unmatched rs
 // the document will be destructured
 router.post('/xlsx/update', (req, res)=>{
-  console.log(req.body)
+  //console.log(req.body)
   importModel.updateDoc(req.body)
-  .then(d=>{
+  .then(raw=>{
+    pricelist.checkForMatch(req.body)
+    .then(d=>{
+      if(d === false) {return res.status(500).send(responseFactory("reject", "Ei leidnud vastet!"))}
+      res.status(200).send(responseFactory("accept", "", d.vaste))
+    })
+    
     // FE should reload with this payload
     //parse(d)
 /*    .then(d=>{
       if()
       d.unmatched.length == 0 ? res.status(200).json(responseFactory("accept", "", destructure(d))) : res.status(200).json(responseFactory("accept", "", d))
     })*/
-    console.log(d)
-    pricelist.checkForMatch(d)
-    .then(d=>{res.send(d)})
+/*    console.log(d)
+    let x = pricelist.checkForMatch(d)
+    .then(d=>{res.send(x)})*/
+  },
+  err=>{
+    res.status(500).send(err)
   })
   .catch(e=>res.status(500).json(responseFactory("reject", e)))
 })
