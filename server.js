@@ -15,6 +15,12 @@ options = {
 	}
 }
 
+let pdf = require('./routes/generatepdf.js')
+
+app.use('/api/pdf', (req,res)=>{
+	pdf(res)
+})
+
 app.use(morgan('dev'))
 
 mongoose.connect(MONGO_IP, options)
