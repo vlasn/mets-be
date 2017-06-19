@@ -41,11 +41,11 @@ const checkForMatch = (incomingRow) => {
   //console.log(x.split('-')[0])
   let promise = new Promise((resolve, reject)=>{
     southNorthPricelistModel.findOne({
-      Sihtkoht: {$regex: incomingRow['Ostja']},
-      Puuliik: incomingRow['puuliik'],
+      Sihtkoht: {$regex: incomingRow['Ostja']}
+/*      Puuliik: incomingRow['puuliik'],
       Kvaliteet: incomingRow['kvaliteet'],
       Diameeter_min: incomingRow['hinna gr  "võti"'].replace(/,/g,'.').split('-')[0],
-      Diameeter_max: incomingRow['hinna gr  "võti"'].replace(/,/g,'.').split('-')[1]
+      Diameeter_max: incomingRow['hinna gr  "võti"'].replace(/,/g,'.').split('-')[1]*/
       }, '_id')
       .then(doc=>{
         if(doc) {
