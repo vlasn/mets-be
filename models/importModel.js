@@ -1,4 +1,5 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose'),
+parse = require('./../routes/parse.js')
 //const userModel = require('./userModel.js').userModel
 mongoose.Promise = global.Promise
 
@@ -25,6 +26,14 @@ const newDoc = (d)=>{
   return doc.save()
 }
 
+const findById = (id) => {
+  return importModel.findById(id)
+}
+
+const updateWholeDoc = d => {
+  return importModel.findOneAndUpdate({_id: d.id}, d, {new: true})
+}
+
 const updateDoc = (d)=>{
   let conditions = {'unmatched': {$elemMatch:{_id: d._id}}}
   let update = {'$set': {'unmatched.$': d}}
@@ -47,5 +56,5 @@ const retrieve = (id) => {
   
 }
 
-module.exports = {importModel, newDoc, retrieve, updateDoc, fetchCargoPages}
+module.exports = {importModel, newDoc, retrieve, updateDoc, fetchCargoPages, findById, updateWholeDoc}
 

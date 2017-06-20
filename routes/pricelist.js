@@ -1,7 +1,9 @@
 const express = require('express')
 router = express.Router(),
 bodyParser = require('body-parser'),
-pricelist = require('./../models/southNorthPricelistModel.js')
+pricelist = require('./../models/southNorthPricelistModel.js'),
+importModel = require('./../models/importModel.js'),
+parse = require('./parse.js')
 
 router.use(bodyParser.json())
 router.use(bodyParser.urlencoded({ extended: true }))
@@ -9,7 +11,30 @@ router.use(bodyParser.urlencoded({ extended: true }))
 router.post("/add",(req, res)=>{
 	pricelist.insert(req.body)
 	.then(docs => {
-		res.status(200).json(responseFactory("accept","", docs))
+		if(!docs) {return Promise.reject("Mingi error")}
+		importModel.findById(req.body.parentId)
+		.then(d=>{
+			parse(d)
+			.then(data=>{
+				importModel.updateWholeDoc(data)
+				.then(d=>{
+					res.status(200).json(responseFactory("accept","", d))
+				})
+				.catch(e=>{
+					res.send(e)
+				})
+			})
+		})
+		.catch(e=>{
+			res.status(500).json(responseFactory("reject", e))
+		})
+/*		importModel.updateWholeDoc(req.body.parentId)
+		.then(d=>{
+			res.status(200).json(responseFactory("accept","", docs))
+		})
+		.catch(e=>{
+			res.status(500).json(responseFactory("reject", err))
+		})*/
 	}
 	,err => {
 		res.status(500).json(responseFactory("reject", err))
