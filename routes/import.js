@@ -55,7 +55,6 @@ router.post('/xlsx/new', (req, res)=>{
           if(!data.unmatched[r]) data.unmatched[r]={}
           data.unmatched[r][headers[c]] = value
         }
-
         //drop those first two rs which are empty
         data.unmatched.shift()
         data.unmatched.shift()
@@ -80,10 +79,6 @@ router.post('/xlsx/new', (req, res)=>{
   }
 })
 
-// FE sends in _id and altered version of the document.unmatched.$ r
-// BE finds that r in MongoDB by _id, applies the changes made by FE
-// then reparses the whole document and if there's no unmatched rs
-// the document will be destructured
 router.post('/xlsx/update', (req, res)=>{
   //console.log(req.body)
   importModel.updateDoc(req.body)
@@ -93,16 +88,6 @@ router.post('/xlsx/update', (req, res)=>{
       if(d === false) {return res.status(500).send(responseFactory("reject", "Ei leidnud vastet!"))}
       res.status(200).send(responseFactory("accept", "", d._id))
     })
-    
-    // FE should reload with this payload
-    //parse(d)
-/*    .then(d=>{
-      if()
-      d.unmatched.length == 0 ? res.status(200).json(responseFactory("accept", "", destructure(d))) : res.status(200).json(responseFactory("accept", "", d))
-    })*/
-/*    console.log(d)
-    let x = pricelist.checkForMatch(d)
-    .then(d=>{res.send(x)})*/
   },
   err=>{
     res.status(500).send(err)
@@ -121,13 +106,17 @@ router.get('/fetch', (req, res)=>{
 })
 
 router.get('/fetchCargoPages', (req, res)=>{
-  let cadastreID = req.query.cadastreid
+  let cadastreID = req.query.cadastreid.split(',')
   console.log(cadastreID)
   //for(c in req.body.cadastreIdentifiers) {cadastreIdentifiers.push(cadastreIdentifiers[c])}
   importModel.fetchCargoPages(cadastreID)
   .then(d=>{
     if(!d) {return Promise.reject('Polnud docse')}
-    res.status(200).json(responseFactory("accept", "Siin on stuffi", d.veoselehed))
+    let r = []
+    for(let f of d){
+     r.push(f.veoselehed)
+    }
+    res.status(200).json(responseFactory("accept", "Siin on stuffi", r))
   })
   .catch(err=>{res.status(500).send(err)})
 })

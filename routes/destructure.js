@@ -1,7 +1,7 @@
 module.exports = d => {
 	let promise = new Promise((resolve,reject)=>{
 		if(d.unmatched.length == 0 && d.matched.length > 0){
-			d.status = "acceptDESTRUCTURED"
+			d.status = "accept"
 			for(let row of d.matched){
 				if(d.matched.indexOf(row) == 0){
 					d.veoselehed[0] = {

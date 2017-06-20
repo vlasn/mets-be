@@ -33,7 +33,8 @@ const fetchCargoPages = (cadastreID)=>{
   console.log("going to mongo: ",cadastreID)
   //return importModel.find({'veoselehed.$':{{'cadastre': cadastreID})
   //return importModel.find({'veoselehed': {$elemMatch:{cadastre: cadastreID}}})
-  return importModel.findOne({'veoselehed.cadastre': cadastreID})
+  //return importModel.findOne({'veoselehed.cadastre': cadastreID})
+  return importModel.find({'veoselehed.cadastre': {$in: cadastreID}})
 }
 
 const retrieve = (id) => {
