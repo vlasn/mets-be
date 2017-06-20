@@ -120,7 +120,17 @@ router.get('/fetch', (req, res)=>{
   .catch(err=>{res.status(500).send(err)})
 })
 
-
+router.get('/fetchCargoPages', (req, res)=>{
+  let cadastreID = req.query.cadastreid
+  console.log(cadastreID)
+  //for(c in req.body.cadastreIdentifiers) {cadastreIdentifiers.push(cadastreIdentifiers[c])}
+  importModel.fetchCargoPages(cadastreID)
+  .then(d=>{
+    if(!d) {return Promise.reject('Polnud docse')}
+    res.status(200).json(responseFactory("accept", "Siin on stuffi", d.veoselehed))
+  })
+  .catch(err=>{res.status(500).send(err)})
+})
 
 router.get('/fieldOpts/:fieldKey', (req, res)=>{
   pricelist.returnDistinct(req.params.fieldKey)
