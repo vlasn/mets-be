@@ -8,7 +8,7 @@ helper = require('./helper.js'),
 responseFactory = helper.responseFactory,
 path = require('path'),
 fs = require('fs'),
-fnames = []
+fnames = {}
 
 const loc = path.resolve(__dirname, `../uploaded_files/`),
 storage = multer.diskStorage({
@@ -19,7 +19,7 @@ storage = multer.diskStorage({
     let name = file.originalname.split('.').shift()
     let ext = "." + file.originalname.split('.').pop()
     let fname = name + '_' + Date.now() + ext
-    fnames.push(fname)
+    fnames[file.fieldname] = fname
     cb(null, fname)
   }
 }),
@@ -61,16 +61,15 @@ console.log(req.body)
       //TODO - more robust find function
       let findby = req.body.email
       if(typeof(findby)!=="string") findby=findby[0]
-
-
+      req.body.documents = {}
+      req.body.documents.leping = fnames.leping
+      req.body.documents.metsateatis = fnames.metsateatis
       userModel.findByEmail(findby)
       .then(foundEmail=>{
         if(!foundEmail){return Promise.reject("Sellise emailiga klienti ei leitud!")}
         contractModel.create(req.body)
         .then((createdContract)=>{
           if(createdContract){res.status(200).json(responseFactory("accept","Leping loodud!"))}
-          console.log(loc+'/'+fnames[0])
-          console.log(loc)
         },
         err=>{
           for(filename in fnames) fs.unlink(loc+'/'+fnames[filename], (err)=>{console.log(err)})
