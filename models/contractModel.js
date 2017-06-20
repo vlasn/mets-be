@@ -25,7 +25,7 @@ const contractSchema = mongoose.Schema({
   },
   hinnatabel: {
     timestamp: {type: Date, default: Date.now()},
-    snapshot: {type: String, required: true}
+    snapshot: {type: String}
   },
   kinnistu: {
     nimi: String,

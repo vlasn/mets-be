@@ -1,16 +1,42 @@
 const express = require('express')
 router = express.Router(),
+multer = require('multer'),
 bodyParser = require('body-parser'),
 contractModel = require('./../models/contractModel.js'),
 userModel = require('./../models/userModel.js'),
 helper = require('./helper.js'),
-responseFactory = helper.responseFactory
+responseFactory = helper.responseFactory,
+path = require('path'),
+fs = require('fs'),
+fnames = []
+
+const loc = path.resolve(__dirname, `../uploaded_files/`),
+storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, loc)
+  },
+  filename: function (req, file, cb) {
+    let name = file.originalname.split('.').shift()
+    let ext = "." + file.originalname.split('.').pop()
+    let fname = name + '_' + Date.now() + ext
+    fnames.push(fname)
+    cb(null, fname)
+  }
+}),
+upload = multer({
+  storage: storage,
+  fileFilter: function (req, file, cb) {
+    if (path.extname(file.originalname) !== '.pdf') return cb(new Error('Only pdfs are allowed'))
+    cb(null, true)
+  }
+}).fields([{ name: 'leping', maxCount: 1 }, { name: 'metsateatis', maxCount: 1 }])
+
 
 router.use(bodyParser.json())
 router.use(bodyParser.urlencoded({extended: true}))
 
 // if a client with given email exists, a contract will be created
-router.post("/create",(req, res)=>{
+/*router.post("/create",(req, res)=>{
   userModel.findByEmail(req.body.email)
   .then(foundEmail=>{
     if(!foundEmail){return Promise.reject("Sellise emailiga klienti ei leitud!")}
@@ -25,6 +51,34 @@ router.post("/create",(req, res)=>{
   .catch(err=>{
     res.status(500).json(responseFactory("reject", err))
   })
+})*/
+
+router.post("/create",(req, res)=>{
+console.log(req.body)
+    upload(req, res, function (err) {
+      if (err) {res.status(500).json(responseFactory("reject", err))}
+
+      userModel.findByEmail(req.body.email)
+      .then(foundEmail=>{
+        if(!foundEmail){return Promise.reject("Sellise emailiga klienti ei leitud!")}
+        contractModel.create(req.body)
+        .then((createdContract)=>{
+          if(createdContract){res.status(200).json(responseFactory("accept","Leping loodud!"))}
+          console.log(loc+'/'+fnames[0])
+          console.log(loc)
+        },
+        err=>{
+          for(filename in fnames) fs.unlink(loc+'/'+fnames[filename], (err)=>{console.log(err)})
+          fnames = []
+          res.status(500).json(responseFactory("reject", err))
+        })
+      })
+      .catch(err=>{
+        for(filename in fnames) fs.unlink(loc+'/'+fnames[filename], (err)=>{console.log(err)})
+        fnames = []
+        res.status(500).json(responseFactory("reject", err))
+      })
+    })
 })
 
 // returns all contracts related to given email

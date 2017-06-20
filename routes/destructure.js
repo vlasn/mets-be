@@ -34,7 +34,6 @@ module.exports = d => {
 
 	return promise
 	.then(d=>{
-		//console.log(d)
 		return d
 	})
 }
