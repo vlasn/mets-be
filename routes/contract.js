@@ -58,7 +58,12 @@ console.log(req.body)
     upload(req, res, function (err) {
       if (err) {res.status(500).json(responseFactory("reject", err))}
 
-      userModel.findByEmail(req.body.email)
+      //TODO - more robust find function
+      let findby = req.body.email
+      if(typeof(findby)!=="string") findby=findby[0]
+
+
+      userModel.findByEmail(findby)
       .then(foundEmail=>{
         if(!foundEmail){return Promise.reject("Sellise emailiga klienti ei leitud!")}
         contractModel.create(req.body)
