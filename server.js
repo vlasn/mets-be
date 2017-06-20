@@ -3,23 +3,14 @@ express = require("express"),
 app = express(http),
 mongoose = require('mongoose')
 morgan = require("morgan"),
+pdf = require('./routes/generatepdf.js')
 require("dotenv").config(),
 MONGO_USER=process.env.MONGO_USER,
 MONGO_PASS=process.env.MONGO_PASS,
 MONGO_IP=process.env.MONGO_IP,
-options = {
-	user: MONGO_USER,
-	pass: MONGO_PASS,
-	auth: {
-		authdb: 'admin'
-	}
-}
+options = {user: MONGO_USER, pass: MONGO_PASS, auth: {authdb: 'admin'}}
 
-let pdf = require('./routes/generatepdf.js')
-
-app.use('/api/pdf', (req,res)=>{
-	pdf(res)
-})
+app.use('/api/pdf', (req,res) => pdf(res))
 
 app.use(morgan('dev'))
 

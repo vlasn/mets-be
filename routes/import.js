@@ -24,18 +24,22 @@ router.post('/xlsx/new', (req, res)=>{
   // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file 
   let sampleFile = req.files.file
   let sampleFileExt = req.files.file.name.split('.').pop()
+  req.files.file.name = req.files.file.name.split('.').shift()
+  + "_" + Date.now() + "." + sampleFileExt
 
   if(sampleFileExt == 'xlsx'){
-	//console.log(__dirname)
-	let loc = path.resolve(__dirname, `../uploaded_files/${sampleFile.name}`)
+	  //console.log(__dirname)
+	  let loc = path.resolve(__dirname, `../uploaded_files/${sampleFile.name}`)
   	sampleFile.mv(loc, function(err) {
     	if (err) return res.status(500).send(err)
 
       let workbook = xlsx.readFile(loc)
       let sheet_name_list = workbook.SheetNames
-      let data = {unmatched: []}
-
+      let data = {unmatched: [],
+                  filename: req.files.file.name}
+        console.log(data)
       for(let y of sheet_name_list){
+
         let worksheet = workbook.Sheets[y]
         let headers = {}
 
@@ -80,11 +84,6 @@ router.post('/xlsx/new', (req, res)=>{
 })
 
 router.post('/xlsx/update', (req, res)=>{
-  //console.log(req.body)
-
-
-
-
   importModel.updateDoc(req.body)
   .then(data=>{
   	parse(data)
