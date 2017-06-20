@@ -89,13 +89,18 @@ router.post('/xlsx/update', (req, res)=>{
   .then(data=>{
   	parse(data)
   	.then(d=>{
+  		let responseData = d
   		console.log(d.unmatched.length, d.matched.length)
-  		let response = {
-  			matched: d.matched.length,
-  			unmatched: d.unmatched.length,
-  			status: d.status
-  		}
-  		res.status(200).json(responseFactory("accept", "", response))
+  		pricelist.checkForMatch(req.body)
+  		.then(d=>{
+  			if(d===false) {return Promise.reject('Ei leidnud vastet!')}
+  			let response = {
+	  			matched: responseData.matched.length,
+	  			unmatched: responseData.unmatched.length
+	  		}
+  			res.status(200).json(responseFactory("accept", "", response))
+  		})
+  		.catch(e=>res.status(500).json(responseFactory("reject", e)))
   	})
   })
   .catch(e=>res.status(500).json(responseFactory("reject", e)))
