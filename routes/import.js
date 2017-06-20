@@ -121,13 +121,19 @@ router.get('/fetchCargoPages', (req, res)=>{
   console.log(cadastreID)
   //for(c in req.body.cadastreIdentifiers) {cadastreIdentifiers.push(cadastreIdentifiers[c])}
   importModel.fetchCargoPages(cadastreID)
-  .then(d=>{
-    if(!d) {return Promise.reject('Polnud docse')}
-    let r = []
-    for(let f of d){
-     r.push(f.veoselehed)
-    }
-    res.status(200).json(responseFactory("accept", "Siin on stuffi", r))
+   .then(docs => {
+     let response = docs
+     .reduce((acc, val)=>acc=[...acc, ...val.veoselehed],[])
+     .map(val => val.rows)
+     .reduce((acc,val)=>[...acc,...val],[])
+     .map(row => ({
+        price: row['Hind'],
+        date: row['veoselehe kuupäev'],
+        name: row['Elvise VL nr'],
+        volume: row['arvestus maht']
+      })) 
+    console.log(response)
+    res.status(200).json(responseFactory("accept", "Siin on stuffi", response))
   })
   .catch(err=>{res.status(500).send(responseFactory("reject", err))})
 })
