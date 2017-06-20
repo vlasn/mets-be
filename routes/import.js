@@ -81,16 +81,27 @@ router.post('/xlsx/new', (req, res)=>{
 
 router.post('/xlsx/update', (req, res)=>{
   //console.log(req.body)
+
+
+
+
   importModel.updateDoc(req.body)
-  .then(raw=>{
-    pricelist.checkForMatch(req.body)
-    .then(d=>{
-      if(d === false) {return res.status(500).send(responseFactory("reject", "Ei leidnud vastet!"))}
-      res.status(200).send(responseFactory("accept", "", d._id))
-    })
-  },
-  err=>{
-    res.status(500).send(err)
+  .then(data=>{
+  	parse(data)
+  	.then(d=>{
+  		let responseData = d
+  		console.log(d.unmatched.length, d.matched.length)
+  		pricelist.checkForMatch(req.body)
+  		.then(d=>{
+  			if(d===false) {return Promise.reject('Ei leidnud vastet!')}
+  			let response = {
+	  			matched: responseData.matched.length,
+	  			unmatched: responseData.unmatched.length
+	  		}
+  			res.status(200).json(responseFactory("accept", "", response))
+  		})
+  		.catch(e=>res.status(500).json(responseFactory("reject", e)))
+  	})
   })
   .catch(e=>res.status(500).json(responseFactory("reject", e)))
 })

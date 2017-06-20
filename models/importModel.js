@@ -26,7 +26,7 @@ const newDoc = (d)=>{
 const updateDoc = (d)=>{
   let conditions = {'unmatched': {$elemMatch:{_id: d._id}}}
   let update = {'$set': {'unmatched.$': d}}
-  return importModel.update(conditions, update)
+  return importModel.findOneAndUpdate(conditions, update, {new: true})
 }
 
 const fetchCargoPages = (cadastreID)=>{
