@@ -29,6 +29,12 @@ const updateDoc = (d)=>{
   return importModel.update(conditions, update)
 }
 
+const fetchCargoPages = (cadastreIDs)=>{
+  let conditions = {'unmatched': {$elemMatch:{_id: d._id}}}
+  let update = {'$set': {'unmatched.$': d}}
+  return importModel.find(conditions, update)
+}
+
 const retrieve = (id) => {
   console.log(id)
   if(id) {return importModel.find({_id: id})}

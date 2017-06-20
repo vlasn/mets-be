@@ -91,7 +91,7 @@ router.post('/xlsx/update', (req, res)=>{
     pricelist.checkForMatch(req.body)
     .then(d=>{
       if(d === false) {return res.status(500).send(responseFactory("reject", "Ei leidnud vastet!"))}
-      res.status(200).send(responseFactory("accept", "", d.vaste))
+      res.status(200).send(responseFactory("accept", "", d._id))
     })
     
     // FE should reload with this payload
