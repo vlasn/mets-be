@@ -29,10 +29,11 @@ const updateDoc = (d)=>{
   return importModel.update(conditions, update)
 }
 
-const fetchCargoPages = (cadastreIDs)=>{
-  let conditions = {'unmatched': {$elemMatch:{_id: d._id}}}
-  let update = {'$set': {'unmatched.$': d}}
-  return importModel.find(conditions, update)
+const fetchCargoPages = (cadastreID)=>{
+  console.log("going to mongo: ",cadastreID)
+  //return importModel.find({'veoselehed.$':{{'cadastre': cadastreID})
+  //return importModel.find({'veoselehed': {$elemMatch:{cadastre: cadastreID}}})
+  return importModel.findOne({'veoselehed.cadastre': cadastreID})
 }
 
 const retrieve = (id) => {
@@ -43,5 +44,5 @@ const retrieve = (id) => {
   
 }
 
-module.exports = {importModel, newDoc, retrieve, updateDoc}
+module.exports = {importModel, newDoc, retrieve, updateDoc, fetchCargoPages}
 
