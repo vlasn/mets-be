@@ -7,7 +7,8 @@ const importSchema = mongoose.Schema({
   unmatched: [],
   veoselehed: [],
   status: String,
-  date: Date
+  date: Date,
+  filename: String
 })
 
 const importModel = mongoose.model('import', importSchema)
@@ -18,7 +19,8 @@ const newDoc = (d)=>{
     unmatched: d.unmatched,
     veoselehed: d.veoselehed,
     status: d.status,
-    date: Date.now()
+    date: Date.now(),
+    filename: d.filename
   })
   return doc.save()
 }

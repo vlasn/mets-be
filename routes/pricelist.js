@@ -8,12 +8,12 @@ router.use(bodyParser.urlencoded({ extended: true }))
 
 router.post("/add",(req, res)=>{
 	pricelist.insert(req.body)
-		.then(docs => {
-			res.status(200).json(responseFactory("accept","", docs))
-		}
-		,err => {
-			res.status(500).json(responseFactory("reject", err))
-		})
+	.then(docs => {
+		res.status(200).json(responseFactory("accept","", docs))
+	}
+	,err => {
+		res.status(500).json(responseFactory("reject", err))
+	})
 })
 
 router.post('/snapshot', (req, res)=>{
