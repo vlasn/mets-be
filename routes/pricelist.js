@@ -19,6 +19,7 @@ router.post("/add",(req, res)=>{
 			.then(data=>{
 				importModel.updateWholeDoc(data)
 				.then(d=>{
+					console.log(d)
 					res.status(200).json(responseFactory("accept","", d))
 				})
 				.catch(e=>{
