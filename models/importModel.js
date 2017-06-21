@@ -51,7 +51,7 @@ const fetchCargoPages = (cadastreID)=>{
 const retrieve = (id) => {
   console.log(id)
   if(id) {return importModel.findOne({_id: id})}
-  return importModel.find({$or: [{status: "reject"},{status: "pending"}]}, {status: 1}).sort('-date')
+  return importModel.find({$or: [{status: "reject"},{status: "pending"}]}, {status: 1, filename: 1}).sort('-date')
 
   
 }
