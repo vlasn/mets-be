@@ -11,9 +11,10 @@ router.use(bodyParser.urlencoded({ extended: true }))
 router.post("/add",(req, res)=>{
 	pricelist.insert(req.body)
 	.then(docs => {
-		if(!docs) {return Promise.reject("Mingi error")}
+		if(!docs) {return Promise.reject("Viga!")}
 		importModel.findById(req.body.parentId)
 		.then(d=>{
+			if(!d) {return Promise.reject("Ei leidnud sellise parentId'ga dokumenti!")}
 			parse(d)
 			.then(data=>{
 				importModel.updateWholeDoc(data)
@@ -21,7 +22,7 @@ router.post("/add",(req, res)=>{
 					res.status(200).json(responseFactory("accept","", d))
 				})
 				.catch(e=>{
-					res.send(e)
+					res.status(500).json(responseFactory("reject", e))
 				})
 			})
 		})
