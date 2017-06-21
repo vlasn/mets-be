@@ -72,11 +72,11 @@ const sendMagicLink = (email, hash) => {
     })
 
     let mailFieldOptions = {
-        from: '"Metsahaldur Test 👻" <metsahaldur.test@gmail.com>',
+        from: '"Metsahaldur Test" <metsahaldur.test@gmail.com>',
         to: `${email}`,
-        subject: 'Hello ✔',
+        subject: 'Valideeri oma kasutajakonto',
         text: 'Hello world ?',
-        html: `<a href="${HOSTNAME}/validate/${hash}">Magic</a>`
+        html: `Palun kliki järgmisele lingile: <a href="${HOSTNAME}/validate/${hash}">Loo parool</a>`
     }
 
     mailTransporter.sendMail(mailFieldOptions, (error, info) => {
