@@ -86,7 +86,7 @@ router.post('/xlsx/new', (req, res)=>{
 router.post('/xlsx/update', (req, res)=>{
   importModel.updateDoc(req.body)
   .then(data=>{
-    if(!data) {return Promise.reject('Viga 58!')}
+    if(!data) {return Promise.reject('Ei leidnud uuendatavat alamdokumenti!')}
   	parse(data)
   	.then(d=>{
   		let responseData = d

@@ -37,15 +37,19 @@ const returnTemplate = () => {
 }
 
 const checkForMatch = (incomingRow) => {
-  if(incomingRow['hinna gr  "võti"'] == "praak") {incomingRow['hinna gr  "võti"'] = ""}
+  if(incomingRow['hinna gr  "võti"'] == "praak" || null || undefined || "") {incomingRow['hinna gr  "võti"'] = ""}
   //console.log(x.split('-')[0])
+  console.log("Check for match:",incomingRow['Ostja'], incomingRow['puuliik'], incomingRow['kvaliteet'],
+                                  incomingRow['hinna gr  "võti"'].replace(/,/g,'.').split('-')[0],
+                                  incomingRow['hinna gr  "võti"'].replace(/,/g,'.').split('-')[1])
+
   let promise = new Promise((resolve, reject)=>{
     southNorthPricelistModel.findOne({
       Sihtkoht: {$regex: incomingRow['Ostja']},
       Puuliik: incomingRow['puuliik'],
       Kvaliteet: incomingRow['kvaliteet'],
-      Diameeter_min: incomingRow['hinna gr  "võti"'].replace(/,/g,'.').split('-')[0],
-      Diameeter_max: incomingRow['hinna gr  "võti"'].replace(/,/g,'.').split('-')[1]
+      $or: [{Diameeter_min: ""}, {Diameeter_min: incomingRow['hinna gr  "võti"'].replace(/,/g,'.').split('-')[0]}],
+      $or: [{Diameeter_max: ""}, {Diameeter_max: incomingRow['hinna gr  "võti"'].replace(/,/g,'.').split('-')[1]}],
       }, '_id')
       .then(doc=>{
         if(doc) {

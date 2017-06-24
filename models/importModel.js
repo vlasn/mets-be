@@ -35,7 +35,8 @@ const updateWholeDoc = d => {
 }
 
 const updateDoc = (d)=>{
-  let conditions = {'unmatched': {$elemMatch:{_id: mongoose.Types.ObjectId(d._id)}}}
+  d._id = mongoose.Types.ObjectId(d._id)
+  let conditions = {'unmatched': {$elemMatch:{_id: d._id}}}
   let update = {'$set': {'unmatched.$': d}}
   return importModel.findOneAndUpdate(conditions, update, {new: true})
 }
