@@ -39,8 +39,6 @@ const returnTemplate = () => {
 const checkForMatch = (incomingRow) => {
   let q
   if(!incomingRow['hinna gr  "võti"'] || typeof incomingRow['hinna gr  "võti"'] !== 'string') {
-    d_min = ''
-    d_max = ''
     q = {
       Sihtkoht: {$regex: incomingRow['Ostja']},
       Puuliik: incomingRow['puuliik'],
@@ -72,7 +70,7 @@ const checkForMatch = (incomingRow) => {
         resolve(false)
       })
   })
-  
+
   return promise
 }
 
