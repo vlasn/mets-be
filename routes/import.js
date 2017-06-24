@@ -106,6 +106,15 @@ router.post('/xlsx/update', (req, res)=>{
   .catch(e=>res.status(500).json(responseFactory("reject", e)))
 })
 
+router.post('/xlsx/findMatch', (req, res)=>{
+  pricelist.checkForMatch(req.body)
+  .then(d=>{
+  	if(d===false) return Promise.reject('Ei leidnud vastet!')
+  	res.status(200).json(responseFactory("accept", "Leidsin vaste!", d.vaste))
+  })
+  .catch(e=>res.status(404).json(responseFactory("reject", e)))
+})
+
 router.get('/fetch', (req, res)=>{
   let id = req.query.id
   importModel.retrieve(id)

@@ -37,20 +37,29 @@ const returnTemplate = () => {
 }
 
 const checkForMatch = (incomingRow) => {
-  if(incomingRow['hinna gr  "võti"'] == "praak" || null || undefined || "") {incomingRow['hinna gr  "võti"'] = ""}
-  //console.log(x.split('-')[0])
-  console.log("Check for match:",incomingRow['Ostja'], incomingRow['puuliik'], incomingRow['kvaliteet'],
-                                  incomingRow['hinna gr  "võti"'].replace(/,/g,'.').split('-')[0],
-                                  incomingRow['hinna gr  "võti"'].replace(/,/g,'.').split('-')[1])
-
-  let promise = new Promise((resolve, reject)=>{
-    southNorthPricelistModel.findOne({
+  let q
+  if(!incomingRow['hinna gr  "võti"'] || typeof incomingRow['hinna gr  "võti"'] !== 'string') {
+    d_min = ''
+    d_max = ''
+    q = {
       Sihtkoht: {$regex: incomingRow['Ostja']},
       Puuliik: incomingRow['puuliik'],
-      Kvaliteet: incomingRow['kvaliteet'],
-      $or: [{Diameeter_min: ""}, {Diameeter_min: incomingRow['hinna gr  "võti"'].replace(/,/g,'.').split('-')[0]}],
-      $or: [{Diameeter_max: ""}, {Diameeter_max: incomingRow['hinna gr  "võti"'].replace(/,/g,'.').split('-')[1]}],
-      }, '_id')
+      Kvaliteet: {$regex: incomingRow['kvaliteet'], $options: 'i'}
+    }
+  } else {
+    q = {
+      Sihtkoht: {$regex: incomingRow['Ostja']},
+      Puuliik: incomingRow['puuliik'],
+      Kvaliteet: {$regex: incomingRow['kvaliteet'], $options: 'i'},
+      Diameeter_min: incomingRow['hinna gr  "võti"'].replace(/,/g,'.').split('-')[0],
+      Diameeter_max: incomingRow['hinna gr  "võti"'].replace(/,/g,'.').split('-')[1]
+    }
+  }
+
+  // console.log("Check for match:",incomingRow['Ostja'], incomingRow['puuliik'], incomingRow['kvaliteet'], d_min, d_max)
+
+  let promise = new Promise((resolve, reject)=>{
+    southNorthPricelistModel.findOne(q, '_id')
       .then(doc=>{
         if(doc) {
           incomingRow.vaste = doc._id
@@ -63,7 +72,7 @@ const checkForMatch = (incomingRow) => {
         resolve(false)
       })
   })
-  // tagastab selle boolean väärtuse millega promise resolviti
+  
   return promise
 }
 
