@@ -1,21 +1,24 @@
 const express = require('express'),
-fileUpload = require('express-fileupload'),
-router = express.Router(),
-xlsx = require('xlsx'),
-bodyParser = require('body-parser'),
-importModel = require('./../models/importModel.js'),
-pricelist = require('./../models/southNorthPricelistModel.js'),
-helper = require('./helper.js'),
-mongoose = require('mongoose'),
-path = require('path'),
-responseFactory = helper.responseFactory,
-parse = require('./parse'),
-destructure = require('./destructure')
+			fileUpload = require('express-fileupload'),
+			router = express.Router(),
+			xlsx = require('xlsx'),
+			bodyParser = require('body-parser'),
+			importModel = require('./../models/importModel.js'),
+			pricelist = require('./../models/southNorthPricelistModel.js'),
+			helper = require('./helper.js'),
+			mongoose = require('mongoose'),
+			path = require('path'),
+			responseFactory = helper.responseFactory,
+			parse = require('./parse'),
+			destructure = require('./destructure'),
+			secret = process.env.SECRET
 
 router.use(bodyParser.json())
 router.use(bodyParser.urlencoded({extended: true}))
 router.use(fileUpload())
- 
+
+
+
 // when a file is initially imported into the system
 // this endpoint is used only once per imported document (.xlsx)
 router.post('/xlsx/new', (req, res)=>{

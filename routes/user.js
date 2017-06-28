@@ -3,7 +3,9 @@ router = express.Router(),
 bodyParser = require('body-parser'),
 userModel = require('./../models/userModel.js'),
 helper = require('./helper.js'),
-responseFactory = helper.responseFactory
+responseFactory = helper.responseFactory,
+jwt = require('jsonwebtoken'),
+secret = process.env.SECRET
 
 router.use(bodyParser.json())
 router.use(bodyParser.urlencoded({extended: true}))
@@ -13,11 +15,13 @@ router.post("/login",(req, res)=> {
 	.then(foundUserDoc => {
     if (!foundUserDoc) {return Promise.reject('Sellise parooli ja emaili kombinatsiooniga kasutajat ei eksisteeri!')}
     console.log(foundUserDoc.email + " logis sisse @ " + new Date().toLocaleString())
+    let token = jwt.sign(foundUserDoc._id, secret)
   	let data = {
       user_id: foundUserDoc._id,
   		lastLogin: foundUserDoc.lastLogin,
   		roles: foundUserDoc.roles,
-  		personal_data: foundUserDoc.personal_data
+  		personal_data: foundUserDoc.personal_data,
+      token: token
   	}
   	userModel.lastLogin(foundUserDoc.email)
     res.status(200).json(responseFactory("accept","Oled sisse logitud!", data))
