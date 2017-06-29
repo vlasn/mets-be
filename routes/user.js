@@ -1,11 +1,11 @@
 const express = require('express')
-router = express.Router(),
-bodyParser = require('body-parser'),
-userModel = require('./../models/userModel.js'),
-helper = require('./helper.js'),
-responseFactory = helper.responseFactory,
-jwt = require('jsonwebtoken'),
-secret = process.env.SECRET
+      router = express.Router(),
+      bodyParser = require('body-parser'),
+      userModel = require('./../models/userModel.js'),
+      helper = require('./helper.js'),
+      responseFactory = helper.responseFactory,
+      jwt = require('jsonwebtoken'),
+      secret = process.env.SECRET
 
 router.use(bodyParser.json())
 router.use(bodyParser.urlencoded({extended: true}))
@@ -15,7 +15,7 @@ router.post("/login",(req, res)=> {
 	.then(foundUserDoc => {
     if (!foundUserDoc) {return Promise.reject('Sellise parooli ja emaili kombinatsiooniga kasutajat ei eksisteeri!')}
     console.log(foundUserDoc.email + " logis sisse @ " + new Date().toLocaleString())
-    let token = jwt.sign(foundUserDoc._id, secret)
+    let token = jwt.sign(foundUserDoc._id, secret, {expiresIn: 60})
   	let data = {
       user_id: foundUserDoc._id,
   		lastLogin: foundUserDoc.lastLogin,

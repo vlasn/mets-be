@@ -1,37 +1,34 @@
-const http = require("http"),
-			express = require("express"),
-			app = express(http),
-			mongoose = require('mongoose')
-			morgan = require("morgan"),
+const app = require("express")(),
+			mongoose = require('mongoose'),
 			pdf = require('./routes/generatepdf.js')
-			require("dotenv").config(),
+			require("dotenv").config()
 			MONGO_USER=process.env.MONGO_USER,
 			MONGO_PASS=process.env.MONGO_PASS,
 			MONGO_IP=process.env.MONGO_IP,
 			SECRET=process.env.SECRET,
+			PORT=process.env.PORT,
 			options = {user: MONGO_USER, pass: MONGO_PASS, auth: {authdb: 'admin'}},
 			jwt = require('jsonwebtoken')
 
 app.use('/api/pdf', (req,res) => pdf(res))
 
-app.use(morgan('dev'))
+app.use(require('morgan')('dev'))
 
 mongoose.connect(MONGO_IP, options)
 mongoose.connection.on('error', console.error.bind(console,'connection:error'))
 mongoose.connection.once('open', ()=> console.log('MongoDB successfully connected'))
 
 app.use('/', (req, res, next)=>{
-	if(req.originalUrl === '/api/user/login') return next()
-  let token = req.headers['x-access-token']
-  if(!token) res.status(403).json({status:'reject', msg:'Missing token'})
+	if(req.originalUrl === '/api/user/login' 		||
+		 req.originalUrl === '/api/user/validate' ||
+		 req.originalUrl === '/api/user/verify') return next()
+  let token = req.headers['X-Access-Token']
+  if(!token) return res.status(401).json({status:'reject', msg:'Missing token'})
   jwt.verify(token, secret, (err, decoded)=>{      
-    if (err) {
-      return res.status(401).json({status:'reject', msg:'Invalid token'})
-    } else {
-      console.log(decoded)
-      req.decoded = decoded
-      next()
-    }
+    if (err) {return res.status(401).json({status:'reject', msg:'Invalid token'})}
+    console.log(decoded)
+    req.decoded = decoded
+    next()
   })
 })
 
@@ -61,5 +58,5 @@ app.get("/api", (req,res)=>{
 
 
 
-app.listen("3000", ()=> console.log("Server now listening on port 3000"))
+app.listen(process.env.PORT || 3000, ()=> console.log("Server now listening on port 3000"))
 
