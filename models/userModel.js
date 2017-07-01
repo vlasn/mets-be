@@ -39,13 +39,13 @@ const userSchema = mongoose.Schema({
 const userModel = mongoose.model('user',userSchema)
 
 const login = (email, password)=>{
-    return(userModel.findOne({ 
-        'email': email, 
-        'password': password, 
-        'hash.validated':{ 
-            $exists: true 
-        }
-    }))
+  return(userModel.findOne({ 
+      'email': email, 
+      'password': password, 
+      'hash.validated':{ 
+          $exists: true 
+      }
+  }))
 }
 
 const lastLogin = email=>{

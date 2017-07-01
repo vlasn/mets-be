@@ -1,6 +1,6 @@
-let mongoose = require('mongoose'),
-pricelist = require('./../models/southNorthPricelistModel.js'),
-destructure = require('./destructure')
+const mongoose = require('mongoose')
+      pricelist = require('./../models/southNorthPricelistModel.js')
+      destructure = require('./destructure')
 
 module.exports = d => {
   if(!d.matched) {d.matched = []}

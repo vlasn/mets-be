@@ -1,15 +1,14 @@
-const express = require('express')
-router = express.Router(),
-multer = require('multer'),
-bodyParser = require('body-parser'),
-contractModel = require('./../models/contractModel.js'),
-userModel = require('./../models/userModel.js'),
-helper = require('./helper.js'),
-responseFactory = helper.responseFactory,
-path = require('path'),
-fs = require('fs'),
-fnames = {},
-loc = path.resolve(__dirname, `../uploaded_files/`),
+const router = require('express').Router()
+      multer = require('multer')
+      bodyParser = require('body-parser')
+      contractModel = require('./../models/contractModel.js')
+      userModel = require('./../models/userModel.js')
+      helper = require('./helper.js')
+      responseFactory = helper.responseFactory
+      path = require('path')
+      fs = require('fs')
+      fnames = {}
+      loc = path.resolve(__dirname, `../uploaded_files/`)
 storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, loc)
@@ -21,7 +20,7 @@ storage = multer.diskStorage({
     fnames[file.fieldname] = fname
     cb(null, fname)
   }
-}),
+})
 upload = multer({
   storage: storage,
   fileFilter: function (req, file, cb) {
@@ -108,4 +107,4 @@ router.put("/update/:id", (req,res)=>{
   })
 })
 
-module.exports={router}
+module.exports = router

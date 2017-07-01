@@ -1,5 +1,5 @@
 module.exports = d => {
-	let promise = new Promise((resolve,reject)=>{
+	let p = new Promise((resolve,reject)=>{
 		if(d.unmatched.length == 0 && d.matched.length > 0){
 			d.status = "accept"
 			for(let row of d.matched){
@@ -16,8 +16,8 @@ module.exports = d => {
 					let len = d.veoselehed.length
 					for(let el of d.veoselehed){
 						if(row['Elvise VL nr'] == el.VL_nr){
-							el.sum = parseInt(el.sum) + (parseInt(row['arvestus maht'])
-							* parseInt(row['arvestus maht'])) 
+							el.sum = parseInt(el.sum) + (parseInt(row['arvestus maht']) *
+							parseInt(row['arvestus maht'])) 
 							el.rows.push(row)
 							break
 						} else if(row['Elvise VL nr'] != el.VL_nr){
@@ -39,7 +39,7 @@ module.exports = d => {
 		}
 	})
 
-	return promise
+	return p
 	.then(d=>{
 		return d
 	})

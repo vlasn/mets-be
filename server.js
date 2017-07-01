@@ -8,7 +8,8 @@ const app = require("express")(),
 			SECRET=process.env.SECRET,
 			PORT=process.env.PORT,
 			options = {user: MONGO_USER, pass: MONGO_PASS, auth: {authdb: 'admin'}},
-			jwt = require('jsonwebtoken')
+			jwt = require('jsonwebtoken'),
+			isProduction = process.env.NODE_ENV === 'production'
 
 app.use('/api/pdf', (req,res) => pdf(res))
 
@@ -18,43 +19,47 @@ mongoose.connect(MONGO_IP, options)
 mongoose.connection.on('error', console.error.bind(console,'connection:error'))
 mongoose.connection.once('open', ()=> console.log('MongoDB successfully connected'))
 
-app.use('/', (req, res, next)=>{
-	if(req.originalUrl === '/api/user/login' 		||
-		 req.originalUrl === '/api/user/validate' ||
-		 req.originalUrl === '/api/user/verify') return next()
-  let token = req.headers['X-Access-Token']
-  if(!token) return res.status(401).json({status:'reject', msg:'Missing token'})
-  jwt.verify(token, secret, (err, decoded)=>{      
-    if (err) {return res.status(401).json({status:'reject', msg:'Invalid token'})}
-    console.log(decoded)
-    req.decoded = decoded
-    next()
-  })
+
+
+// connecting app to routes
+app.use('/api', require('./routes'))
+
+// global error management
+/*app.use((req, res, next)=>{
+  let err = new Error('Not Found')
+  err.status = 404
+  next(err)
 })
 
-const user = require('./routes/user')
-app.use('/api/user', user.router)
+// will print stacktrace
+if (!isProduction) {
+  app.use((err, req, res, next)=>{
+    console.log(err.stack)
+    res.status(err.status || 500)
+    res.json({'errors': {
+      message: err.message,
+      error: err
+    }})
+  })
+}
 
-const contract = require('./routes/contract')
-app.use('/api/contract', contract.router)
+// production error handler
+// no stacktraces leaked to user
+app.use((err, req, res, next)=>{
+  res.status(err.status || 500)
+  res.json({'errors': {
+    message: err.message,
+    error: {}
+  }})
+})*/
 
-const pricelist = require('./routes/pricelist')
-app.use('/api/pricelist', pricelist.router)
 
-// for importing files to the system
-// data extraction + storage
-const _import = require('./routes/import')
-app.use('/api/import', _import.router)
-
-// purely for storing files on the server
-const upload = require('./routes/upload')
-app.use('/api/upload', upload.router)
-
+/*
 app.get("/api", (req,res)=>{
 	// should return a comprehensive list of endpoints so they're all
 	// in one place and easier to test and do front-end dev
   res.send("API")
-})
+})*/
 
 
 

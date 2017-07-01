@@ -1,16 +1,15 @@
-const express = require('express'),
-			fileUpload = require('express-fileupload'),
-			router = express.Router(),
-			xlsx = require('xlsx'),
-			bodyParser = require('body-parser'),
-			importModel = require('./../models/importModel.js'),
-			pricelist = require('./../models/southNorthPricelistModel.js'),
-			helper = require('./helper.js'),
-			mongoose = require('mongoose'),
-			path = require('path'),
-			responseFactory = helper.responseFactory,
-			parse = require('./parse'),
-			destructure = require('./destructure'),
+const router = require('express').Router()
+			fileUpload = require('express-fileupload')
+			xlsx = require('xlsx')
+			bodyParser = require('body-parser')
+			importModel = require('./../models/importModel.js')
+			pricelist = require('./../models/southNorthPricelistModel.js')
+			helper = require('./helper.js')
+			mongoose = require('mongoose')
+			path = require('path')
+			responseFactory = helper.responseFactory
+			parse = require('./parse')
+			destructure = require('./destructure')
 			secret = process.env.SECRET
 
 router.use(bodyParser.json())
@@ -118,7 +117,7 @@ router.post('/xlsx/findMatch', (req, res)=>{
   .catch(e=>res.status(404).json(responseFactory("reject", e)))
 })
 
-router.get('/fetch', (req, res)=>{
+router.get('/', (req, res)=>{
   let id = req.query.id
   importModel.retrieve(id)
   .then(d=>{
@@ -164,4 +163,4 @@ router.get('/fieldOpts/:fieldKey', (req, res)=>{
   .catch(err=>{res.status(500).send(err)})
 })
 
-module.exports = {router}
+module.exports = router

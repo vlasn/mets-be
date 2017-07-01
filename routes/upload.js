@@ -1,29 +1,27 @@
-const express = require('express'),
-multer = require('multer'),
-router = express.Router(),
-helper = require('./helper.js'),
-responseFactory = helper.responseFactory,
-path = require('path')
-
-const loc = path.resolve(__dirname, `../uploaded_files/`),
-storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, loc)
-  },
-  filename: function (req, file, cb) {
-  	let name = file.originalname.split('.').shift()
-  	let ext = "." + file.originalname.split('.').pop()
-    cb(null, name + '_' + Date.now() + ext)
-  }
-}),
-upload = multer({
-	storage: storage,
-	fileFilter: function (req, file, cb) {
-    if (path.extname(file.originalname) !== '.pdf') return cb(new Error('Only pdfs are allowed'))
-    cb(null, true)
-  }
-}).fields([{ name: 'leping', maxCount: 1 }, { name: 'metsateatis', maxCount: 1 }])
-//}).single('leping')
+const router = require('express').Router()
+      multer = require('multer')
+      helper = require('./helper.js')
+      responseFactory = helper.responseFactory
+      path = require('path')
+      loc = path.resolve(__dirname, `../uploaded_files/`),
+      storage = multer.diskStorage({
+        destination: function (req, file, cb) {
+          cb(null, loc)
+        },
+        filename: function (req, file, cb) {
+        	let name = file.originalname.split('.').shift()
+        	let ext = "." + file.originalname.split('.').pop()
+          cb(null, name + '_' + Date.now() + ext)
+        }
+      }),
+      upload = multer({
+      	storage: storage,
+      	fileFilter: function (req, file, cb) {
+          if (path.extname(file.originalname) !== '.pdf') return cb(new Error('Only pdfs are allowed'))
+          cb(null, true)
+        }
+      }).fields([{ name: 'leping', maxCount: 1 }, { name: 'metsateatis', maxCount: 1 }])
+      //}).single('leping')
 
 //const upload = multer({ dest: loc }).single('leping')
 // tuleb saata ilma headeriteta
@@ -51,5 +49,5 @@ router.post('/metsateatis', function (req, res) {
   })
 })
 
-module.exports = {router}
+module.exports = router
 

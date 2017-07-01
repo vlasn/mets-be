@@ -1,9 +1,8 @@
-const express = require('express')
-router = express.Router(),
-bodyParser = require('body-parser'),
-pricelist = require('./../models/southNorthPricelistModel.js'),
-importModel = require('./../models/importModel.js'),
-parse = require('./parse.js')
+const router = require('express').Router()
+			bodyParser = require('body-parser')
+			pricelist = require('./../models/southNorthPricelistModel.js')
+			importModel = require('./../models/importModel.js')
+			parse = require('./parse.js')
 
 router.use(bodyParser.json())
 router.use(bodyParser.urlencoded({ extended: true }))
@@ -73,4 +72,4 @@ router.post('/snapshot', (req, res)=>{
 	})
 })
 
-module.exports = {router}
+module.exports = router
