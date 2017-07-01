@@ -7,5 +7,6 @@ router.use('/contracts', require('./contracts'))
 router.use('/pricelists', require('./pricelists'))
 router.use('/reports', require('./reports'))
 router.use('/upload', require('./upload'))
+//router.use('/upload/pdf', (req,res) => pdf(res))
 
 module.exports = router

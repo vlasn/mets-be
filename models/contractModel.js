@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-  userModel = require('./userModel.js').userModel,
+  userModel = require('./user.js').user,
   helper = require('./../routes/helper.js'),
   responseFactory = helper.responseFactory
 

@@ -1,67 +1,63 @@
 const mongoose = require('mongoose')
-nodemailer = require('nodemailer'),
-crypto = require('crypto'),
-HOSTNAME= process.env.HOSTNAME,
-EMAIL_LOGIN = process.env.EMAIL_LOGIN,
-EMAIL_PASS = process.env.EMAIL_PASS
+      nodemailer = require('nodemailer')
+      crypto = require('crypto')
+      HOSTNAME= process.env.HOSTNAME
+      EMAIL_LOGIN = process.env.EMAIL_LOGIN
+      EMAIL_PASS = process.env.EMAIL_PASS
+      mongoose.Promise = global.Promise
+      userSchema = mongoose.Schema({
+        email: {type: String, unique:true, required: true},
+        password: String,
+        hash: {
+        	hash: {type: String, required: true},
+          created: {type: Date, default: Date.now()},
+        	validated: {type: Date}
+        },
+      	lastLogin: {type: Date},
+        roles: [{
+          role: {type: String, required: true},
+        	created: {type: Date, default: Date.now()},
+        	disabled: Boolean
+        }],
+        job_title: String,
+        // isikuandmed
+        personal_data: {
+            nimi: String,
+            tel_nr: Number,
+            aadress: String,
+            isikukood: Number,
+            dok_nr: String,
+            eraisik: Boolean,
+            juriidiline_isik: Boolean,
+            reg_nr: Number,
+            kmk_nr: Number
+        }
+      })
 
-mongoose.Promise = global.Promise
+const user = mongoose.model('user', userSchema)
 
-const userSchema = mongoose.Schema({
-  email: {type: String, unique:true, required: true},
-  password: String,
-  hash: {
-  	hash: {type: String, required: true},
-    created: {type: Date, default: Date.now()},
-  	validated: {type: Date}
-  },
-	lastLogin: {type: Date},
-  roles: [{
-    role: {type: String, required: true},
-  	created: {type: Date, default: Date.now()},
-  	disabled: Boolean
-  }],
-  job_title: String,
-  // isikuandmed
-  personal_data: {
-      nimi: String,
-      tel_nr: Number,
-      aadress: String,
-      isikukood: Number,
-      dok_nr: String,
-      eraisik: Boolean,
-      juriidiline_isik: Boolean,
-      reg_nr: Number,
-      kmk_nr: Number
+const login = (email, psw)=>{return(user.findOne({
+  'email': email, 
+  'password': psw, 
+  'hash.validated':{
+    $exists: true 
   }
-})
-
-const userModel = mongoose.model('user',userSchema)
-
-const login = (email, password)=>{
-  return(userModel.findOne({ 
-      'email': email, 
-      'password': password, 
-      'hash.validated':{ 
-          $exists: true 
-      }
-  }))
-}
+}))}
 
 const lastLogin = email=>{
-    let conditions = {'email':email}, 
-        update = {lastLogin: Date.now()}    
-    userModel.findOneAndUpdate(conditions, update, ()=>{})
+  let conditions = {'email':email}, 
+      update = {lastLogin: Date.now()}    
+  user.findOneAndUpdate(conditions, update, ()=>{})
 }
 
-const verify = hash => {return userModel.findOne({'hash.hash': hash})}
+const verifyHash = hash => {return user.findOne({'hash.hash': hash})}
 
-const findByEmail = email => {return userModel.findOne({email: email})}
+const findByEmail = email => {return user.findOne({email: email})}
 
-const validate = (password, confirmPassword, hash)=>{
+const validate = (password, hash)=>{
 	let conditions = { 'hash.hash':hash }, 
         update = {password: password, hash: {validated: Date.now()}}
-  return userModel.findOneAndUpdate(conditions, update, {new: true})
+  return user.findOneAndUpdate(conditions, update, {new: true})
 }
 
 const sendMagicLink = (email, hash) => {
@@ -88,7 +84,7 @@ const sendMagicLink = (email, hash) => {
 const create = new_user => {
   let d = (Date.now()).valueOf().toString()
 	let hash = crypto.createHash('sha256').update(d).digest('hex')
-  let user = new userModel({ 
+  let user = new user({ 
     email: new_user.email, 
     hash: {
         hash: hash, 
@@ -113,24 +109,23 @@ const create = new_user => {
 }
 
 const findUser = (param)=>{
-  return userModel.findOne({ $or: [{ 'personal_data.nimi': {$regex: param} }, { 'email': {$regex: param} }]})
+  return user.findOne({ $or: [{ 'personal_data.nimi': {$regex: param} }, { 'email': {$regex: param} }]})
 }
 
-const forgot = email => {
+const forgotPassword = email => {
 	let hash = crypto.createHash('sha256').update(email).digest('hex')
 	let conditions = {email: email}, 
         update = { hash: { hash:hash, created: Date.now() }}
   sendMagicLink(email, hash)
-  return userModel.findOneAndUpdate(conditions, update, {new: true})
+  return user.findOneAndUpdate(conditions, update, {new: true})
 }
 
 module.exports = {
-	userModel,
 	login,
-	verify,
 	validate,
 	create,
-	forgot,
+  verifyHash,
+	forgotPassword,
   sendMagicLink,
   lastLogin,
   findByEmail,

@@ -128,7 +128,7 @@ router.get('/', (req, res)=>{
 })
 
 router.get('/fetchCargoPages', (req, res)=>{
-  let cadastreID = req.query.cadastreid.split(',')
+  let cadastreID = req.query.cadastreid.split(',') 
   console.log(cadastreID)
   //for(c in req.body.cadastreIdentifiers) {cadastreIdentifiers.push(cadastreIdentifiers[c])}
   importModel.fetchCargoPages(cadastreID)

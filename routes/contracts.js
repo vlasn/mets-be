@@ -2,7 +2,7 @@ const router = require('express').Router()
       multer = require('multer')
       bodyParser = require('body-parser')
       contractModel = require('./../models/contractModel.js')
-      userModel = require('./../models/userModel.js')
+      userModel = require('./../models/user.js')
       helper = require('./helper.js')
       responseFactory = helper.responseFactory
       path = require('path')
@@ -75,9 +75,10 @@ router.post("/fetchAll",(req, res)=>{
 })
 
 router.get("/fetch", (req, res)=>{
-  let cadastre = req.query.cadastre //search term
-  let metsameister = req.query.metsameister //person
-  let status = req.query.status //status
+  //if (!req.query.hasOwnProperty('cadastre')) return res.send('tyhi')
+  let cadastre = req.query.cadastre || ''//search term
+  let metsameister = req.query.metsameister || '' //person
+  let status = req.query.status || '' //status
   contractModel.fetch(cadastre, metsameister, status)
   .then(docs=>{
     if(!docs || docs === null) {return Promise.reject('Ei leidnud selliseid lepinguid!')}
