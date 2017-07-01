@@ -22,7 +22,7 @@ router.route('/')
   		personal_data: userDoc.personal_data,
       token: newToken({userId: userDoc._id})
   	}
-  	user.lastLogin(userDoc.email)
+  	user.lastSuccessfulLogin(userDoc.email)
     res.status(200).json(responseFactory("accept","Oled sisse logitud!", data))
   })
   .catch(err => {

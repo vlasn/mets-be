@@ -6,7 +6,8 @@ const router = require('express').Router()
 
 router.use(bodyParser.json())
 
-router.post("/create",(req, res)=> {
+router.route('/')
+.post((req, res)=> {
 	userModel.create(req.body)
   .then(doc=>{
     if(doc){
@@ -19,27 +20,14 @@ router.post("/create",(req, res)=> {
   	res.status(500).json(responseFactory("reject","Midagi läks valesti... :("))
   })
 })
-
-router.post("/finduser", (req, res)=>{
-  userModel.findUser(req.body.q)
+.get((req, res)=>{
+  // api/users?q=peeter GET
+  let q = req.query.q || ''
+  userModel.findUser(q)
   .then(doc=>{
     res.status(200).json(responseFactory("accept", "Ole lahke", doc))
   })
   .catch(console.log)
 })
-
-router.post("/forgot",(req, res)=> {
-	userModel.forgot(req.body.email)
-  .then(user => {
-    //console.log(user)
-    if (!user) {return Promise.reject('Ei leidnud kasutajat!')}
-    res.status(200).json(responseFactory("accept","Valideerimislink saadeti emailile!"))
-  })
-  .catch(err => {
-    console.log(err)
-    res.status(500).json(responseFactory("reject","Midagi läks valesti... :("))
-  })
-})
-
 
 module.exports = router

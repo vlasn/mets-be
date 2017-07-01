@@ -5,7 +5,7 @@ const mongoose = require('mongoose')
       EMAIL_LOGIN = process.env.EMAIL_LOGIN
       EMAIL_PASS = process.env.EMAIL_PASS
       mongoose.Promise = global.Promise
-      userSchema = mongoose.Schema({
+      schema = mongoose.Schema({
         email: {type: String, unique:true, required: true},
         password: String,
         hash: {
@@ -22,19 +22,19 @@ const mongoose = require('mongoose')
         job_title: String,
         // isikuandmed
         personal_data: {
-            nimi: String,
-            tel_nr: Number,
-            aadress: String,
-            isikukood: Number,
-            dok_nr: String,
-            eraisik: Boolean,
-            juriidiline_isik: Boolean,
-            reg_nr: Number,
-            kmk_nr: Number
+          nimi: String,
+          tel_nr: Number,
+          aadress: String,
+          isikukood: Number,
+          dok_nr: String,
+          eraisik: Boolean,
+          juriidiline_isik: Boolean,
+          reg_nr: Number,
+          kmk_nr: Number
         }
       })
 
-const user = mongoose.model('user', userSchema)
+const user = mongoose.model('user', schema)
 
 const login = (email, psw)=>{return(user.findOne({
   'email': email, 
@@ -44,8 +44,8 @@ const login = (email, psw)=>{return(user.findOne({
   }
 }))}
 
-const lastLogin = email=>{
-  let conditions = {'email':email}, 
+const lastSuccessfulLogin = email=>{
+  let conditions = {'email': email}, 
       update = {lastLogin: Date.now()}    
   user.findOneAndUpdate(conditions, update, ()=>{})
 }
@@ -109,13 +109,13 @@ const create = new_user => {
 }
 
 const findUser = (param)=>{
-  return user.findOne({ $or: [{ 'personal_data.nimi': {$regex: param} }, { 'email': {$regex: param} }]})
+  return user.find({ $or: [{ 'personal_data.nimi': {$regex: param} }, { 'email': {$regex: param} }]})
 }
 
 const forgotPassword = email => {
 	let hash = crypto.createHash('sha256').update(email).digest('hex')
 	let conditions = {email: email}, 
-        update = { hash: { hash:hash, created: Date.now() }}
+      update = { hash: { hash:hash, created: Date.now() }}
   sendMagicLink(email, hash)
   return user.findOneAndUpdate(conditions, update, {new: true})
 }
@@ -127,7 +127,7 @@ module.exports = {
   verifyHash,
 	forgotPassword,
   sendMagicLink,
-  lastLogin,
+  lastSuccessfulLogin,
   findByEmail,
   findUser
 }
