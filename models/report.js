@@ -3,7 +3,7 @@ parse = require('./../routes/parse.js')
 //const userModel = require('./userModel.js').userModel
 mongoose.Promise = global.Promise
 
-const importSchema = mongoose.Schema({
+const schema = mongoose.Schema({
   matched: [],
   unmatched: [],
   veoselehed: [],
@@ -12,7 +12,7 @@ const importSchema = mongoose.Schema({
   filename: String
 })
 
-const importModel = mongoose.model('import', importSchema)
+const importModel = mongoose.model('import', schema)
 
 const newDoc = (d)=>{
   let doc = new importModel({
@@ -37,21 +37,21 @@ const updateWholeDoc = d => {
 const updateDoc = (d)=>{
   d._id = mongoose.Types.ObjectId(d._id)
   let conditions = {'unmatched': {$elemMatch:{_id: d._id}}}
-  let update = {'$set': {'unmatched.$': d}}
+      update = {'$set': {'unmatched.$': d}}
   return importModel.findOneAndUpdate(conditions, update, {new: true})
 }
 
-const fetchCargoPages = (cadastreID)=>{
-  console.log("going to mongo: ",cadastreID)
-  //return importModel.find({'veoselehed.$':{{'cadastre': cadastreID})
-  //return importModel.find({'veoselehed': {$elemMatch:{cadastre: cadastreID}}})
-  //return importModel.findOne({'veoselehed.cadastre': cadastreID})
-  return importModel.find({'veoselehed.cadastre': {$in: cadastreID}})
+const fetchCargoPages = cadastreId => {
+  console.log("going to mongo: ",cadastreId)
+  //return importModel.find({'veoselehed.$':{{'cadastre': cadastreId})
+  //return importModel.find({'veoselehed': {$elemMatch:{cadastre: cadastreId}}})
+  //return importModel.findOne({'veoselehed.cadastre': cadastreId})
+  return importModel.find({'veoselehed.cadastre': {$in: cadastreId}})
 }
 
-const retrieve = (id) => {
+const retrieve = id => {
   console.log(id)
-  if(id) {return importModel.findOne({_id: id})}
+  if(id) return importModel.findOne({_id: id})
   return importModel.find({$or: [{status: "reject"},{status: "pending"}]}, {status: 1, filename: 1}).sort('-date')
 
   
