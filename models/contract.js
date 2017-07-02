@@ -5,7 +5,7 @@ const mongoose = require('mongoose')
 
 mongoose.Promise = global.Promise
 
-const contractSchema = mongoose.Schema({
+const schema = mongoose.Schema({
   // eelloodud kasutaja(d)
   esindajad: [String],
   // varemloodud kasutaja - metsahalduri töötaja
@@ -37,7 +37,7 @@ const contractSchema = mongoose.Schema({
 
 })
 
-const contractModel = mongoose.model('contract', contractSchema)
+const contractModel = mongoose.model('contract', schema)
 
 const create = (new_contract)=>{
   let contract = new contractModel({

@@ -1,7 +1,7 @@
 const router = require('express').Router()
       multer = require('multer')
       bodyParser = require('body-parser')
-      contractModel = require('./../models/contractModel.js')
+      contract = require('./../models/contract.js')
       userModel = require('./../models/user.js')
       helper = require('./helper.js')
       responseFactory = helper.responseFactory
@@ -9,7 +9,7 @@ const router = require('express').Router()
       fs = require('fs')
       fnames = {}
       loc = path.resolve(__dirname, `../uploaded_files/`)
-      isEmployee = require('./auth/token').isEmployee
+      checkPrivileges = require('./auth/token').checkPrivileges
 storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, loc)
@@ -34,7 +34,7 @@ router.use(bodyParser.json())
 router.use(bodyParser.urlencoded({extended: true}))
 
 router.route("/")
-.post((req, res, next) => isEmployee(req) ? next() : res.status(403).send(),
+.post((req, res, next) => checkPrivileges(req) > 0 ? next() : res.status(403).send(),
   (req, res)=>{
   console.log(req.body)
   upload(req, res, function (err) {
@@ -49,7 +49,7 @@ router.route("/")
     userModel.findByEmail(findby)
     .then(foundEmail=>{
       if(!foundEmail){return Promise.reject("Sellise emailiga klienti ei leitud!")}
-      contractModel.create(req.body)
+      contract.create(req.body)
       .then((createdContract)=>{
         if(createdContract){res.status(200).json(responseFactory("accept","Leping loodud!"))}
       },
@@ -67,32 +67,22 @@ router.route("/")
   })
 })
 .get((req, res)=>{
-  contractModel.fetchAllClientRelated(req.body.email)
-  .then(docs => {
-    if (!docs) {return Promise.reject('Ei leidnud lepinguid!')}
-    res.status(200).json(responseFactory("accept", "The documents as per requested, my good sir", docs))
-  })
-  .catch(err => res.status(500).json(responseFactory("reject", err)))
-})
-
-router.get("/fetch", (req, res)=>{
   let cadastre = req.query.cadastre || ''//search term
   let metsameister = req.query.metsameister || '' //person
   let status = req.query.status || '' //status
-  contractModel.fetch(cadastre, metsameister, status)
+  contract.fetch(cadastre, metsameister, status)
   .then(docs=>{
     if(!docs || docs === null) {return Promise.reject('Ei leidnud selliseid lepinguid!')}
     res.status(200).json(responseFactory("accept", "The documents as per requested, my good sir", docs))
   })
   .catch(err=>res.status(500).json(responseFactory("reject", err)))
 })
-
-router.put("/:id", (req,res)=>{
+.put((req,res)=>{
   let id = req.params.id
   let key = req.body.key
   let value = req.body.value
   let remove = !!req.body.remove
-  contractModel.updateContractLine(id,key,value, remove)
+  contract.updateContractLine(id,key,value, remove)
   .then(d => {
     if(!d || d===null) {
       console.log(`Couldn't find document ${id} to update.`)

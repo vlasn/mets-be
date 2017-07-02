@@ -10,8 +10,7 @@ const router = require('express').Router()
 router.use(bodyParser.json())
 
 router.route('/')
-.post((req, res, next) => checkPrivileges(req) > 0 ? next() : res.status(403).send(),
-	(req, res) => {
+.post((req, res) => {
 	console.log(req.body)
 	user.login(req.body.email, req.body.password)
 	.then(userDoc => {
