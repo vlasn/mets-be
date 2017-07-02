@@ -9,6 +9,7 @@ const router = require('express').Router()
       fs = require('fs')
       fnames = {}
       loc = path.resolve(__dirname, `../uploaded_files/`)
+      isEmployee = require('./auth/token').isEmployee
 storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, loc)
@@ -32,8 +33,10 @@ upload = multer({
 router.use(bodyParser.json())
 router.use(bodyParser.urlencoded({extended: true}))
 
-router.post("/create",(req, res)=>{
-console.log(req.body)
+router.route("/")
+.post((req, res, next) => isEmployee(req) ? next() : res.status(403).send(),
+  (req, res)=>{
+  console.log(req.body)
   upload(req, res, function (err) {
     if (err) {res.status(500).json(responseFactory("reject", err))}
 
@@ -63,9 +66,7 @@ console.log(req.body)
     })
   })
 })
-
-// returns all contracts related to given email
-router.post("/fetchAll",(req, res)=>{
+.get((req, res)=>{
   contractModel.fetchAllClientRelated(req.body.email)
   .then(docs => {
     if (!docs) {return Promise.reject('Ei leidnud lepinguid!')}
@@ -75,7 +76,6 @@ router.post("/fetchAll",(req, res)=>{
 })
 
 router.get("/fetch", (req, res)=>{
-  //if (!req.query.hasOwnProperty('cadastre')) return res.send('tyhi')
   let cadastre = req.query.cadastre || ''//search term
   let metsameister = req.query.metsameister || '' //person
   let status = req.query.status || '' //status
@@ -87,7 +87,7 @@ router.get("/fetch", (req, res)=>{
   .catch(err=>res.status(500).json(responseFactory("reject", err)))
 })
 
-router.put("/update/:id", (req,res)=>{
+router.put("/:id", (req,res)=>{
   let id = req.params.id
   let key = req.body.key
   let value = req.body.value

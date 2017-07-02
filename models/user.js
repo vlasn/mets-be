@@ -6,7 +6,7 @@ const mongoose = require('mongoose')
       EMAIL_PASS = process.env.EMAIL_PASS
       mongoose.Promise = global.Promise
       schema = mongoose.Schema({
-        email: {type: String, unique:true, required: true},
+        email: {type: String, unique: true, required: true},
         password: String,
         hash: {
         	hash: {type: String, required: true},
@@ -84,7 +84,7 @@ const sendMagicLink = (email, hash) => {
 const create = new_user => {
   let d = (Date.now()).valueOf().toString()
 	let hash = crypto.createHash('sha256').update(d).digest('hex')
-  let user = new user({ 
+  let newUser = new user({ 
     email: new_user.email, 
     hash: {
         hash: hash, 
@@ -92,20 +92,19 @@ const create = new_user => {
     },
     roles: [{role:"client"}],
     job_title: new_user.job_title,
-    // isikuandmed
     personal_data: {
-        nimi: new_user.personal_data.nimi,
-        tel_nr: new_user.personal_data.tel_nr,
-        aadress: new_user.personal_data.address,
-        isikukood: new_user.personal_data.isikukood,
-        dok_nr: new_user.personal_data.dok_nr,
-        eraisik: new_user.personal_data.eraisik,
-        juriidiline_isik: new_user.personal_data.juriidiline_isik,
-        reg_nr: new_user.personal_data.reg_nr,
-        kmk_nr: new_user.personal_data.kmk_nr
+      nimi: new_user.personal_data.nimi || '',
+      tel_nr: new_user.personal_data.tel_nr,
+      aadress: new_user.personal_data.address,
+      isikukood: new_user.personal_data.isikukood,
+      dok_nr: new_user.personal_data.dok_nr,
+      eraisik: new_user.personal_data.eraisik,
+      juriidiline_isik: new_user.personal_data.juriidiline_isik,
+      reg_nr: new_user.personal_data.reg_nr,
+      kmk_nr: new_user.personal_data.kmk_nr
     }
   })
-  return user.save()
+  return newUser.save()
 }
 
 const findUser = (param)=>{

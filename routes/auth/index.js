@@ -5,6 +5,7 @@ const router = require('express').Router()
       user = require('./../../models/user.js')
       newToken = require('./token').create
       responseFactory = require('../helper.js').responseFactory
+      isEmployee = require('./token').isEmployee
 
 router.use(bodyParser.json())
 
@@ -20,7 +21,7 @@ router.route('/')
   		lastLogin: userDoc.lastLogin,
   		roles: userDoc.roles,
   		personal_data: userDoc.personal_data,
-      token: newToken({userId: userDoc._id})
+      token: newToken({userId: userDoc._id, roles: userDoc.roles})
   	}
   	user.lastSuccessfulLogin(userDoc.email)
     res.status(200).json(responseFactory("accept","Oled sisse logitud!", data))
