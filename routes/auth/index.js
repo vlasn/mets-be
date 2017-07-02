@@ -5,12 +5,13 @@ const router = require('express').Router()
       user = require('./../../models/user.js')
       newToken = require('./token').create
       responseFactory = require('../helper.js').responseFactory
-      isEmployee = require('./token').isEmployee
+      checkPrivileges = require('./token').checkPrivileges
 
 router.use(bodyParser.json())
 
 router.route('/')
-.post((req, res) => {
+.post((req, res, next) => checkPrivileges(req) > 0 ? next() : res.status(403).send(),
+	(req, res) => {
 	console.log(req.body)
 	user.login(req.body.email, req.body.password)
 	.then(userDoc => {
