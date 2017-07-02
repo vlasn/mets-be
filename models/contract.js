@@ -56,7 +56,7 @@ const create = (new_contract)=>{
 }
 
 const fetchAllClientRelated = (client_email)=>{
-  return (contractModel.find({ esindajad: client_email }))
+  return contractModel.find({ 'esindajad': { $in: [client_email]}})
 }
 
 //very basic, needs
@@ -76,12 +76,11 @@ const updateContractLine = (id, key, value, remove=false) => {
   return(contractModel.findOneAndUpdate({_id: id}, update, opt))
 }
 
-const fetch = (cadastre, metsameister, status)=>{
+const fetch = (cadastre, metsameister, status, email)=>{
   return (contractModel.find({ 
     $or: [
       {'kinnistu.nimi': {$regex: cadastre}}, 
-      {'kinnistu.katastritunnused': { $regex: cadastre }},
-      {'esindajad': { $regex: cadastre }}
+      {'kinnistu.katastritunnused': { $regex: cadastre }}
     ],
     metsameister: {$regex: metsameister},
     status: {$regex: status}
