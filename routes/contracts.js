@@ -33,7 +33,7 @@ upload = multer({
 router.use(bodyParser.json())
 router.use(bodyParser.urlencoded({extended: true}))
 
-router.route("/:id")
+router.route("/")
 .post((req, res, next) => checkPrivileges(req) > 0 ? next() : res.status(403).send(),
   (req, res)=>{
   console.log(req.body)
@@ -87,7 +87,7 @@ router.route("/:id")
   })
   .catch(err=>res.status(500).json(responseFactory("reject", err)))
 })
-.put((req,res)=>{
+router.route("/:id").put((req,res)=>{
   let id = req.params.id
   let key = req.body.key
   let value = req.body.value
