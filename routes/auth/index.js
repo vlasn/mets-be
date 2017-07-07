@@ -32,7 +32,7 @@ router.route('/')
 	})
 })
 .get((req, res) => {
-	user.verify(req.params.hash)
+	user.verifyHash(req.params.hash)
   .then(userDoc => {
     if (!userDoc) {return Promise.reject('Ei leidnud sellise räsiga kasutajat!')}
     res.status(200).json(responseFactory("accept", userDoc.email))
@@ -43,10 +43,11 @@ router.route('/')
   })
 })
 .put((req, res) => {
+	if (req.body.email === null) return res.status(400).send()
 	user.forgotPassword(req.body.email)
   .then(userDoc => {
     //console.log(user)
-    if (!userDoc) {return Promise.reject('Ei leidnud kasutajat!')}
+    if (!userDoc) return Promise.reject('Ei leidnud kasutajat!')
     res.status(200).json(responseFactory("accept","Valideerimislink saadeti emailile!"))
   })
   .catch(err => {

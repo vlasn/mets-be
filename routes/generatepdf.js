@@ -3,7 +3,7 @@
 let PDFDocument = require('pdfkit'),
 fs = require('fs')
 
-module.exports = (res) => {
+module.exports = res => {
 	var docDefinition = { content: 'This is an sample PDF printed with pdfMake' }
 	let obj = {
     "Sihtkoht": "Stora Enso Eesti AS/Imavere/EPMK",

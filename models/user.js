@@ -34,9 +34,9 @@ const mongoose = require('mongoose')
         }
       })
 
-const user = mongoose.model('user', schema)
+const User = mongoose.model('user', schema)
 
-const login = (email, psw)=>{return(user.findOne({
+const login = (email, psw)=>{return(User.findOne({
   'email': email, 
   'password': psw, 
   'hash.validated':{
@@ -47,44 +47,40 @@ const login = (email, psw)=>{return(user.findOne({
 const lastSuccessfulLogin = email=>{
   let conditions = {'email': email}, 
       update = {lastLogin: Date.now()}    
-  user.findOneAndUpdate(conditions, update, ()=>{})
+  User.findOneAndUpdate(conditions, update, ()=>{})
 }
 
-const verifyHash = hash => {return user.findOne({'hash.hash': hash})}
-
-const findByEmail = email => {return user.findOne({email: email})}
+const verifyHash = hash => {return User.findOne({'hash.hash': hash})}
 
 const validate = (password, hash)=>{
 	let conditions = { 'hash.hash':hash }, 
         update = {password: password, hash: {validated: Date.now()}}
-  return user.findOneAndUpdate(conditions, update, {new: true})
+  return User.findOneAndUpdate(conditions, update, {new: true})
 }
 
 const sendMagicLink = (email, hash) => {
-    // hiljem läheb dotenvi
     let mailTransporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {user: EMAIL_LOGIN, pass: EMAIL_PASS}
+      service: 'gmail',
+      auth: {user: EMAIL_LOGIN, pass: EMAIL_PASS}
     })
-
-    let mailFieldOptions = {
-        from: '"Metsahaldur Test" <metsahaldur.test@gmail.com>',
-        to: `${email}`,
-        subject: 'Valideeri oma kasutajakonto',
-        text: 'Hello world ?',
-        html: `Palun kliki järgmisele lingile: <a href="${HOSTNAME}/validate/${hash}">Loo parool</a>`
-    }
+        mailFieldOptions = {
+          from: '"Metsahaldur | Kasutaja valideerimine" <metsahaldur.test@gmail.com>',
+          to: `${email}`,
+          subject: 'Valideeri oma kasutajakonto',
+          text: 'Hello world ?',
+          html: `Palun kliki järgmisele lingile: <a href="${HOSTNAME}/validate/${hash}">Loo parool</a>`
+        }
 
     mailTransporter.sendMail(mailFieldOptions, (error, info) => {
-        if (error) {return console.log(error)}
-        console.log('Message %s sent: %s', info.messageId, info.response);
+      if (error) return console.log(error)
+      console.log('Message %s sent: %s', info.messageId, info.response);
     })
 }
 
 const create = new_user => {
-  let d = (Date.now()).valueOf().toString()
+  let d = Date.now().valueOf().toString()
 	let hash = crypto.createHash('sha256').update(d).digest('hex')
-  let newUser = new user({ 
+  let newUser = new User({ 
     email: new_user.email, 
     hash: {
         hash: hash, 
@@ -107,16 +103,21 @@ const create = new_user => {
   return newUser.save()
 }
 
-const findUser = (param)=>{
-  return user.find({ $or: [{ 'personal_data.nimi': {$regex: param} }, { 'email': {$regex: param} }]})
+const find = param => {
+  return User.find({ 
+    $or: [
+      { 'personal_data.nimi': {$regex: param} },
+      { 'email': {$regex: param} }
+    ]
+  })
 }
 
 const forgotPassword = email => {
 	let hash = crypto.createHash('sha256').update(email).digest('hex')
-	let conditions = {email: email}, 
+      conditions = {email: email}, 
       update = { hash: { hash:hash, created: Date.now() }}
   sendMagicLink(email, hash)
-  return user.findOneAndUpdate(conditions, update, {new: true})
+  return User.findOneAndUpdate(conditions, update, {new: true})
 }
 
 module.exports = {
@@ -127,7 +128,6 @@ module.exports = {
 	forgotPassword,
   sendMagicLink,
   lastSuccessfulLogin,
-  findByEmail,
-  findUser
+  find
 }
 

@@ -15,9 +15,14 @@ const jwt = require('jsonwebtoken')
 				})}
 			exports.checkPrivileges = req => {
 				let token = req.headers['x-auth-token'], len, prv
-				jwt.verify(token, secret, (error, decoded) => {
-				//console.log(error)
-				if (error || !decoded || decoded.roles.length < 2) return null
-				len = decoded.roles.length
-				len > 2 ? prv = 2 : prv = 1
-				return prv})}
+						promise = new Promise((resolve, reject) => {
+							jwt.verify(token, secret, (error, decoded) => {
+								len = decoded.roles.length
+								if (error || !decoded) reject(null)
+								len > 2 ? prv = 2 : prv = 1
+								//return prv
+								resolve(prv)
+							})
+						})
+				return promise
+			}

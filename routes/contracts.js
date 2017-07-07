@@ -67,12 +67,15 @@ router.route("/")
   })
 })
 .get((req, res, next) => {
-  if (checkPrivileges(req) > 0) return next()
-  contract.fetchAllClientRelated(req.user)
-  .then(docs=>{
-    //console.log(docs)
-    if(!docs || docs === null) {return Promise.reject('Ei leidnud ühtegi seotud lepingut :|')}
-    res.status(200).json(responseFactory("accept", "The documents as per requested, my good sir", docs))
+  // it's fucking async
+  checkPrivileges(req)
+  .then(ok => {
+    if (ok > 0) return next()
+    contract.fetchAllClientRelated(req.user)
+    .then(docs=>{
+      if(!docs || docs === null) return Promise.reject('Ei leidnud ühtegi seotud lepingut :|')
+      res.status(200).json(responseFactory("accept", "The documents as per requested, my good sir", docs))
+    })
   })
   .catch(e=>{return res.status(400).send(e)})
   },

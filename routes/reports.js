@@ -36,23 +36,25 @@ router.route('/')
     let sheet_name_list = workbook.SheetNames
     let data = {unmatched: [],
                 filename: req.files.file.name}
-    console.log(data)
+    //console.log(data)
 
     for(let y of sheet_name_list){
       let worksheet = workbook.Sheets[y]
       let headers = {}
 
-      for(let z in worksheet) {
+      for (let z in worksheet) {
         if(z[0] === '!') continue
         let c = "", r = ""
-        for(s of z) isNaN(s) ? c+=s : r+=s
-        r = parseInt(r)
-        let value = worksheet[z].v
+            value = worksheet[z].v
 
-        //store header names
-        if(r == 1) {headers[c] = value; continue}
+        for (s of z) isNaN(s) ? c+=s : r+=s*1
 
-        if(!data.unmatched[r]) data.unmatched[r] = {}
+        if (r == 1) {
+          headers[c] = value
+          continue
+        }
+
+        if (!data.unmatched[r]) data.unmatched[r] = {}
         data.unmatched[r][headers[c]] = value
       }
       //drop those first two rs which are empty
@@ -71,7 +73,7 @@ router.route('/')
     		res.status(500).send(e)
     	})
     })
-    .catch(e=>res.status(500).json(responseFactory("reject", e)))
+    .catch(e => res.status(500).json(responseFactory("reject", e)))
 
 	})
 })
@@ -82,39 +84,40 @@ router.route('/')
     if(!d) return Promise.reject('Polnud docse')
     res.status(200).json(responseFactory("accept", "Siin on stuffi", d))
   })
-  .catch(err=>{res.status(500).send(err)})
+  .catch(err => res.status(500).send(err))
 })
 
+// for inserting a manually altered report row
 router.put('/:id', (req, res) => {
   report.updateDoc(req.body)
-  .then(data=>{
-    if(!data) return Promise.reject('Ei leidnud uuendatavat alamdokumenti!')
+  .then(data => {
+    if (!data) return Promise.reject('Ei leidnud uuendatavat alamdokumenti!')
   	parse(data)
   	.then(d=>{
   		let responseData = d
   		console.log(d.unmatched.length, d.matched.length)
   		pricelist.checkForMatch(req.body)
   		.then(d=>{
-  			if (d===false) return Promise.reject('Ei leidnud vastet!')
+  			if (d === false) return Promise.reject('Ei leidnud vastet!')
   			let response = {
 	  			matched: responseData.matched.length,
 	  			unmatched: responseData.unmatched.length
 	  		}
   			res.status(200).json(responseFactory("accept", "", response))
   		})
-  		.catch(e=>res.status(500).json(responseFactory("reject", e)))
+  		.catch(e => res.status(500).json(responseFactory("reject", e)))
   	})
   })
-  .catch(e=>res.status(500).json(responseFactory("reject", e)))
+  .catch(e => res.status(500).json(responseFactory("reject", e)))
 })
 
 router.post('/xlsx/findMatch', (req, res)=>{
   pricelist.checkForMatch(req.body)
   .then(d=>{
-  	if(d===false) return Promise.reject('Ei leidnud vastet!')
+  	if (d === false) return Promise.reject('Ei leidnud vastet!')
   	res.status(200).json(responseFactory("accept", "Leidsin vaste!", d.vaste))
   })
-  .catch(e=>res.status(404).json(responseFactory("reject", e)))
+  .catch(e => res.status(404).json(responseFactory("reject", e)))
 })
 
 router.get('/fetchCargoPages', (req, res)=>{
@@ -124,9 +127,9 @@ router.get('/fetchCargoPages', (req, res)=>{
   report.fetchCargoPages(cadastreID)
    .then(docs => {
      let response = docs
-     .reduce((acc, val)=>acc=[...acc, ...val.veoselehed],[])
+     .reduce((acc, val) => acc = [...acc, ...val.veoselehed],[])
      .map(val => val.rows)
-     .reduce((acc,val)=>[...acc,...val],[])
+     .reduce((acc,val) => [...acc,...val],[])
      .map(row => ({
         price: row['Hind'],
         date: row['veoselehe kuupäev'],
