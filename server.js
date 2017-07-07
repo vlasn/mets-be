@@ -29,7 +29,7 @@ if (!isProduction) {
   app.use((err, req, res, next)=>{
     console.log(err.stack)
     res.status(err.status || 500)
-    res.json({'errors': {
+    res.json({'Midagi läks metsa :|': {
       message: err.message,
       error: err
     }})

@@ -34,70 +34,65 @@ router.use(bodyParser.json())
 router.use(bodyParser.urlencoded({extended: true}))
 
 router.route("/")
-.post((req, res, next) => checkPrivileges(req) > 0 ? next() : res.status(403).send(),
-  (req, res)=>{
+.post((req, res, next) => req.privileges > 1 ? next() : res.status(403).send(),
+(req, res)=>{
   console.log(req.body)
   upload(req, res, function (err) {
-    if (err) {res.status(500).json(responseFactory("reject", err))}
-
+    if (err) return res.status(500).json(responseFactory('reject', err))
+    if (!req.body.email) return res.status(400).send('Bad request')
     //TODO - more robust find function
     let findby = req.body.email
-    if(typeof(findby)!=="string") findby=findby[0]
+    if(typeof(findby) !== "string") findby=findby[0]
     req.body.documents = {}
     req.body.documents.leping = fnames.leping
     req.body.documents.metsateatis = fnames.metsateatis
     userModel.findByEmail(findby)
     .then(foundEmail=>{
-      if(!foundEmail){return Promise.reject("Sellise emailiga klienti ei leitud!")}
+      if (!foundEmail) return Promise.reject('Sellise emailiga klienti ei leitud!')
       contract.create(req.body)
       .then((createdContract)=>{
-        if(createdContract){res.status(200).json(responseFactory("accept","Leping loodud!"))}
+        if (createdContract) res.status(200).json(responseFactory('accept', 'Leping loodud!'))
       },
       err=>{
         for(filename in fnames) fs.unlink(loc+'/'+fnames[filename], (err)=>{console.log(err)})
         fnames = []
-        res.status(500).json(responseFactory("reject", err))
+        res.status(500).json(responseFactory('reject', err))
       })
     })
     .catch(err=>{
       for(filename in fnames) fs.unlink(loc+'/'+fnames[filename], (err)=>{console.log(err)})
       fnames = []
-      res.status(500).json(responseFactory("reject", err))
+      res.status(500).json(responseFactory('reject', err))
     })
   })
 })
 .get((req, res, next) => {
-  // it's fucking async
-  checkPrivileges(req)
-  .then(ok => {
-    if (ok > 0) return next()
-    contract.fetchAllClientRelated(req.user)
-    .then(docs=>{
-      if(!docs || docs === null) return Promise.reject('Ei leidnud ühtegi seotud lepingut :|')
-      res.status(200).json(responseFactory("accept", "The documents as per requested, my good sir", docs))
-    })
+  req.privileges > 1 ? next() :
+  contract.fetchAllClientRelated(req.user)
+  .then(docs => {
+    res.status(200).json(responseFactory('accept', '', docs))
   })
-  .catch(e=>{return res.status(400).send(e)})
-  },
+  .catch(e => res.status(400).send(e))
+},
   (req, res) => {
-  let cadastre = req.query.cadastre || ''//search term
-  let metsameister = req.query.metsameister || '' //person
-  let status = req.query.status || '' //status
-  contract.fetch(cadastre, metsameister, status)
-  .then(docs=>{
-    if(!docs || docs === null) {return Promise.reject('Ei leidnud selliseid lepinguid!')}
-    res.status(200).json(responseFactory("accept", "The documents as per requested, my good sir", docs))
-  })
-  .catch(err=>res.status(500).json(responseFactory("reject", err)))
+    let cadastre = req.query.cadastre || ''//search term
+    let metsameister = req.query.metsameister || '' //person
+    let status = req.query.status || '' //status
+    contract.fetch(cadastre, metsameister, status)
+    .then(docs=>{
+      if(!docs || docs === null) return Promise.reject('Ei leidnud selliseid lepinguid!')
+      res.status(200).json(responseFactory('accept', '', docs))
+    })
+    .catch(err => res.status(500).json(responseFactory('reject', err)))
 })
 router.route("/:id").put((req,res)=>{
   let id = req.params.id
   let key = req.body.key
   let value = req.body.value
   let remove = !!req.body.remove
-  contract.updateContractLine(id,key,value, remove)
+  contract.updateContractLine(id, key, value, remove)
   .then(d => {
-    if(!d || d===null) {
+    if(!d || d === null) {
       console.log(`Couldn't find document ${id} to update.`)
       res.status(500).json(responseFactory('reject','Kirjet ei leitud!'))
     } else {
@@ -107,7 +102,7 @@ router.route("/:id").put((req,res)=>{
   })
   .catch(e => {
     console.log(e)
-    res.status(500).json(responseFactory('reject','okou',e))
+    res.status(500).json(responseFactory('reject', '', e))
   })
 })
 
