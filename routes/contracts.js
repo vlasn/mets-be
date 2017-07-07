@@ -90,7 +90,7 @@ router.route("/")
   })
   .catch(err=>res.status(500).json(responseFactory("reject", err)))
 })
-.put((req,res)=>{
+router.route("/:id").put((req,res)=>{
   let id = req.params.id
   let key = req.body.key
   let value = req.body.value
