@@ -2,7 +2,7 @@ const router = require('express').Router()
       multer = require('multer')
       bodyParser = require('body-parser')
       contract = require('./../models/contract.js')
-      userModel = require('./../models/user.js')
+      User = require('./../models/user.js')
       helper = require('./helper.js')
       responseFactory = helper.responseFactory
       path = require('path')
@@ -10,44 +10,50 @@ const router = require('express').Router()
       fnames = {}
       loc = path.resolve(__dirname, `../uploaded_files/`)
       checkPrivileges = require('./auth/token').checkPrivileges
-storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, loc)
-  },
-  filename: function (req, file, cb) {
-    let name = file.originalname.split('.').shift()
-    let ext = "." + file.originalname.split('.').pop()
-    let fname = name + '_' + Date.now() + ext
-    fnames[file.fieldname] = fname
-    cb(null, fname)
-  }
-})
-upload = multer({
-  storage: storage,
-  fileFilter: function (req, file, cb) {
-    if (path.extname(file.originalname) !== '.pdf') return cb(new Error('Only pdfs are allowed'))
-    cb(null, true)
-  }
-}).fields([{ name: 'leping', maxCount: 1 }, { name: 'metsateatis', maxCount: 1 }])
+      storage = multer.diskStorage({
+        destination: function (req, file, cb) {
+          cb(null, loc)
+        },
+        filename: function (req, file, cb) {
+          console.log(file.originalname)
+          let name = file.originalname.split('.').shift()
+          let ext = "." + file.originalname.split('.').pop()
+          let fname = name + '_' + Date.now() + ext
+          fnames[file.fieldname] = fname
+          cb(null, fname)
+        }
+      })
+      upload = multer({
+        storage: storage,
+        fileFilter: function (req, file, cb) {
+          if (path.extname(file.originalname) !== '.pdf') return cb(new Error('Only pdfs are allowed'))
+          cb(null, true)
+        }
+      }).array('documents', 6)
+
+// .fields([{ name: 'leping', maxCount: 3 }, { name: 'metsateatis', maxCount: 3 }])
 
 router.use(bodyParser.json())
 router.use(bodyParser.urlencoded({extended: true}))
 
 router.route("/")
 .post((req, res, next) => req.privileges > 1 ? next() : res.status(403).send(),
-(req, res)=>{
+(req, res) => {
   console.log(req.body)
   upload(req, res, function (err) {
+      console.log('fnames are:',fnames)
+    if (req.files.length === 0 || req.files === undefined) return res.status(400).send('No files were attached')
     if (err) return res.status(500).json(responseFactory('reject', err))
-    if (!req.body.email) return res.status(400).send('Bad request')
+    if (!req.body.email || !req.files) return res.status(400).send('Bad request')
     //TODO - more robust find function
     let findby = req.body.email
-    if(typeof(findby) !== "string") findby=findby[0]
+    if (typeof(findby) !== "string") findby = findby[0]
     req.body.documents = {}
+
     req.body.documents.leping = fnames.leping
     req.body.documents.metsateatis = fnames.metsateatis
-    userModel.findByEmail(findby)
-    .then(foundEmail=>{
+    User.find(findby)
+    .then(foundEmail => {
       if (!foundEmail) return Promise.reject('Sellise emailiga klienti ei leitud!')
       contract.create(req.body)
       .then((createdContract)=>{

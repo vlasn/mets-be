@@ -55,7 +55,7 @@ const create = (new_contract)=>{
   return contract.save()
 }
 
-const fetchAllClientRelated = (client_email)=>{
+const fetchAllClientRelated = client_email => {
   return contractModel.find({ 'esindajad': { $in: [client_email]}})
 }
 

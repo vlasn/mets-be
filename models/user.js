@@ -38,10 +38,7 @@ const User = mongoose.model('user', schema)
 
 const login = (email, psw)=>{return(User.findOne({
   'email': email, 
-  'password': psw, 
-  'hash.validated':{
-    $exists: true 
-  }
+  'password': psw
 }))}
 
 const lastSuccessfulLogin = email=>{
@@ -104,7 +101,7 @@ const create = new_user => {
 }
 
 const find = param => {
-  return User.find({ 
+  return User.findOne({ 
     $or: [
       { 'personal_data.nimi': {$regex: param} },
       { 'email': {$regex: param} }

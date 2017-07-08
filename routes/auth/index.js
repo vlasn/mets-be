@@ -14,7 +14,7 @@ router.route('/')
 	console.log(req.body)
 	user.login(req.body.email, req.body.password)
 	.then(userDoc => {
-    if (!userDoc) {return Promise.reject('Sellise parooli ja emaili kombinatsiooniga kasutajat ei eksisteeri!')}
+    if (!userDoc) return Promise.reject('Sellise parooli ja emaili kombinatsiooniga kasutajat ei eksisteeri!')
     console.log(userDoc.email + " logis sisse @ " + new Date().toLocaleString())
   	let data = {
       user_id: userDoc._id,
@@ -32,14 +32,14 @@ router.route('/')
 	})
 })
 .get((req, res) => {
-	user.verifyHash(req.params.hash)
+	if (Object.keys(req.query).length === 0) return res.status(400).send('Empty request')
+	user.verifyHash(req.query.hash)
   .then(userDoc => {
-    if (!userDoc) {return Promise.reject('Ei leidnud sellise räsiga kasutajat!')}
-    res.status(200).json(responseFactory("accept", userDoc.email))
+    if (!userDoc) return Promise.reject('Ei leidnud sellise räsiga kasutajat!')
+    res.status(200).json(responseFactory('accept', userDoc.email))
 	})
   .catch(err => {
-    console.log(err)
-    res.status(500).json(responseFactory("reject","Midagi läks valesti... :("))
+    res.status(400).json(responseFactory('reject', err))
   })
 })
 .put((req, res) => {

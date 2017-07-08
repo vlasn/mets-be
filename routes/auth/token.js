@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken')
 				console.log(userData)
 				return jwt.sign(userData, secret, {expiresIn: 3600})}
 			exports.verify = (req, res, next) => {
-				if (req.originalUrl === '/api/auth') return next()
+				if (req.originalUrl.includes('/api/auth')) return next()
 				let token = req.headers['x-auth-token']
 				//if (!token) return res.status(401).json('Missing token')
 				jwt.verify(token, secret, (error, decoded) => {
