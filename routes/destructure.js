@@ -9,7 +9,6 @@ module.exports = d => {
 						rows: [],
 						sum: (parseFloat(row['arvestus maht']) * parseFloat(row['Hind']))
 					}
-					console.log(parseFloat(row['arvestus maht']) * parseFloat(row['arvestus maht']))
 					d.veoselehed[0].rows.push(row)
 				} else if (d.matched.indexOf(row) > 0) {
 					let len = d.veoselehed.length
@@ -27,8 +26,6 @@ module.exports = d => {
 								rows: [],
 								sum: (parseFloat(row['arvestus maht']) * parseFloat(row['Hind']))
 							}
-							//console.log()
-							el.sum = parseFloat(el.sum) + (parseFloat(row['arvestus maht']) * parseFloat(row['Hind']))
 							d.veoselehed[len].rows.push(row)
 							break
 						}
@@ -40,7 +37,10 @@ module.exports = d => {
 	})
 
 	return p
-	.then(d=>{
+	.then(d => {
+		let sum = 0
+		for (let v of d.veoselehed) sum += v.sum
+		console.log('does report sum match cargos sum:', d.testSum === sum)
 		return d
 	})
 }

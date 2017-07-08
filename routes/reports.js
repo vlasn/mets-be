@@ -36,7 +36,6 @@ router.route('/')
     let sheet_name_list = workbook.SheetNames
     let data = {unmatched: [],
                 filename: req.files.file.name}
-    //console.log(data)
 
     for(let y of sheet_name_list){
       let worksheet = workbook.Sheets[y]

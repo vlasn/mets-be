@@ -6,7 +6,8 @@ module.exports = d => {
   if (!d.hasOwnProperty('matched')) d.matched = []
 
   d.veoselehed = []
-  d.status = "pending"
+  d.status = 'pending'
+  d.testSum = 0
   let promises = []
 
   for (let row of d.unmatched) {
@@ -16,6 +17,7 @@ module.exports = d => {
       if (result) {
         let index = d.unmatched.indexOf(row)
         d.unmatched.splice(index,1)
+        d.testSum += parseFloat(row['arvestus maht']) * parseFloat(row['Hind'])
         d.matched.push(result)
       }
     })

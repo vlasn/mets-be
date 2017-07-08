@@ -4,6 +4,7 @@ parse = require('./../routes/parse.js')
 mongoose.Promise = global.Promise
 
 const schema = mongoose.Schema({
+  testSum: Number,
   matched: [],
   unmatched: [],
   veoselehed: [],
@@ -16,6 +17,7 @@ const importModel = mongoose.model('import', schema)
 
 const newDoc = (d)=>{
   let doc = new importModel({
+    testSum: d.testSum,
     matched: d.matched,
     unmatched: d.unmatched,
     veoselehed: d.veoselehed,
