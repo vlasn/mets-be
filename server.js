@@ -8,6 +8,7 @@ const app = require("express")()
 			PORT=process.env.PORT
 			options = {user: MONGO_USER, pass: MONGO_PASS, auth: {authSource: 'admin'}}
 			isProduction = process.env.NODE_ENV === 'production'
+			path = require("path")
 
 mongoose.connect(MONGO_IP, options)
 mongoose.connection.on('error', err => console.log('Server halted because:\nMongoDB failed with: ', err.message))
@@ -17,7 +18,12 @@ mongoose.connection.on('open', () => {
 })
 
 app.use(require('morgan')('dev'))
+app.get('/api', (req, res) => {
+	res.sendFile(path.join(__dirname+'/api.html'));
+})
 app.use('/api', require('./routes'))
+
+
 
 app.use((req, res, next)=>{
   let err = new Error('Not Found')
