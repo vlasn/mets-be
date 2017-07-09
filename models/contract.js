@@ -17,12 +17,7 @@ const schema = mongoose.Schema({
     väljavedu: Date,
     raidmete_valjavedu: Date
   },
-  documents: {
-    // needs a more descriptive name to it
-    // values of these will be a FILEPATH
-    leping: String,
-    metsateatis: String
-  },
+  documents: [String],
   hinnatabel: {
     timestamp: {type: Date, default: Date.now()},
     snapshot: {type: String}

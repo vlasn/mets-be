@@ -7,19 +7,18 @@ const router = require('express').Router()
       responseFactory = helper.responseFactory
       path = require('path')
       fs = require('fs')
-      fnames = {}
+      fnames = []
       loc = path.resolve(__dirname, `../uploaded_files/`)
-      checkPrivileges = require('./auth/token').checkPrivileges
+     
       storage = multer.diskStorage({
         destination: function (req, file, cb) {
           cb(null, loc)
         },
         filename: function (req, file, cb) {
-          console.log(file.originalname)
           let name = file.originalname.split('.').shift()
           let ext = "." + file.originalname.split('.').pop()
           let fname = name + '_' + Date.now() + ext
-          fnames[file.fieldname] = fname
+          fnames.push(fname)
           cb(null, fname)
         }
       })
@@ -29,29 +28,22 @@ const router = require('express').Router()
           if (path.extname(file.originalname) !== '.pdf') return cb(new Error('Only pdfs are allowed'))
           cb(null, true)
         }
-      }).array('documents', 6)
-
-// .fields([{ name: 'leping', maxCount: 3 }, { name: 'metsateatis', maxCount: 3 }])
-
-router.use(bodyParser.json())
-router.use(bodyParser.urlencoded({extended: true}))
+      })
+      documentsUpload = upload.array('documents', 6)
+//router.use(bodyParser.json())
 
 router.route("/")
-.post((req, res, next) => req.privileges > 1 ? next() : res.status(403).send(),
-(req, res) => {
-  console.log(req.body)
-  upload(req, res, function (err) {
-      console.log('fnames are:',fnames)
-    if (req.files.length === 0 || req.files === undefined) return res.status(400).send('No files were attached')
-    if (err) return res.status(500).json(responseFactory('reject', err))
+.post((req, res, next) => req.privileges > 1 ? next() : res.status(403).send('Insufficient privileges'),
+documentsUpload, (req, res) => {
+    if (Object.keys(req.files).length === 0 || req.files === undefined) return res.status(400).send('No files were attached')
     if (!req.body.email || !req.files) return res.status(400).send('Bad request')
     //TODO - more robust find function
     let findby = req.body.email
     if (typeof(findby) !== "string") findby = findby[0]
-    req.body.documents = {}
 
-    req.body.documents.leping = fnames.leping
-    req.body.documents.metsateatis = fnames.metsateatis
+    req.body.documents = fnames
+    console.log(req.body.documents)
+
     User.find(findby)
     .then(foundEmail => {
       if (!foundEmail) return Promise.reject('Sellise emailiga klienti ei leitud!')
@@ -70,7 +62,7 @@ router.route("/")
       fnames = []
       res.status(500).json(responseFactory('reject', err))
     })
-  })
+
 })
 .get((req, res, next) => {
   req.privileges > 1 ? next() :
