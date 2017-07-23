@@ -13,4 +13,5 @@ const jwt = require('jsonwebtoken')
 					req.user = decoded.email
 					req.privileges = decoded.roles.length
 					next()
-				})}
+				})
+			}
