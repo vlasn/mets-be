@@ -38,18 +38,19 @@ if (!productionEnvironment) {
   app.use((err, req, res, next) => {
     console.log(err.stack)
     res.status(err.status || 500)
-    res.json({'Midagi läks metsa :|': {
-      message: err.message,
-      error: err
-    }})
+    res.json({
+      status: 'reject',
+      message: err.message
+    })
   })
 }
 
 app.use((err, req, res, next)=>{
   res.status(err.status || 500)
-  res.json({'error': {
-    message: err.message,
-  }})
+  res.json({
+  	status: 'reject',
+    message: err.message
+  })
 })
 
 

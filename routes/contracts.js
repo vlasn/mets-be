@@ -3,13 +3,12 @@ const router = require('express').Router()
       bodyParser = require('body-parser')
       contract = require('./../models/contract.js')
       User = require('./../models/user.js')
-      helper = require('./helper.js')
-      responseFactory = helper.responseFactory
+      responseFactory = require('../util/response')
       path = require('path')
       fs = require('fs')
       fnames = []
       loc = path.resolve(__dirname, `../uploaded_files/`)
-     
+
       storage = multer.diskStorage({
         destination: function (req, file, cb) {
           cb(null, loc)

@@ -3,7 +3,8 @@
 const User = require('../models/user'),
 crypto = require('crypto'),
 sendMagicLinkTo = require('../util/mailer'),
-generateHash = require('../util/hash')
+generateHash = require('../util/hash'),
+respondWith = require('../util/response')
 
 
 exports.create = (req, res, next) => {
@@ -13,8 +14,8 @@ exports.create = (req, res, next) => {
     if (err) return next(err)
 
     sendMagicLinkTo(doc.email, doc.hash.hash, (err, ok) => {
-      if (err) return res.status(500).json('Aktiveerimislinki ei saadetud – kontakteeru bossiga')
-      res.status(201).json(`Aktiveerimislink saadeti meiliaadressile ${doc.email}`)
+      if (err) return next('Aktiveerimislinki ei saadetud – kontakteeru bossiga')
+      res.status(201).json(respondWith('accept', `Aktiveerimislink saadeti meiliaadressile ${doc.email}`))
     })
   })
 }
@@ -28,7 +29,7 @@ exports.login = (req, res, next) => {
     {lastLogin: Date.now()},
     (err, doc) => err || !doc
     ? next(err = 'Vale parool või email')
-    : res.send(doc)
+    : res.send('accept', '', doc)
   )
 }
 
@@ -36,7 +37,7 @@ exports.findByEmail = (req, res, next) => {
   const email = req.params.email
 
   User.findOne({'email': {$regex: '^' + email, $options: 'i'}}, (err, doc) => {
-    err || !doc ? next(err = 'Ei leidnud') : res.json(doc)
+    err || !doc ? next(err = 'Ei leidnud') : res.json('accept', '', doc)
   })
 }
 
@@ -49,7 +50,7 @@ exports.verifyHash = (req, res, next) => {
       'hash.created': {$gt: currentDate}
     },
     (err, doc) => {
-      err || !doc ? next(err = 'Räsi ei sobi või aegunud') : res.json(doc)
+      err || !doc ? next(err = 'Räsi ei sobi või aegunud') : res.json('accept', '', doc)
     }
   )
 }
@@ -64,7 +65,7 @@ exports.validate = (req, res, next) => {
     {password: password, hash: {validated: Date.now()}},
     {new: true},
     (err, doc) => {
-      err ? next(err) : res.json
+      err ? next(err) : res.json('accept', '', doc)
     }
   )
 }
@@ -78,6 +79,6 @@ exports.forgotPassword = (req, res, next) => {
     {new: true},
     (err, doc) => err || !doc
     ? next(err)
-    : res.json(`Aktiveerimislink saadeti meiliaadressile ${doc.email}`)
+    : res.json('status', `Aktiveerimislink saadeti meiliaadressile ${doc.email}`, doc)
   )
 }

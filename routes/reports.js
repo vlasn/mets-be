@@ -4,10 +4,9 @@ const router = require('express').Router()
 			bodyParser = require('body-parser')
 			report = require('./../models/report.js')
 			pricelist = require('./../models/southNorthPricelistModel.js')
-			helper = require('./helper.js')
 			mongoose = require('mongoose')
 			path = require('path')
-			responseFactory = helper.responseFactory
+      responseFactory = require('../util/response')
 			parse = require('./parse')
 			destructure = require('./destructure')
 			secret = process.env.SECRET
@@ -19,11 +18,11 @@ router.use(bodyParser.json())
 router.route('/')
 .post(fileUpload(), (req, res)=>{
   if (!req.files) return res.status(400).send('No files were uploaded.')
- 
-  // The name of the input field (i.e. "reportFile") is used to retrieve the uploaded file 
+
+  // The name of the input field (i.e. "reportFile") is used to retrieve the uploaded file
   let reportFile = req.files.file
   let reportFileExtension = req.files.file.name.split('.').pop()
-  req.files.file.name = req.files.file.name.split('.').shift() + "_" + 
+  req.files.file.name = req.files.file.name.split('.').shift() + "_" +
   Date.now() + "." + reportFileExtension
 
   if(reportFileExtension !== 'xlsx') return res.status(400).send('Incorrect file type')
@@ -120,7 +119,7 @@ router.post('/xlsx/findMatch', (req, res)=>{
 })
 
 router.get('/fetchCargoPages', (req, res)=>{
-  let cadastreID = req.query.cadastreid.split(',') 
+  let cadastreID = req.query.cadastreid.split(',')
   console.log(cadastreID)
   //for(c in req.body.cadastreIdentifiers) {cadastreIdentifiers.push(cadastreIdentifiers[c])}
   report.fetchCargoPages(cadastreID)
@@ -134,7 +133,7 @@ router.get('/fetchCargoPages', (req, res)=>{
         date: row['veoselehe kuupäev'],
         name: row['Elvise VL nr'],
         volume: row['arvestus maht']
-      })) 
+      }))
     console.log(response)
     res.status(200).json(responseFactory("accept", "Siin on stuffi", response))
   })

@@ -1,7 +1,4 @@
 const mongoose = require('mongoose')
-  userModel = require('./user.js').user,
-  helper = require('./../routes/helper.js'),
-  responseFactory = helper.responseFactory
 
 mongoose.Promise = global.Promise
 
@@ -72,9 +69,9 @@ const updateContractLine = (id, key, value, remove=false) => {
 }
 
 const fetch = (cadastre, metsameister, status, email)=>{
-  return (contractModel.find({ 
+  return (contractModel.find({
     $or: [
-      {'kinnistu.nimi': {$regex: cadastre}}, 
+      {'kinnistu.nimi': {$regex: cadastre}},
       {'kinnistu.katastritunnused': { $regex: cadastre }}
     ],
     metsameister: {$regex: metsameister},
@@ -83,7 +80,7 @@ const fetch = (cadastre, metsameister, status, email)=>{
 }
 
 const insertById = (contract_id, file_name)=>{
-  let conditions = {'_id': contract_id}, 
+  let conditions = {'_id': contract_id},
     update = {'documents.leping': file_name}
   return contractModel.findOneAndUpdate(conditions, update, {new: true})
 }
