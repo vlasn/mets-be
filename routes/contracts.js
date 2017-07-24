@@ -1,34 +1,34 @@
-const router = require('express').Router()
-      multer = require('multer')
-      bodyParser = require('body-parser')
-      contract = require('./../models/contract.js')
-      User = require('./../models/user.js')
-      responseFactory = require('../util/response')
-      path = require('path')
-      fs = require('fs')
-      fnames = []
-      loc = path.resolve(__dirname, `../uploaded_files/`)
+'use strict'
 
-      storage = multer.diskStorage({
-        destination: function (req, file, cb) {
-          cb(null, loc)
-        },
-        filename: function (req, file, cb) {
-          let name = file.originalname.split('.').shift()
-          let ext = "." + file.originalname.split('.').pop()
-          let fname = name + '_' + Date.now() + ext
-          fnames.push(fname)
-          cb(null, fname)
-        }
-      })
-      upload = multer({
-        storage: storage,
-        fileFilter: function (req, file, cb) {
-          if (path.extname(file.originalname) !== '.pdf') return cb(new Error('Only pdfs are allowed'))
-          cb(null, true)
-        }
-      })
-      documentsUpload = upload.array('documents', 6)
+const router = require('express').Router(),
+multer = require('multer'),
+contract = require('./../models/contract.js'),
+User = require('./../models/user.js'),
+responseFactory = require('../util/response'),
+path = require('path'),
+fs = require('fs'),
+fnames = [],
+loc = path.resolve(__dirname, `../uploaded_files/`),
+storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, loc)
+  },
+  filename: function (req, file, cb) {
+    let name = file.originalname.split('.').shift()
+    let ext = "." + file.originalname.split('.').pop()
+    let fname = name + '_' + Date.now() + ext
+    fnames.push(fname)
+    cb(null, fname)
+  }
+}),
+upload = multer({
+  storage: storage,
+  fileFilter: function (req, file, cb) {
+    if (path.extname(file.originalname) !== '.pdf') return cb(new Error('Only pdfs are allowed'))
+    cb(null, true)
+  }
+}),
+documentsUpload = upload.array('documents', 6)
 //router.use(bodyParser.json())
 
 router.route("/")

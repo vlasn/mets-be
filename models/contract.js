@@ -1,13 +1,9 @@
-const mongoose = require('mongoose')
+'use strict'
 
-mongoose.Promise = global.Promise
-
-const schema = mongoose.Schema({
-  // eelloodud kasutaja(d)
+const mongoose = require('mongoose'),
+schema = mongoose.Schema({
   esindajad: [String],
-  // varemloodud kasutaja - metsahalduri töötaja
   metsameister: String,
-  // metsahalduri töötaja
   projektijuht: String,
   dates: {
     raielopetamine: Date,
@@ -29,27 +25,11 @@ const schema = mongoose.Schema({
 
 })
 
-const contractModel = mongoose.model('contract', schema)
+module.exports = mongoose.model('contract', schema)
 
-const create = (new_contract)=>{
-  let contract = new contractModel({
-    esindajad: new_contract.email,
-    projektijuht: new_contract.projektijuht,
-    metsameister: new_contract.metsameister,
-    documents: new_contract.documents,
-    dates: new_contract.dates,
-    hinnatabel: new_contract.hinnatabel,
-    contract_creator: new_contract.contract_creator,
-    kinnistu: new_contract.kinnistu,
-    status: new_contract.status,
-    created_timestamp: Date.now()
-  })
-  return contract.save()
-}
 
-const fetchAllClientRelated = client_email => {
-  return contractModel.find({ 'esindajad': { $in: [client_email]}})
-}
+
+
 
 //very basic, needs
 const updateContractLine = (id, key, value, remove=false) => {
@@ -83,14 +63,5 @@ const insertById = (contract_id, file_name)=>{
   let conditions = {'_id': contract_id},
     update = {'documents.leping': file_name}
   return contractModel.findOneAndUpdate(conditions, update, {new: true})
-}
-
-module.exports = {
-  contractModel,
-  updateContractLine,
-  create,
-  fetchAllClientRelated,
-  insertById,
-  fetch
 }
 

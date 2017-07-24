@@ -1,3 +1,5 @@
+'use strict'
+
 const router = require('express').Router()
 
 //router.use('*', require('./auth/token').verify)

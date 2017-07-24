@@ -1,20 +1,18 @@
-const router = require('express').Router()
-			fileUpload = require('express-fileupload')
-			xlsx = require('xlsx')
-			bodyParser = require('body-parser')
-			report = require('./../models/report.js')
-			pricelist = require('./../models/southNorthPricelistModel.js')
-			mongoose = require('mongoose')
-			path = require('path')
-      responseFactory = require('../util/response')
-			parse = require('./parse')
-			destructure = require('./destructure')
-			secret = process.env.SECRET
+'use strict'
 
-router.use(bodyParser.json())
+const router = require('express').Router(),
+fileUpload = require('express-fileupload'),
+xlsx = require('xlsx'),
+bodyParser = require('body-parser'),
+report = require('./../models/report.js'),
+pricelist = require('./../models/southNorthPricelistModel.js'),
+mongoose = require('mongoose'),
+path = require('path'),
+responseFactory = require('../util/response'),
+parse = require('./parse'),
+destructure = require('./destructure'),
+secret = process.env.SECRET
 
-// when a file is initially imported into the system
-// this endpoint is used only once per imported document (.xlsx)
 router.route('/')
 .post(fileUpload(), (req, res)=>{
   if (!req.files) return res.status(400).send('No files were uploaded.')

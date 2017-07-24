@@ -1,8 +1,5 @@
-const mongoose = require('mongoose')
-//const userModel = require('./userModel.js').userModel
-mongoose.Promise = global.Promise
-
-const pricelistSchema = mongoose.Schema({
+const mongoose = require('mongoose'),
+pricelistSchema = mongoose.Schema({
     Sihtkoht: {type: String, required: true},
     Puuliik: {type: String, required: true},
     Sortiment: {type: String, required: true},
@@ -28,7 +25,7 @@ const insert = (data) => {
 const checkForMatch = (incomingRow) => {
   let promise = new Promise((resolve, reject)=>{
     northPricelistModel.findOne({
-      
+
       destination: incomingRow['Ostja'],
 /*        tree_species: incomingRow.puuliik,
       quality: incomingRow.kvaliteet*/

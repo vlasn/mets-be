@@ -1,7 +1,3 @@
-module.exports = (status, message, data) => {
-	return({
-		status: status,
-		message: message,
-		data: data
-	})
-}
+'use strict'
+
+module.exports = (status, message, data) => ({status: status, message: message, data: data})

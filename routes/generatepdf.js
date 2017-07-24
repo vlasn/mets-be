@@ -1,3 +1,5 @@
+'use strict'
+
 // this whole file is WIP
 
 let PDFDocument = require('pdfkit'),

@@ -1,3 +1,5 @@
+'use strict'
+
 module.exports = d => {
 	let p = new Promise((resolve,reject) => {
 		if (d.unmatched.length === 0 && d.matched.length > 0) {
@@ -16,7 +18,7 @@ module.exports = d => {
 					for (let el of d.veoselehed) {
 						if (row['Elvise VL nr'] === el.VL_nr) {
 							el.sum = parseFloat(el.sum) + (parseFloat(row['arvestus maht']) *
-							parseFloat(row['arvestus maht'])) 
+							parseFloat(row['arvestus maht']))
 							el.rows.push(row)
 							break
 						} else if (row['Elvise VL nr'] !== el.VL_nr){
