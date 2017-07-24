@@ -29,7 +29,7 @@ exports.login = (req, res, next) => {
     {lastLogin: Date.now()},
     (err, doc) => err || !doc
     ? next(err = 'Vale parool või email')
-    : res.send('accept', '', doc)
+    : res.send(respondWith('accept', '', doc))
   )
 }
 
@@ -37,7 +37,7 @@ exports.findByEmail = (req, res, next) => {
   const email = req.params.email
 
   User.findOne({'email': {$regex: '^' + email, $options: 'i'}}, (err, doc) => {
-    err || !doc ? next(err = 'Ei leidnud') : res.json('accept', '', doc)
+    err || !doc ? next(err = 'Ei leidnud') : res.json(respondWith('accept', '', doc))
   })
 }
 
@@ -50,7 +50,7 @@ exports.verifyHash = (req, res, next) => {
       'hash.created': {$gt: currentDate}
     },
     (err, doc) => {
-      err || !doc ? next(err = 'Räsi ei sobi või aegunud') : res.json('accept', '', doc)
+      err || !doc ? next(err = 'Räsi ei sobi või aegunud') : res.json(respondWith('accept', '', doc))
     }
   )
 }
@@ -65,7 +65,7 @@ exports.validate = (req, res, next) => {
     {password: password, hash: {validated: Date.now()}},
     {new: true},
     (err, doc) => {
-      err ? next(err) : res.json('accept', '', doc)
+      err ? next(err) : res.json(respondWith('accept', '', doc))
     }
   )
 }
@@ -79,6 +79,6 @@ exports.forgotPassword = (req, res, next) => {
     {new: true},
     (err, doc) => err || !doc
     ? next(err)
-    : res.json('status', `Aktiveerimislink saadeti meiliaadressile ${doc.email}`, doc)
+    : res.json(respondWith('status', `Aktiveerimislink saadeti meiliaadressile ${doc.email}`, doc))
   )
 }

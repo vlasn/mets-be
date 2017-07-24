@@ -4,7 +4,7 @@ const router = require('express').Router(),
 multer = require('multer'),
 contract = require('./../models/contract.js'),
 User = require('./../models/user.js'),
-responseFactory = require('../util/response'),
+respondWith = require('../util/response'),
 path = require('path'),
 fs = require('fs'),
 fnames = [],
@@ -48,18 +48,18 @@ documentsUpload, (req, res) => {
       if (!foundEmail) return Promise.reject('Sellise emailiga klienti ei leitud!')
       contract.create(req.body)
       .then((createdContract)=>{
-        if (createdContract) res.status(200).json(responseFactory('accept', 'Leping loodud!'))
+        if (createdContract) res.status(200).json(respondWith('accept', 'Leping loodud!'))
       },
       err=>{
         for(filename in fnames) fs.unlink(loc+'/'+fnames[filename], (err)=>{console.log(err)})
         fnames = []
-        res.status(500).json(responseFactory('reject', err))
+        res.status(500).json(respondWith('reject', err))
       })
     })
     .catch(err=>{
       for(filename in fnames) fs.unlink(loc+'/'+fnames[filename], (err)=>{console.log(err)})
       fnames = []
-      res.status(500).json(responseFactory('reject', err))
+      res.status(500).json(respondWith('reject', err))
     })
 
 })
@@ -67,7 +67,7 @@ documentsUpload, (req, res) => {
   req.privileges > 1 ? next() :
   contract.fetchAllClientRelated(req.user)
   .then(docs => {
-    res.status(200).json(responseFactory('accept', '', docs))
+    res.status(200).json(respondWith('accept', '', docs))
   })
   .catch(e => res.status(400).send(e))
 },
@@ -78,9 +78,9 @@ documentsUpload, (req, res) => {
     contract.fetch(cadastre, metsameister, status)
     .then(docs=>{
       if(!docs || docs === null) return Promise.reject('Ei leidnud selliseid lepinguid!')
-      res.status(200).json(responseFactory('accept', '', docs))
+      res.status(200).json(respondWith('accept', '', docs))
     })
-    .catch(err => res.status(500).json(responseFactory('reject', err)))
+    .catch(err => res.status(500).json(respondWith('reject', err)))
 })
 router.route("/:id").put((req,res)=>{
   let id = req.params.id
@@ -91,15 +91,15 @@ router.route("/:id").put((req,res)=>{
   .then(d => {
     if(!d || d === null) {
       console.log(`Couldn't find document ${id} to update.`)
-      res.status(500).json(responseFactory('reject','Kirjet ei leitud!'))
+      res.status(500).json(respondWith('reject','Kirjet ei leitud!'))
     } else {
       console.log(`${key} of document ${id} is now ${value}`)
-      res.status(200).json(responseFactory('accept','ok',d))
+      res.status(200).json(respondWith('accept','ok',d))
     }
   })
   .catch(e => {
     console.log(e)
-    res.status(500).json(responseFactory('reject', '', e))
+    res.status(500).json(respondWith('reject', '', e))
   })
 })
 

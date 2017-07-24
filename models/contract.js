@@ -2,66 +2,32 @@
 
 const mongoose = require('mongoose'),
 schema = mongoose.Schema({
+  // esindaja objectId'd
   esindajad: [String],
   metsameister: String,
   projektijuht: String,
   dates: {
-    raielopetamine: Date,
-    väljavedu: Date,
+    raie_teostamine: Date,
+    metsamaterjali_valjavedu: Date,
     raidmete_valjavedu: Date
   },
-  documents: [String],
-  hinnatabel: {
-    timestamp: {type: Date, default: Date.now()},
-    snapshot: {type: String}
+  documents: {
+    metsateatis: [String],
+    leping: [String],
+    muu: [String]
   },
+  // tuleb objectId
+  hinnatabel: String,
   kinnistu: {
     nimi: String,
-    katastritunnused: [String]
+    katastritunnus: String
   },
-  contract_creator: {type: String, required: true},
-  created_timestamp: {type: Date, default: Date.now()},
+  // tuleb objectid
+  lepingu_looja: String,
+  createdAt: {type: Date, default: new Date()},
+  // aktiivne, ootel, lõppenud, tehtud
   status: String
-
 })
 
 module.exports = mongoose.model('contract', schema)
-
-
-
-
-
-//very basic, needs
-const updateContractLine = (id, key, value, remove=false) => {
-  /*
-    Vajab dates objekti uuendamiseks edasist query-buildingut
-   */
-  if(key==='katastritunnused'){
-    update = {$set : {'kinnistu.katastritunnused': value}}
-  } else if(key==='kinnistu') {
-    update = {$set: {'kinnistu.nimi': value}}
-  } else {
-    update = {$set:{[key]:value}}
-  }
-  let opt = {new: true}
-  console.log(update)
-  return(contractModel.findOneAndUpdate({_id: id}, update, opt))
-}
-
-const fetch = (cadastre, metsameister, status, email)=>{
-  return (contractModel.find({
-    $or: [
-      {'kinnistu.nimi': {$regex: cadastre}},
-      {'kinnistu.katastritunnused': { $regex: cadastre }}
-    ],
-    metsameister: {$regex: metsameister},
-    status: {$regex: status}
-  }))
-}
-
-const insertById = (contract_id, file_name)=>{
-  let conditions = {'_id': contract_id},
-    update = {'documents.leping': file_name}
-  return contractModel.findOneAndUpdate(conditions, update, {new: true})
-}
 

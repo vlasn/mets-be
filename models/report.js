@@ -1,15 +1,14 @@
-const mongoose = require('mongoose'),
-parse = require('./../routes/parse.js')
-//const userModel = require('./userModel.js').userModel
-mongoose.Promise = global.Promise
+'use strict'
 
-const schema = mongoose.Schema({
+const mongoose = require('mongoose'),
+parse = require('../routes/parse.js'),
+schema = mongoose.Schema({
   testSum: Number,
   matched: [],
   unmatched: [],
   veoselehed: [],
   status: String,
-  date: Date,
+  date: {type: Date, default: new Date()},
   filename: String
 })
 
@@ -56,7 +55,7 @@ const retrieve = id => {
   if(id) return importModel.findOne({_id: id})
   return importModel.find({$or: [{status: "reject"},{status: "pending"}]}, {status: 1, filename: 1}).sort('-date')
 
-  
+
 }
 
 module.exports = {importModel, newDoc, retrieve, updateDoc, fetchCargoPages, findById, updateWholeDoc}

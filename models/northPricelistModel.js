@@ -13,7 +13,8 @@ pricelistSchema = mongoose.Schema({
     Vosatood: Number,
     Vedu: Number,
     Tasu: Number,
-    Tulu: {type: Number}
+    Tulu: {type: Number},
+    Kuupaev: {type: Date, default: new Date()}
 })
 
 const northPricelistModel = mongoose.model('north_price', pricelistSchema)

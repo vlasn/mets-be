@@ -3,36 +3,41 @@
 const mongoose = require('mongoose'),
 nodemailer = require('nodemailer'),
 schema = mongoose.Schema({
-  email: {type: String, unique: true, required: true},
+  email: {type: String, unique: true},
   password: String,
   hash: {
-  	hash: {type: String, required: true},
+  	hash: {type: String, unique: true},
     createdAt: {type: Date, default: new Date()},
   	validatedAt: {type: Date}
   },
-	lastLoginAt: {type: Date},
+	lastLoginAt: Date,
   roles: [{
     role: {type: String},
   	createdAt: {type: Date, default: new Date()},
-  	disabled: Boolean
+  	disabled: {type: Boolean, default: false}
   }],
   job_title: String,
   personal_data: {
-    nimi: String,
-    tel_nr: Number,
-    aadress: String,
-    isikukood: Number,
-    dok_nr: String,
-    eraisik: Boolean,
+    nimi: {type: String, required: true},
+    tel_nr: String,
+    aadress: {type: String, required: true},
+    isikukood: {type: String, unique: true},
+    dok_nr: {type: String, unique: true},
     juriidiline_isik: Boolean,
-    reg_nr: Number,
-    kmk_nr: Number
-  }
+    reg_nr: {type: String, unique: true},
+    kmk_nr: {type: String, unique: true},
+    esindaja: {
+      nimi: String,
+      isikukood: String,
+      volituse_alus: String
+    }
+  },
+  createdAt: {type: Date, default: new Date()}
 })
 
 schema.post('save', (error, doc, next) => {
   error.name === 'MongoError' && error.code === 11000
-  ? next(new Error('There was a duplicate key error'))
+  ? next(new Error('Email vigane või on juba kasutusel'))
   : next(error)
 })
 
