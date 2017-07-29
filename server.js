@@ -23,6 +23,7 @@ mongoose.connection.once('open', () => {
 mongoose.Promise = global.Promise
 app.use(bodyParser.json())
 app.use(require('morgan')('dev'))
+app.set('json spaces', 4)
 
 app.get('/api', (req, res) => {
 	res.sendFile(path.join(__dirname + '/api.html'))

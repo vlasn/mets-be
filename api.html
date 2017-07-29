@@ -40,29 +40,29 @@ th {
     <td>.html file</td>
   </tr>
   <tr>
-    <td>/api/auth</td>
+    <td>/api/auth/login</td>
     <td>POST</td>
     <td>login</td>
     <td>{email, password}</td>
-    <td>{user_id, lastLogin, roles[], personal_data[], token}</td>
+    <td>{_id, email, job_title, lastLogin, createdAt, personal_data[], token}</td>
   </tr>
   <tr>
-    <td>/api/auth</td>
+    <td>/api/auth/:hash</td>
     <td>GET</td>
     <td>verifies hash</td>
     <td>{hash}</td>
     <td>{email}</td>
   </tr>
   <tr>
-    <td>/api/auth</td>
-    <td>PUT</td>
+    <td>/api/auth/forgot</td>
+    <td>POST</td>
     <td>forgot password</td>
     <td>{email}</td>
     <td>-</td>
   </tr>
   <tr>
-    <td>/api/auth</td>
-    <td>PATCH</td>
+    <td>/api/auth/validate</td>
+    <td>POST</td>
     <td>validate</td>
     <td>{password, cpassword, hash}</td>
     <td>-</td>

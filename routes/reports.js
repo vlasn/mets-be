@@ -3,14 +3,13 @@
 const router = require('express').Router(),
 fileUpload = require('express-fileupload'),
 xlsx = require('xlsx'),
-bodyParser = require('body-parser'),
 report = require('./../models/report.js'),
 pricelist = require('./../models/southNorthPricelistModel.js'),
 mongoose = require('mongoose'),
 path = require('path'),
 responseFactory = require('../util/response'),
-parse = require('./parse'),
-destructure = require('./destructure'),
+parse = require('../util/parse'),
+destructure = require('../util/destructure'),
 secret = process.env.SECRET
 
 router.route('/')

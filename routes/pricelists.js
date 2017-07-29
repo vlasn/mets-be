@@ -4,7 +4,7 @@ const router = require('express').Router(),
 bodyParser = require('body-parser'),
 pricelist = require('./../models/southNorthPricelistModel.js'),
 report = require('./../models/report.js'),
-parse = require('./parse.js'),
+parse = require('../util/parse.js'),
 responseFactory = require('../util/response')
 
 router.use(bodyParser.json())

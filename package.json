@@ -22,6 +22,5 @@
     "nodemon": "^1.11.0",
     "pdfkit": "^0.8.2",
     "xlsx": "^0.10.0"
-  },
-  "devDependencies": {}
+  }
 }

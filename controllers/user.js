@@ -4,8 +4,8 @@ const User = require('../models/user'),
 crypto = require('crypto'),
 sendMagicLinkTo = require('../util/mailer'),
 generateHash = require('../util/hash'),
-respondWith = require('../util/response')
-
+respondWith = require('../util/response'),
+signTokenWith = require('../util/token').create
 
 exports.create = (req, res, next) => {
   req.body.hash = {hash: generateHash()}
@@ -14,7 +14,7 @@ exports.create = (req, res, next) => {
     if (err) return next(err)
 
     sendMagicLinkTo(doc.email, doc.hash.hash, (err, ok) => {
-      if (err) return next('Aktiveerimislinki ei saadetud – kontakteeru bossiga')
+      if (err) return next(new Error('Aktiveerimislinki ei saadetud – kontakteeru bossiga'))
       res.status(201).json(respondWith('accept', `Aktiveerimislink saadeti meiliaadressile ${doc.email}`))
     })
   })
@@ -27,9 +27,24 @@ exports.login = (req, res, next) => {
   User.findOneAndUpdate(
     {'email': email, 'password': password},
     {lastLogin: Date.now()},
-    (err, doc) => err || !doc
-    ? next(err = 'Vale parool või email')
-    : res.send(respondWith('accept', '', doc))
+    (err, doc) => {
+      if (err || !doc) {
+        res.status(401).json(respondWith('reject', 'Vale parool või email'))
+      } else {
+        const data = {
+          personal_data: doc.personal_data,
+          createdAt: doc.createdAt,
+          lastLoginAt: doc.lastLogin,
+          job_title: doc.job_title,
+          email: doc.email,
+          _id: doc._id
+        }
+
+        data.token = signTokenWith({email: data.email, roles: doc.roles})
+
+        res.json(respondWith('accept', 'OK', data))
+      }
+    }
   )
 }
 
@@ -37,7 +52,9 @@ exports.findByEmail = (req, res, next) => {
   const email = req.params.email
 
   User.findOne({'email': {$regex: '^' + email, $options: 'i'}}, (err, doc) => {
-    err || !doc ? next(err = 'Ei leidnud') : res.json(respondWith('accept', '', doc))
+    err || !doc
+    ? next(err = new Error('Ei leidnud'))
+    : res.json(respondWith('accept', 'OK', doc.personal_data))
   })
 }
 
@@ -45,12 +62,15 @@ exports.verifyHash = (req, res, next) => {
   const currentDate = new Date()
   currentDate.setDate(currentDate.getDate() - 1)
 
-  User.findOne({
+  User.findOne(
+    {
       'hash.hash': req.params.hash,
       'hash.created': {$gt: currentDate}
     },
     (err, doc) => {
-      err || !doc ? next(err = 'Räsi ei sobi või aegunud') : res.json(respondWith('accept', '', doc))
+      err || !doc
+      ? next(err = new Error('Räsi ei sobi või aegunud'))
+      : res.json(respondWith('accept', 'OK', doc))
     }
   )
 }
@@ -65,7 +85,7 @@ exports.validate = (req, res, next) => {
     {password: password, hash: {validated: Date.now()}},
     {new: true},
     (err, doc) => {
-      err ? next(err) : res.json(respondWith('accept', '', doc))
+      err ? next(err) : res.json(respondWith('accept', 'OK', doc))
     }
   )
 }
