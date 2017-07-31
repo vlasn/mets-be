@@ -13,12 +13,9 @@ productionEnvironment = process.env.NODE_ENV === 'production',
 path = require("path"),
 bodyParser = require('body-parser')
 
-mongoose.connect(MONGO_IP, options)
-mongoose.connection.on('error', err => console.log('Server halted because:\nMongoDB failed with: ', err.message))
-mongoose.connection.once('open', () => {
-	console.log('MongoDB: OK')
-	app.listen(process.env.PORT || 3000) && console.log('Server: OK')
-})
+mongoose.connect(MONGO_IP, options, err =>
+  err ? console.log('🚫 ', err)
+      : app.listen(process.env.PORT || 3000) && console.log('\n🌲  Mets jookseb! 🌲'))
 
 mongoose.Promise = global.Promise
 app.use(bodyParser.json())
