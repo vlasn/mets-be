@@ -25,8 +25,8 @@ router.route('/')
   if(reportFileExtension !== 'xlsx') return res.status(400).send('Incorrect file type')
   //console.log(__dirname)
   let loc = path.resolve(__dirname, `../uploaded_files/${reportFile.name}`)
-	reportFile.mv(loc, err => {
-  	if (err) return res.status(500).send(err)
+  reportFile.mv(loc, err => {
+    if (err) return res.status(500).send(err)
 
     let workbook = xlsx.readFile(loc)
     let sheet_name_list = workbook.SheetNames
@@ -57,20 +57,20 @@ router.route('/')
       data.unmatched.shift()
     }
 
-  	parse(data)
+    parse(data)
     .then(d=>{
       //console.log(d)
-    	report.newDoc(d)
-    	.then(ok=>{
-    		res.status(200).json(responseFactory("accept", "Matched: "+d.matched.length+" and unmatched: "+d.unmatched.length, ok))
-    	},
-    	e=>{
-    		res.status(500).send(e)
-    	})
+      report.newDoc(d)
+      .then(ok=>{
+        res.status(200).json(responseFactory("accept", "Matched: "+d.matched.length+" and unmatched: "+d.unmatched.length, ok))
+      },
+      e=>{
+        res.status(500).send(e)
+      })
     })
     .catch(e => res.status(500).json(responseFactory("reject", e)))
 
-	})
+  })
 })
 .get((req, res)=>{
   let id = req.query.id
@@ -87,21 +87,21 @@ router.put('/:id', (req, res) => {
   report.updateDoc(req.body)
   .then(data => {
     if (!data) return Promise.reject('Ei leidnud uuendatavat alamdokumenti!')
-  	parse(data)
-  	.then(d=>{
-  		let responseData = d
-  		console.log(d.unmatched.length, d.matched.length)
-  		pricelist.checkForMatch(req.body)
-  		.then(d=>{
-  			if (d === false) return Promise.reject('Ei leidnud vastet!')
-  			let response = {
-	  			matched: responseData.matched.length,
-	  			unmatched: responseData.unmatched.length
-	  		}
-  			res.status(200).json(responseFactory("accept", "", response))
-  		})
-  		.catch(e => res.status(500).json(responseFactory("reject", e)))
-  	})
+    parse(data)
+    .then(d=>{
+      let responseData = d
+      console.log(d.unmatched.length, d.matched.length)
+      pricelist.checkForMatch(req.body)
+      .then(d=>{
+        if (d === false) return Promise.reject('Ei leidnud vastet!')
+        let response = {
+          matched: responseData.matched.length,
+          unmatched: responseData.unmatched.length
+        }
+        res.status(200).json(responseFactory("accept", "", response))
+      })
+      .catch(e => res.status(500).json(responseFactory("reject", e)))
+    })
   })
   .catch(e => res.status(500).json(responseFactory("reject", e)))
 })
@@ -109,8 +109,8 @@ router.put('/:id', (req, res) => {
 router.post('/xlsx/findMatch', (req, res)=>{
   pricelist.checkForMatch(req.body)
   .then(d=>{
-  	if (d === false) return Promise.reject('Ei leidnud vastet!')
-  	res.status(200).json(responseFactory("accept", "Leidsin vaste!", d.vaste))
+    if (d === false) return Promise.reject('Ei leidnud vastet!')
+    res.status(200).json(responseFactory("accept", "Leidsin vaste!", d.vaste))
   })
   .catch(e => res.status(404).json(responseFactory("reject", e)))
 })

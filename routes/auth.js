@@ -4,7 +4,7 @@ const router = require('express').Router(),
 user = require('../controllers/user')
 
 router.post('/login', (req, res, next) => {
-	req.body && req.body.email && req.body.password
+  req.body && req.body.email && req.body.password
   ? user.login(req, res, next)
   : next(new Error('Missing POST parameters'))
 })
