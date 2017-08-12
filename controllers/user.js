@@ -49,13 +49,17 @@ exports.login = (req, res, next) => {
 }
 
 exports.find = (req, res, next) => {
-  let key = req.query.key,
-  value = {$regex: req.query.value},
-  q = {}, q1 = {}, q2 = {}
+  let keys = req.query.key.split(','),
+  val = {$regex: req.query.value},
+  conditions = [],
+  q = {$or: conditions}
 
-  q1['personal_data.' + key] = value
-  q2[key] = value
-  q = {$or: [q1, q2]}
+  for (const key of keys) {
+    let q1 = {}, q2 = {}
+    q1['personal_data.' + key] = val
+    q2[key] = val
+    conditions.push(q1) && conditions.push(q2)
+  }
 
   User.find(q, (err, doc) => {
     err ? next(err = new Error('Ei leidnud')) : res.json(respondWith('accept', 'OK', doc))
