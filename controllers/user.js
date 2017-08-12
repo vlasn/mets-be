@@ -48,13 +48,17 @@ exports.login = (req, res, next) => {
   )
 }
 
-exports.findByEmail = (req, res, next) => {
-  const email = req.params.email
+exports.find = (req, res, next) => {
+  let key = req.query.key,
+  value = {$regex: req.query.value},
+  q = {}, q1 = {}, q2 = {}
 
-  User.findOne({'email': {$regex: '^' + email, $options: 'i'}}, (err, doc) => {
-    err || !doc
-    ? next(err = new Error('Ei leidnud'))
-    : res.json(respondWith('accept', 'OK', doc.personal_data))
+  q1['personal_data.' + key] = value
+  q2[key] = value
+  q = {$or: [q1, q2]}
+
+  User.find(q, (err, doc) => {
+    err ? next(err = new Error('Ei leidnud')) : res.json(respondWith('accept', 'OK', doc))
   })
 }
 

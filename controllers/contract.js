@@ -6,7 +6,6 @@ respondWith = require('../util/response')
 exports.create = (req, res, next) => {
   Contract.create(req.body, (err, doc) => {
     if (err) return next(err)
-
     res.status(201).json(respondWith('accept', 'Leping loodud', doc))
   })
 }
@@ -14,7 +13,6 @@ exports.create = (req, res, next) => {
 exports.findByEmail = () => {
   Contract.find({'esindajad': { $in: [client_email]}}, (err, doc) => {
     if (err) return next(err)
-
     res.status(200).json(respondWith('accept', '', doc))
   })
 }
@@ -36,12 +34,11 @@ exports.updateContractLine = (id, key, value, remove = false) => {
 
   Contract.findOneAndUpdate({_id: id}, update, {new: true}, (err, doc) => {
     if (err) return next(err)
-
     res.status(200).json(respondWith('accept', '', doc))
   })
 }
 
-exports.fetch = (req, res, next)=>{
+exports.fetch = (req, res, next) => {
   Contract.find({
     $or: [
       {'kinnistu.nimi': {$regex: req.query.cadastre || ''}},
@@ -51,18 +48,16 @@ exports.fetch = (req, res, next)=>{
     status: {$regex: req.query.status || ''}
   }, (err, doc) => {
     if (err) return next(err)
-
     res.status(200).json(respondWith('accept', '', doc))
   })
 }
 
-exports.insertById = (contract_id, file_name)=>{
+exports.insertById = (contract_id, file_name) => {
   const conditions = {'_id': contract_id},
   update = {'documents.leping': file_name}
 
   Contract.findOneAndUpdate(conditions, update, {new: true}, (err, doc) => {
     if (err) return next(err)
-
     res.status(200).json(respondWith('accept', '', doc))
   })
 }
