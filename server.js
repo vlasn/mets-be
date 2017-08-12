@@ -18,6 +18,7 @@ mongoose.connect(MONGO_IP, options, err =>
       : app.listen(process.env.PORT || 3000) && console.log('\n🌲  Mets jookseb! 🌲'))
 
 mongoose.Promise = global.Promise
+mongoose.set('debug', true)
 app.use(bodyParser.json())
 app.use(require('morgan')('dev'))
 app.set('json spaces', 4)
