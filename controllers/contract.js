@@ -41,14 +41,14 @@ exports.updateContractLine = (id, key, value, remove = false) => {
   })
 }
 
-exports.fetch = (cadastre, metsameister, status, email)=>{
+exports.fetch = (req, res, next)=>{
   Contract.find({
     $or: [
-      {'kinnistu.nimi': {$regex: cadastre}},
-      {'kinnistu.katastritunnused': { $regex: cadastre }}
+      {'kinnistu.nimi': {$regex: req.params.cadastre = ''}},
+      {'kinnistu.katastritunnused': { $regex: req.params.cadastre = '' }}
     ],
-    metsameister: {$regex: metsameister},
-    status: {$regex: status}
+    metsameister: {$regex: req.params.metsameister = ''},
+    status: {$regex: req.params.status = ''}
   }, (err, doc) => {
     if (err) return next(err)
 

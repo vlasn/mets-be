@@ -2,7 +2,7 @@
 
 const router = require('express').Router(),
 multer = require('multer'),
-contract = require('./../models/contract.js'),
+contract = require('./../controllers/contract.js'),
 User = require('./../models/user.js'),
 respondWith = require('../util/response'),
 path = require('path'),
@@ -34,7 +34,7 @@ documentsUpload = upload.array('documents', 6)
 router.route("/")
 .post((req, res, next) => req.privileges > 1 ? next() : res.status(403).send('Insufficient privileges'),
 documentsUpload, (req, res) => {
-    if (Object.keys(req.files).length === 0 || req.files === undefined) return res.status(400).send('No files were attached')
+    if (!req.files) return res.status(400).send(respondWith('reject', 'No file(s)'))
     if (!req.body.email || !req.files) return res.status(400).send('Bad request')
     //TODO - more robust find function
     let findby = req.body.email
@@ -64,23 +64,7 @@ documentsUpload, (req, res) => {
 
 })
 .get((req, res, next) => {
-  req.privileges > 1 ? next() :
-  contract.fetchAllClientRelated(req.user)
-  .then(docs => {
-    res.status(200).json(respondWith('accept', '', docs))
-  })
-  .catch(e => res.status(400).send(e))
-},
-  (req, res) => {
-    let cadastre = req.query.cadastre || ''//search term
-    let metsameister = req.query.metsameister || '' //person
-    let status = req.query.status || '' //status
-    contract.fetch(cadastre, metsameister, status)
-    .then(docs=>{
-      if(!docs || docs === null) return Promise.reject('Ei leidnud selliseid lepinguid!')
-      res.status(200).json(respondWith('accept', '', docs))
-    })
-    .catch(err => res.status(500).json(respondWith('reject', err)))
+  contract.fetch(req, res, next)
 })
 router.route("/:id").put((req,res)=>{
   let id = req.params.id
