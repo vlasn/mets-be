@@ -44,11 +44,11 @@ exports.updateContractLine = (id, key, value, remove = false) => {
 exports.fetch = (req, res, next)=>{
   Contract.find({
     $or: [
-      {'kinnistu.nimi': {$regex: req.params.cadastre = ''}},
-      {'kinnistu.katastritunnused': { $regex: req.params.cadastre = '' }}
+      {'kinnistu.nimi': {$regex: req.query.cadastre = ''}},
+      {'kinnistu.katastritunnused': { $regex: req.query.cadastre = '' }}
     ],
-    metsameister: {$regex: req.params.metsameister = ''},
-    status: {$regex: req.params.status = ''}
+    metsameister: {$regex: req.query.metsameister = ''},
+    status: {$regex: req.query.status = ''}
   }, (err, doc) => {
     if (err) return next(err)
 
