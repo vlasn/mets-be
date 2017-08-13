@@ -50,7 +50,7 @@ exports.login = (req, res, next) => {
 
 exports.find = (req, res, next) => {
   let keys = req.query.key.split(','),
-  val = {$regex: req.query.value},
+  val = {$regex: req.query.value, $options: 'i'},
   conditions = [],
   q = {$or: conditions}
 
