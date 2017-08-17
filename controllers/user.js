@@ -2,10 +2,10 @@
 
 const User = require('../models/user'),
 crypto = require('crypto'),
-sendMagicLinkTo = require('../util/mailer'),
-generateHash = require('../util/hash'),
-respondWith = require('../util/response'),
-signTokenWith = require('../util/token').create
+sendMagicLinkTo = require('../utils/mailer'),
+generateHash = require('../utils/hash'),
+respondWith = require('../utils/response'),
+signTokenWith = require('../utils/token').create
 
 exports.create = (req, res, next) => {
   req.body.hash = {hash: generateHash()}

@@ -7,9 +7,9 @@ report = require('./../models/report.js'),
 pricelist = require('./../models/southNorthPricelistModel.js'),
 mongoose = require('mongoose'),
 path = require('path'),
-responseFactory = require('../util/response'),
-parse = require('../util/parse'),
-destructure = require('../util/destructure'),
+responseFactory = require('../utils/response'),
+parse = require('../utils/parse'),
+destructure = require('../utils/destructure'),
 secret = process.env.SECRET
 
 router.route('/')

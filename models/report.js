@@ -1,7 +1,7 @@
 'use strict'
 
 const mongoose = require('mongoose'),
-parse = require('../util/parse.js'),
+parse = require('../utils/parse.js'),
 schema = mongoose.Schema({
   testSum: Number,
   matched: [],

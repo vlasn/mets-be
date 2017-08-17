@@ -2,7 +2,7 @@
 
 const router = require('express').Router(),
 User = require('./../controllers/user.js'),
-respondWith = require('../util/response')
+respondWith = require('../utils/response')
 
 router.post('/', (req, res, next) => {
   Object.keys(req.body).length

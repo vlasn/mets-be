@@ -3,7 +3,7 @@
 const router = require('express').Router()
 
 router.use('/auth', require('./auth'))
-router.use('*', require('../util/token').verify)
+router.use('*', require('../utils/token').verify)
 router.use('/users', require('./users'))
 router.use('/contracts', require('./contracts'))
 router.use('/pricelists', require('./pricelists'))

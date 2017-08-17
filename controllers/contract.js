@@ -1,7 +1,7 @@
 'use strict'
 
 const Contract = require('../models/contract'),
-respondWith = require('../util/response')
+respondWith = require('../utils/response')
 
 exports.create = (req, res, next) => {
   Contract.create(req.body, (err, doc) => {

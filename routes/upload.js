@@ -2,7 +2,7 @@
 
 const router = require('express').Router(),
 multer = require('multer'),
-responseFactory = require('../util/response'),
+responseFactory = require('../utils/response'),
 path = require('path'),
 loc = path.resolve(__dirname, `../uploaded_files/`),
 storage = multer.diskStorage({

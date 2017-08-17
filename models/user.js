@@ -37,7 +37,7 @@ schema = mongoose.Schema({
 
 schema.post('save', (error, doc, next) => {
   error.name === 'MongoError' && error.code === 11000
-  ? next(new Error('Email vigane või on juba kasutusel'))
+  ? next(new Error('Duplicate key error'))
   : next(error)
 })
 
