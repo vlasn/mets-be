@@ -2,7 +2,7 @@
 
 const router = require('express').Router(),
 fileUpload = require('express-fileupload'),
-xlsx = require('xlsx'),
+xlsxToJson = require('../utils/xlsxToJson'),
 report = require('./../models/report.js'),
 pricelist = require('./../models/southNorthPricelistModel.js'),
 mongoose = require('mongoose'),
@@ -12,74 +12,34 @@ parse = require('../utils/parse'),
 destructure = require('../utils/destructure'),
 secret = process.env.SECRET
 
-router.route('/')
-.post(fileUpload(), (req, res)=>{
+router.post('/', fileUpload(), (req, res)=>{
   if (!req.files) return res.status(400).send('No files were uploaded.')
+  
+  const file = req.files.file,
+  fileName = namify(req.files.file.name),
+  fileExtension = extensify(fileName),
+  fileLocation = path.resolve(__dirname, `../uploaded_files/${fileName}`)
 
-  // The name of the input field (i.e. "reportFile") is used to retrieve the uploaded file
-  let reportFile = req.files.file
-  let reportFileExtension = req.files.file.name.split('.').pop()
-  req.files.file.name = req.files.file.name.split('.').shift() + "_" +
-  Date.now() + "." + reportFileExtension
-
-  if(reportFileExtension !== 'xlsx') return res.status(400).send('Incorrect file type')
-  //console.log(__dirname)
-  let loc = path.resolve(__dirname, `../uploaded_files/${reportFile.name}`)
-  reportFile.mv(loc, err => {
+  if (fileExtension !== 'xlsx') return res.status(400).send('Incorrect file type')
+  
+    file.mv(fileLocation, async err => {
     if (err) return res.status(500).send(err)
 
-    let workbook = xlsx.readFile(loc)
-    let sheet_name_list = workbook.SheetNames
-    let data = {unmatched: [],
-                filename: req.files.file.name}
-
-    for(let y of sheet_name_list){
-      let worksheet = workbook.Sheets[y]
-      let headers = {}
-
-      for (let z in worksheet) {
-        if(z[0] === '!') continue
-        let c = "", r = ""
-            value = worksheet[z].v
-
-        for (s of z) isNaN(s) ? c+=s : r+=s*1
-
-        if (r == 1) {
-          headers[c] = value
-          continue
-        }
-
-        if (!data.unmatched[r]) data.unmatched[r] = {}
-        data.unmatched[r][headers[c]] = value
-      }
-      //drop those first two rs which are empty
-      data.unmatched.shift()
-      data.unmatched.shift()
-    }
-
-    parse(data)
-    .then(d=>{
-      //console.log(d)
-      report.newDoc(d)
-      .then(ok=>{
-        res.status(200).json(responseFactory("accept", "Matched: "+d.matched.length+" and unmatched: "+d.unmatched.length, ok))
-      },
-      e=>{
-        res.status(500).send(e)
-      })
-    })
-    .catch(e => res.status(500).json(responseFactory("reject", e)))
-
+    const convertedData = xlsxToJson(fileLocation, fileName)
+    const parsedData = await parse(convertedData)
+    
+    res.json(responseFactory('accept', '', parsedData))
   })
 })
-.get((req, res)=>{
-  let id = req.query.id
-  report.retrieve(id)
-  .then(d=>{
-    if(!d) return Promise.reject('Polnud docse')
-    res.status(200).json(responseFactory("accept", "Siin on stuffi", d))
-  })
-  .catch(err => res.status(500).send(err))
+
+router.get('/:id', async (req, res, next)=>{
+  try {
+    const reportId = req.params.id
+    const result = await report.findById(reportId)
+    res.send(responseFactory('accept', '', result))
+  } catch (error) {
+    next(new Error(error))
+  }
 })
 
 // for inserting a manually altered report row
@@ -150,5 +110,9 @@ router.get('/fieldOpts/:fieldKey', (req, res)=>{
   })
   .catch(err=>{res.status(500).send(err)})
 })
+
+const namify = x => x.split(`.`).shift()+`_`+ Date.now() +`.`+extensify(x)
+const extensify = x => x.split(`.`).pop()
+
 
 module.exports = router

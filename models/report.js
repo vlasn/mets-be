@@ -27,9 +27,7 @@ const newDoc = (d)=>{
   return doc.save()
 }
 
-const findById = (id) => {
-  return importModel.findById(id)
-}
+const findById = id => importModel.findById(id)
 
 const updateWholeDoc = d => {
   return importModel.findOneAndUpdate({_id: d.id}, d, {new: true})

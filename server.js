@@ -24,7 +24,6 @@ app.use(require('morgan')('dev'))
 app.set('json spaces', 4)
 
 app.get('/api', (req, res) => {
-  console.log(req.socket.remoteAddress)
 	res.sendFile(path.join(__dirname + '/api.html'))
 })
 

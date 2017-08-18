@@ -1,3 +1,5 @@
+'use strict'
+
 const mongoose = require('mongoose'),
 north = require('./northPricelistModel.js'),
 pricelistSchema = north.pricelistSchema
@@ -36,43 +38,21 @@ const returnTemplate = () => {
   return southNorthPricelistModel.find({})
 }
 
-const checkForMatch = (incomingRow) => {
-  let q
-  if(!incomingRow['hinna gr  "võti"'] || typeof incomingRow['hinna gr  "võti"'] !== 'string') {
-    q = {
-      Sihtkoht: {$regex: incomingRow['Ostja']},
-      Puuliik: incomingRow['puuliik'],
-      Kvaliteet: {$regex: incomingRow['kvaliteet'], $options: 'i'}
-    }
-  } else {
-    q = {
-      Sihtkoht: {$regex: incomingRow['Ostja']},
-      Puuliik: incomingRow['puuliik'],
-      Kvaliteet: {$regex: incomingRow['kvaliteet'], $options: 'i'},
-      Diameeter_min: incomingRow['hinna gr  "võti"'].replace(/,/g,'.').split('-')[0],
-      Diameeter_max: incomingRow['hinna gr  "võti"'].replace(/,/g,'.').split('-')[1]
-    }
-  }
+const checkAndApplyMatch = async row => {
+  const key = row['hinna gr  "võti"']
 
-  // console.log("Check for match:",incomingRow['Ostja'], incomingRow['puuliik'], incomingRow['kvaliteet'], d_min, d_max)
-
-  let promise = new Promise((resolve, reject)=>{
-    southNorthPricelistModel.findOne(q, '_id')
-      .then(doc=>{
-        if(doc) {
-          incomingRow.vaste = doc._id
-          return resolve(incomingRow)
-        }
-        resolve(false)
-      })
-      .catch(err=>{
-        console.log(err)
-        resolve(false)
-      })
-  })
-
-  return promise
+  return await southNorthPricelistModel.findOne(!key || typeof key !== 'string' ? {
+      Sihtkoht: {$regex: row['Ostja']},
+      Puuliik: row['puuliik'],
+      Kvaliteet: {$regex: row['kvaliteet'], $options: 'i'}
+    } : {
+      Sihtkoht: {$regex: row['Ostja']},
+      Puuliik: row['puuliik'],
+      Kvaliteet: {$regex: row['kvaliteet'], $options: 'i'},
+      Diameeter_min: row['hinna gr  "võti"'].replace(/,/g,'.').split('-')[0],
+      Diameeter_max: row['hinna gr  "võti"'].replace(/,/g,'.').split('-')[1]
+    }, '_id')
 }
 
-module.exports = {southNorthPricelistModel, insert, checkForMatch, returnDistinct, returnTemplate}
+module.exports = {southNorthPricelistModel, insert, checkAndApplyMatch, returnDistinct, returnTemplate}
 
