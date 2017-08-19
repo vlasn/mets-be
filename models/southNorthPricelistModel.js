@@ -39,7 +39,7 @@ const returnTemplate = () => {
 }
 
 // accepts report row json object
-const checkAndApplyMatch = async row => {
+const findProductReferenceId = async row => {
   const key = row['hinna gr  "võti"']
 
   return (await southNorthPricelistModel.findOne(!key || typeof key !== 'string' ? {
@@ -55,5 +55,5 @@ const checkAndApplyMatch = async row => {
     }, '_id'))._id
 }
 
-module.exports = {southNorthPricelistModel, insert, checkAndApplyMatch, returnDistinct, returnTemplate}
+module.exports = {southNorthPricelistModel, insert, findProductReferenceId, returnDistinct, returnTemplate}
 

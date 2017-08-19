@@ -7,25 +7,14 @@ schema = mongoose.Schema({
   matched: [],
   unmatched: [],
   veoselehed: [],
-  status: String,
+  status: {type: String, required: true},
   date: {type: Date, default: new Date()},
-  filename: String
+  filename: {type: String, required: true}
 })
 
 const importModel = mongoose.model('import', schema)
 
-const newDoc = (d)=>{
-  let doc = new importModel({
-    testSum: d.testSum,
-    matched: d.matched,
-    unmatched: d.unmatched,
-    veoselehed: d.veoselehed,
-    status: d.status,
-    date: Date.now(),
-    filename: d.filename
-  })
-  return doc.save()
-}
+const insert = entry => new importModel(entry).save()
 
 const findById = id => importModel.findById(id)
 
@@ -33,11 +22,19 @@ const updateWholeDoc = d => {
   return importModel.findOneAndUpdate({_id: d.id}, d, {new: true})
 }
 
-const updateDoc = (d)=>{
-  d._id = mongoose.Types.ObjectId(d._id)
-  let conditions = {'unmatched': {$elemMatch:{_id: d._id}}}
-      update = {'$set': {'unmatched.$': d}}
-  return importModel.findOneAndUpdate(conditions, update, {new: true})
+const updateDoc = async (rowId, data) => {
+  try {
+    const conditions = {'unmatched': {$elemMatch:{_id: mongoose.Types.ObjectId(rowId)}}},
+    fields = {'unmatched.$' : 1},
+    old = (await importModel.findOne(conditions, fields, {lean: true})).unmatched[0],
+    _id = mongoose.Types.ObjectId(rowId),
+    _new = Object.assign({}, old, {_id}, data),
+    update = {'$set': {'unmatched.$' : _new}}
+
+    return (await importModel.findOneAndUpdate(conditions, update, {new: true}))
+  } catch (error) {
+    return new Error(error)
+  }
 }
 
 const fetchCargoPages = cadastreId => {
@@ -56,5 +53,5 @@ const retrieve = id => {
 
 }
 
-module.exports = {importModel, newDoc, retrieve, updateDoc, fetchCargoPages, findById, updateWholeDoc}
+module.exports = {importModel, insert, retrieve, updateDoc, fetchCargoPages, findById, updateWholeDoc}
 

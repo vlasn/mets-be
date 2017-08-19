@@ -1,16 +1,15 @@
 'use strict'
 
 const mongoose = require('mongoose'),
-findMatchFor = require('./../models/southNorthPricelistModel.js').checkAndApplyMatch,
-destructure = require('./destructure')
+findProductReference = require('./../models/southNorthPricelistModel.js').findProductReferenceId
 
 module.exports = async old => {
   const [rows] = [Object.assign({}, old.unmatched)],
-  matches = old.matched ? [...old.matched] : [],
-  _new = Object.assign({}, old, {'unmatched' : [], 'matched' : matches})
+  matched = old.matched ? [...old.matched] : [],
+  _new = Object.assign({}, old, {matched, unmatched : []})
 
   for (const [key, value] of Object.entries(rows)) {
-    const foundMatch = await findMatchFor(value)
+    const foundMatch = await findProductReference(value)
 
     if (foundMatch) {
       const vaste = foundMatch

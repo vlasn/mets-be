@@ -12,9 +12,9 @@ parse = require('../utils/parse'),
 destructure = require('../utils/destructure'),
 secret = process.env.SECRET
 
-router.post('/', fileUpload(), (req, res)=>{
+router.post('/', fileUpload(), (req, res, next)=>{
   if (!req.files) return res.status(400).send('No files were uploaded.')
-  
+
   const file = req.files.file,
   fileName = namify(req.files.file.name),
   fileExtension = extensify(fileName),
@@ -22,48 +22,39 @@ router.post('/', fileUpload(), (req, res)=>{
 
   if (fileExtension !== 'xlsx') return res.status(400).send('Incorrect file type')
   
-    file.mv(fileLocation, async err => {
-    if (err) return res.status(500).send(err)
+  file.mv(fileLocation, async err => {
+    if (err) return next(new Error(err))
 
-    const convertedData = xlsxToJson(fileLocation, fileName)
-    const parsedData = await parse(convertedData)
-    
-    res.json(responseFactory('accept', '', parsedData))
+    try {
+      const convertedData = xlsxToJson(fileLocation, fileName),
+      parsedData = await parse(convertedData),
+      insertedData = await report.insert(parsedData)
+      res.json(responseFactory('accept', '', insertedData))
+    } catch (error) {
+      next(new Error(error))
+    }
   })
 })
 
 router.get('/:id', async (req, res, next)=>{
   try {
-    const reportId = req.params.id
-    const result = await report.findById(reportId)
+    const reportId = req.params.id,
+    result = await report.findById(reportId)
     res.send(responseFactory('accept', '', result))
   } catch (error) {
     next(new Error(error))
   }
 })
 
-// for inserting a manually altered report row
-router.put('/:id', (req, res) => {
-  report.updateDoc(req.body)
-  .then(data => {
-    if (!data) return Promise.reject('Ei leidnud uuendatavat alamdokumenti!')
-    parse(data)
-    .then(d=>{
-      let responseData = d
-      console.log(d.unmatched.length, d.matched.length)
-      pricelist.checkForMatch(req.body)
-      .then(d=>{
-        if (d === false) return Promise.reject('Ei leidnud vastet!')
-        let response = {
-          matched: responseData.matched.length,
-          unmatched: responseData.unmatched.length
-        }
-        res.status(200).json(responseFactory("accept", "", response))
-      })
-      .catch(e => res.status(500).json(responseFactory("reject", e)))
-    })
-  })
-  .catch(e => res.status(500).json(responseFactory("reject", e)))
+
+router.put('/:id', async (req, res, next) => {
+  try {
+    const rowId = req.params.id,
+    update = req.body
+    res.send(responseFactory('accept', '', await report.updateDoc(rowId, update))) 
+  } catch (error) {
+    next(new Error(error))
+  }
 })
 
 router.post('/xlsx/findMatch', (req, res)=>{
