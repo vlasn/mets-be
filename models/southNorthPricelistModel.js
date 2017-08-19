@@ -38,10 +38,11 @@ const returnTemplate = () => {
   return southNorthPricelistModel.find({})
 }
 
+// accepts report row json object
 const checkAndApplyMatch = async row => {
   const key = row['hinna gr  "võti"']
 
-  return await southNorthPricelistModel.findOne(!key || typeof key !== 'string' ? {
+  return (await southNorthPricelistModel.findOne(!key || typeof key !== 'string' ? {
       Sihtkoht: {$regex: row['Ostja']},
       Puuliik: row['puuliik'],
       Kvaliteet: {$regex: row['kvaliteet'], $options: 'i'}
@@ -51,7 +52,7 @@ const checkAndApplyMatch = async row => {
       Kvaliteet: {$regex: row['kvaliteet'], $options: 'i'},
       Diameeter_min: row['hinna gr  "võti"'].replace(/,/g,'.').split('-')[0],
       Diameeter_max: row['hinna gr  "võti"'].replace(/,/g,'.').split('-')[1]
-    }, '_id')
+    }, '_id'))._id
 }
 
 module.exports = {southNorthPricelistModel, insert, checkAndApplyMatch, returnDistinct, returnTemplate}
