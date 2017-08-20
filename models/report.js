@@ -12,46 +12,45 @@ schema = mongoose.Schema({
   filename: {type: String, required: true}
 })
 
-const importModel = mongoose.model('import', schema)
+const report = mongoose.model('import', schema)
 
-const insert = entry => new importModel(entry).save()
+const insert = entry => new report(entry).save()
 
-const findById = id => importModel.findById(id)
+const findById = id => report.findOne({
+  $or: [
+    {_id: mongoose.Types.ObjectId(id)},
+    {'unmatched': {$elemMatch:{_id: mongoose.Types.ObjectId(id)}}}
+  ]
+})
 
 const updateWholeDoc = d => {
-  return importModel.findOneAndUpdate({_id: d.id}, d, {new: true})
+  return report.findOneAndUpdate({_id: d.id}, d, {new: true})
 }
 
 const updateDoc = async (rowId, data) => {
   try {
     const conditions = {'unmatched': {$elemMatch:{_id: mongoose.Types.ObjectId(rowId)}}},
     fields = {'unmatched.$' : 1},
-    old = (await importModel.findOne(conditions, fields, {lean: true})).unmatched[0],
+    old = (await report.findOne(conditions, fields, {lean: true})).unmatched[0],
     _id = mongoose.Types.ObjectId(rowId),
     _new = Object.assign({}, old, {_id}, data),
     update = {'$set': {'unmatched.$' : _new}}
 
-    return (await importModel.findOneAndUpdate(conditions, update, {new: true}))
+    return (await report.findOneAndUpdate(conditions, update, {new: true, lean: true}))
   } catch (error) {
     return new Error(error)
   }
 }
 
-const fetchCargoPages = cadastreId => {
-  console.log("going to mongo: ",cadastreId)
-  //return importModel.find({'veoselehed.$':{{'cadastre': cadastreId})
-  //return importModel.find({'veoselehed': {$elemMatch:{cadastre: cadastreId}}})
-  //return importModel.findOne({'veoselehed.cadastre': cadastreId})
-  return importModel.find({'veoselehed.cadastre': {$in: cadastreId}})
-}
+const fetchCargoPages = cadastreId => report.find({'veoselehed.cadastre': {$in: cadastreId}})
 
 const retrieve = id => {
   console.log(id)
-  if(id) return importModel.findOne({_id: id})
-  return importModel.find({$or: [{status: "reject"},{status: "pending"}]}, {status: 1, filename: 1}).sort('-date')
+  if(id) return report.findOne({_id: id})
+  return report.find({$or: [{status: "reject"},{status: "pending"}]}, {status: 1, filename: 1}).sort('-date')
 
 
 }
 
-module.exports = {importModel, insert, retrieve, updateDoc, fetchCargoPages, findById, updateWholeDoc}
+module.exports = {report, insert, retrieve, updateDoc, fetchCargoPages, findById, updateWholeDoc}
 

@@ -4,7 +4,7 @@ const mongoose = require('mongoose'),
 north = require('./northPricelistModel.js'),
 pricelistSchema = north.pricelistSchema
 //const userModel = require('./userModel.js').userModel
-mongoose.Promise = global.Promise
+const respondWith = require('../utils/response')
 
 const southNorthPricelistModel = mongoose.model('southnorth_price', pricelistSchema)
 
@@ -55,5 +55,26 @@ const findProductReferenceId = async row => {
     }, '_id'))._id
 }
 
-module.exports = {southNorthPricelistModel, insert, findProductReferenceId, returnDistinct, returnTemplate}
+const addProduct = (req, res, next) => { 
+  const new_product_data = req.body
+
+  southNorthPricelistModel.create(new_product_data, (err, doc) => {
+    if (err) return res.status(400).json(respondWith('reject', 'Salvestamisel tekkis viga'))
+    res.status(201).json(respondWith('accept', 'Kirje loodud', doc._id))
+  })
+}
+
+const updateProduct = async (req, res, next) => {
+  const _id = {_id: mongoose.Types.ObjectId(req.params.id)}, update_data = req.body,
+  old_product_data = (await southNorthPricelistModel.findOne(_id, {},{lean: true})),
+  new_product_data = Object.assign({}, old_product_data, {_id}, update_data),
+  update = {'$set': new_product_data}
+
+  southNorthPricelistModel.findOneAndUpdate(_id, update_data, {new: true, lean: true}, (err, doc) => {
+    if (err) return res.status(400).json(respondWith('reject', 'Salvestamisel tekkis viga'))
+    res.json(respondWith('accept', 'Kirje muudetud', doc))
+  })
+}
+
+module.exports = {updateProduct, addProduct, southNorthPricelistModel, insert, findProductReferenceId, returnDistinct, returnTemplate}
 

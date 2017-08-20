@@ -21,49 +21,34 @@ exports.create = (req, res, next) => {
 }
 
 exports.login = (req, res, next) => {
-  const email = req.body.email,
-  password = req.body.password
+  const email = req.body.email, password = req.body.password
 
   User.findOneAndUpdate(
     {'email': email, 'password': password},
-    {lastLogin: Date.now()},
+    {lastLoginAt: Date.now()},
+    {fields: {password: 0, __v: 0, roles: 0, hash: 0}, lean: true},
     (err, doc) => {
-      if (err || !doc) {
-        res.status(401).json(respondWith('reject', 'Vale parool või email'))
-      } else {
-        const data = {
-          personal_data: doc.personal_data,
-          createdAt: doc.createdAt,
-          lastLoginAt: doc.lastLogin,
-          job_title: doc.job_title,
-          email: doc.email,
-          _id: doc._id
-        }
-
-        data.token = signTokenWith({email: data.email, roles: doc.roles})
-
-        res.json(respondWith('accept', 'OK', data))
-      }
-    }
-  )
+      if (err || !doc) return res.status(401).json(respondWith('reject', 'Vale parool või email'))
+      const token = signTokenWith({email: doc.email, roles: doc.roles})
+      res.json(respondWith('accept', 'OK', Object.assign({token}, doc)))
+    })
 }
 
 exports.find = (req, res, next) => {
   let keys = req.query.key.split(','),
   val = {$regex: req.query.value, $options: 'i'},
-  conditions = [],
-  q = {$or: conditions}
+  conditions = []
 
   for (const key of keys) {
     let q1 = {}, q2 = {}
     q1['personal_data.' + key] = val
     q2[key] = val
-    conditions.push(q1) && conditions.push(q2)
+    conditions = [q1, q2, ...conditions]
   }
 
-  User.find(q, (err, doc) => {
-    err ? next(err = new Error('Ei leidnud')) : res.json(respondWith('accept', 'OK', doc))
-  })
+  const q = {$or: conditions}
+
+  User.find(q, (err, doc) => err ? next(err) : res.json(respondWith('accept', 'OK', doc)))
 }
 
 exports.verifyHash = (req, res, next) => {
@@ -85,7 +70,7 @@ exports.verifyHash = (req, res, next) => {
 
 exports.validate = (req, res, next) => {
   if (req.body.password !== req.body.cpassword || req.body.hash.length !== 64) {
-    return res.status(400).json('Faulty request syntax')
+    return res.status(400).json('Räsi/parool vigane')
   }
 
   User.findOneAndUpdate(

@@ -11,40 +11,51 @@ router.use(bodyParser.json())
 router.use(bodyParser.urlencoded({ extended: true }))
 
 
+
+router.post('/', pricelist.addProduct)
+
+router.put('/:id', pricelist.updateProduct)
+
 router.route("/")
 .put((req, res)=>{
-  pricelist.insert(req.body)
-  .then(docs => {
-    if(!docs) return Promise.reject("Viga!")
-    report.findById(req.body.parentId)
-    .then(d=>{
-      if(!d) {return Promise.reject("Ei leidnud sellise parentId'ga dokumenti!")}
-      parse(d)
-      .then(data=>{
-        report.updateWholeDoc(data)
-        .then(d=>{
-          console.log(d)
-          res.status(200).json(responseFactory("accept","", d))
-        })
-        .catch(e=>{
-          res.status(500).json(responseFactory("reject", e))
-        })
-      })
-    })
-    .catch(e=>{
-      res.status(500).json(responseFactory("reject", e))
-    })
-/*    report.updateWholeDoc(req.body.parentId)
-    .then(d=>{
-      res.status(200).json(responseFactory("accept","", docs))
-    })
-    .catch(e=>{
-      res.status(500).json(responseFactory("reject", err))
-    })*/
-  }
-  ,err => {
-    res.status(500).json(responseFactory("reject", err))
-  })
+
+// loogika: add new price and reparse given document w/ id
+
+
+
+//   pricelist.insert(req.body)
+//   .then(docs => {
+//     if(!docs) return Promise.reject("Viga!")
+//     report.findById(req.body.parentId)
+//     .then(d=>{
+//       if(!d) {return Promise.reject("Ei leidnud sellise parentId'ga dokumenti!")}
+//       parse(d)
+//       .then(data=>{
+//         report.updateWholeDoc(data)
+//         .then(d=>{
+//           console.log(d)
+//           res.status(200).json(responseFactory("accept","", d))
+//         })
+//         .catch(e=>{
+//           res.status(500).json(responseFactory("reject", e))
+//         })
+//       })
+//     })
+//     .catch(e=>{
+//       res.status(500).json(responseFactory("reject", e))
+//     })
+// /*    report.updateWholeDoc(req.body.parentId)
+//     .then(d=>{
+//       res.status(200).json(responseFactory("accept","", docs))
+//     })
+//     .catch(e=>{
+//       res.status(500).json(responseFactory("reject", err))
+//     })*/
+//   }
+//   ,err => {
+//     res.status(500).json(responseFactory("reject", err))
+//   })
+
 })
 .get((req, res)=>{
   let region = req.body.region

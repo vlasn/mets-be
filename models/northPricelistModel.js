@@ -23,36 +23,9 @@ const insert = (data) => {
   return northPricelistModel.insertMany(data)
 }
 
-const checkForMatch = (incomingRow) => {
-  let promise = new Promise((resolve, reject)=>{
-    northPricelistModel.findOne({
-
-      destination: incomingRow['Ostja'],
-/*        tree_species: incomingRow.puuliik,
-      quality: incomingRow.kvaliteet*/
-      }, '_id')
-      .then(doc=>{
-        if(doc) {
-          incomingRow.vaste = doc._id
-          return resolve(incomingRow)
-        }
-        resolve(false)
-      })
-      .catch(err=>{
-        console.log(err)
-        resolve(false)
-      })
-  })
-  // tagastab selle boolean väärtuse millega promise resolviti
-  return promise
-}
-
-
-
 module.exports = {
   pricelistSchema,
 	northPricelistModel,
-  insert,
-  checkForMatch
+  insert
 }
 

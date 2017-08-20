@@ -3,19 +3,11 @@
 const router = require('express').Router(),
 user = require('../controllers/user')
 
-router.post(`/login`, (req, res, next) => {
-  req.body && req.body.email && req.body.password
-  ? user.login(req, res, next)
-  : next(new Error('Missing POST parameters'))
-})
+router.post(`/login`, user.login)
 
-router.post(`/forgot`, (req, res, next) => {
-	user.forgotPassword(req, res, next)
-})
+router.post(`/forgot`, user.forgotPassword)
 
-router.post(`validate`, (req, res, next) => {
-  user.validate(req, res, next)
-})
+router.post(`validate`, user.validate)
 
 router.get(`/:hash`, (req, res, next) => {
   req.params.hash

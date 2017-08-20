@@ -15,9 +15,8 @@ exports.verify = (req, res, next) => {
 
   jwt.verify(token, secret, (error, decoded) => {
     if (error || !decoded) return res.status(401).json(respondWith('reject', 'Invalid token'))
-    console.log(decoded.email)
+    console.log(decoded)
     req.user = decoded.email
-    req.privileges = decoded.roles.length
     next()
   })
 }

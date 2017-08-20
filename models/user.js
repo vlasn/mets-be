@@ -3,7 +3,7 @@
 const mongoose = require('mongoose'),
 nodemailer = require('nodemailer'),
 schema = mongoose.Schema({
-  email: {type: String, unique: true},
+  email: {type: String, unique: true, trim: true},
   password: String,
   hash: {
   	hash: {type: String, unique: true},
@@ -16,7 +16,7 @@ schema = mongoose.Schema({
   	createdAt: {type: Date, default: new Date()},
   	disabled: {type: Boolean, default: false}
   }],
-  job_title: String,
+  job_title: {type: String},
   personal_data: {
     nimi: {type: String, required: true},
     tel_nr: String,

@@ -13,27 +13,7 @@ destructure = require('../utils/destructure'),
 secret = process.env.SECRET
 
 router.post('/', fileUpload(), (req, res, next)=>{
-  if (!req.files) return res.status(400).send('No files were uploaded.')
-
-  const file = req.files.file,
-  fileName = namify(req.files.file.name),
-  fileExtension = extensify(fileName),
-  fileLocation = path.resolve(__dirname, `../uploaded_files/${fileName}`)
-
-  if (fileExtension !== 'xlsx') return res.status(400).send('Incorrect file type')
-  
-  file.mv(fileLocation, async err => {
-    if (err) return next(new Error(err))
-
-    try {
-      const convertedData = xlsxToJson(fileLocation, fileName),
-      parsedData = await parse(convertedData),
-      insertedData = await report.insert(parsedData)
-      res.json(responseFactory('accept', '', insertedData))
-    } catch (error) {
-      next(new Error(error))
-    }
-  })
+  req.files ? report.updateDoc(req, res, next) : res.status(400).send('No files were uploaded.')
 })
 
 router.get('/:id', async (req, res, next)=>{
