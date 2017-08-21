@@ -98,7 +98,7 @@ exports.forgotPassword = async (req, res, next) => {
 
   if (!email) return next(new Error('Missing required params'))
 
-  const result = User.findOneAndUpdate(
+  const result = await User.findOneAndUpdate(
     {email: email},
     {hash: {hash: hash, created: Date.now()}},
     {new: true}
@@ -106,5 +106,8 @@ exports.forgotPassword = async (req, res, next) => {
 
   if (!result) return next (new Error('Päring nurjus'))
 
-  res.status(200).json(respondWith('status', `Aktiveerimislink saadeti meiliaadressile ${result.email}`, result))
+  sendMagicLinkTo(result.email, result.hash.hash, (err, ok) => {
+    if (err) return next(new Error('Aktiveerimislinki ei saadetud – kontakteeru bossiga'))
+    res.status(200).json(respondWith('accept', `Aktiveerimislink saadeti meiliaadressile ${doc.email}`))
+  })
 }
