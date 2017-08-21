@@ -106,8 +106,5 @@ exports.forgotPassword = async (req, res, next) => {
 
   if (!result) return next (new Error('Päring nurjus'))
 
-  sendMagicLinkTo(result.email, result.hash.hash, (err, ok) => {
-    if (err) return next(new Error('Aktiveerimislinki ei saadetud – kontakteeru bossiga'))
-    res.status(200).json(respondWith('accept', `Aktiveerimislink saadeti meiliaadressile ${doc.email}`))
-  })
+  sendMagicLinkTo(result.email, result.hash.hash, res)
 }

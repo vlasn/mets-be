@@ -3,9 +3,10 @@
 const nodemailer = require('nodemailer'),
 EMAIL_LOGIN = process.env.EMAIL_LOGIN,
 EMAIL_PASS = process.env.EMAIL_PASS,
-HOSTNAME = process.env.HOSTNAME
+HOSTNAME = process.env.HOSTNAME,
+respondWith = require('./response')
 
-module.exports = (email, hash, cb) => {
+module.exports = (email, hash, res) => {
     const mailTransporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {user: EMAIL_LOGIN, pass: EMAIL_PASS}
@@ -19,14 +20,14 @@ module.exports = (email, hash, cb) => {
     }
 
     mailTransporter.sendMail(mailFieldOptions, (error, info) => {
-      if (error || !info || !info.response.includes(' OK ')
-      	  || info.envelope.to[0] !== email) {
+      if (error || !info || !info.response.includes(' OK ') || info.envelope.to[0] !== email) {
       	console.log(error)
 
-      	return cb('Mingi kamm', null)
+        return res.status(500).json(respondWith('reject', error))
       }
 
       console.log('Message %s sent: %s', info.messageId, info.response)
-  	  cb(null, 'Kõik hästi')
+
+      res.status(200).json(respondWith('accept', `Aktiveerimislink saadeti meiliaadressile ${info.envelope.to[0]}`))
     })
 }
