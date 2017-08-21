@@ -8,6 +8,8 @@ respondWith = require('../utils/response'),
 signTokenWith = require('../utils/token').create
 
 exports.create = (req, res, next) => {
+  if (!Object.keys(req.body).length) next()
+
   req.body.hash = {hash: generateHash()}
 
   User.create(req.body, (err, doc) => {
@@ -21,7 +23,9 @@ exports.create = (req, res, next) => {
 }
 
 exports.login = (req, res, next) => {
-  const email = req.body.email, password = req.body.password
+  const {email, password} = req.body
+
+  if (!email || !password) return next(new Error('Missing required params'))
 
   User.findOneAndUpdate(
     {'email': email, 'password': password},
@@ -31,10 +35,14 @@ exports.login = (req, res, next) => {
       if (err || !doc) return res.status(401).json(respondWith('reject', 'Vale parool või email'))
       const token = signTokenWith({email: doc.email, roles: doc.roles})
       res.json(respondWith('accept', 'OK', Object.assign({token}, doc)))
-    })
+  })
 }
 
 exports.find = (req, res, next) => {
+  const {key, value} = req.query
+
+  if (!key || !value) return next(new Error('Missing required params'))
+
   let keys = req.query.key.split(','),
   val = {$regex: req.query.value, $options: 'i'},
   conditions = []
@@ -52,6 +60,8 @@ exports.find = (req, res, next) => {
 }
 
 exports.verifyHash = (req, res, next) => {
+  if (!req.params.hash) next()
+
   const currentDate = new Date()
   currentDate.setDate(currentDate.getDate() - 1)
 

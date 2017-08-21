@@ -1,3 +1,5 @@
+'use strict'
+
 const mongoose = require('mongoose'),
 pricelistSchema = mongoose.Schema({
     Sihtkoht: {type: String, required: true},
@@ -19,13 +21,5 @@ pricelistSchema = mongoose.Schema({
 
 const northPricelistModel = mongoose.model('north_price', pricelistSchema)
 
-const insert = (data) => {
-  return northPricelistModel.insertMany(data)
-}
-
-module.exports = {
-  pricelistSchema,
-	northPricelistModel,
-  insert
-}
+module.exports = {pricelistSchema, northPricelistModel}
 

@@ -3,7 +3,13 @@
 const Contract = require('../models/contract'),
 respondWith = require('../utils/response')
 
-exports.create = (req, res, next) => {
+exports.post = (req, res, next) => {
+  if (!req.files || !Object.keys(req.body).length) next()
+
+  const fnames = req.files.map(r => r.filename)
+  req.body.documents = {}
+  req.body.documents.muu = [...fnames]
+
   Contract.create(req.body, (err, doc) => {
     if (err) return next(err)
     res.status(201).json(respondWith('accept', 'Leping loodud', doc))
@@ -38,7 +44,9 @@ exports.updateContractLine = (id, key, value, remove = false) => {
   })
 }
 
-exports.fetch = (req, res, next) => {
+exports.get = (req, res, next) => {
+  if (!req.query.cadastre && !req.query.metsameister && !req.query.status) return next()
+
   Contract.find({
     $or: [
       {'kinnistu.nimi': {$regex: req.query.cadastre || ''}},
@@ -59,5 +67,49 @@ exports.insertById = (contract_id, file_name) => {
   Contract.findOneAndUpdate(conditions, update, {new: true}, (err, doc) => {
     if (err) return next(err)
     res.status(200).json(respondWith('accept', '', doc))
+  })
+}
+
+exports.something = (req, res, next) => {
+  let id = req.params.id
+  let key = req.body.key
+  let value = req.body.value
+  let remove = !!req.body.remove
+  contract.updateContractLine(id, key, value, remove)
+  .then(d => {
+    if(!d || d === null) {
+      console.log(`Couldn't find document ${id} to update.`)
+      res.status(500).json(respondWith('reject','Kirjet ei leitud!'))
+    } else {
+      console.log(`${key} of document ${id} is now ${value}`)
+      res.status(200).json(respondWith('accept','ok',d))
+    }
+  })
+  .catch(e => {
+    console.log(e)
+    res.status(500).json(respondWith('reject', '', e))
+  })
+}
+
+exports.upload_single_contract_file_post = (req, res)=>{
+    upload(req, res, function (err) {
+
+      if (err) {
+        console.log(err)
+        res.status(500).json(responseFactory("reject","Something went wrong... :("))
+      }
+      console.log(req.body)
+      res.status(200).json(responseFactory("accept","File was uploaded!"))
+    })
+}
+
+exports.upload_single_metsateatis_file_post = (req, res) => {
+	upload(req, res, function (err) {
+    if (err){
+    	console.log(err)
+    	res.status(500).json(responseFactory("reject","Something went wrong... :("))
+   	}
+    console.log(req.body)
+    res.status(200).json(responseFactory("accept","File was uploaded!"))
   })
 }
