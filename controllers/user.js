@@ -21,23 +21,28 @@ exports.create = async (req, res, next) => {
   } catch (error) {return next(new Error(error))}
 }
 
-exports.login = (req, res, next) => {
-  const {email, password} = req.body
+exports.login = async (req, res, next) => {
+  try {
+    const {email, password} = req.body
 
-  if (!email || !password) return next(new Error('Missing required params'))
+    if (!email || !password) return next(new Error('Missing required params'))
 
-  User.findOneAndUpdate(
-    {'email': email, 'password': password},
-    {lastLoginAt: Date.now()},
-    {fields: {password: 0, __v: 0, roles: 0, hash: 0}, lean: true},
-    (err, doc) => {
-      if (err || !doc) return res.status(401).json(respondWith('reject', 'Vale parool või email'))
-      const token = signTokenWith({email: doc.email, roles: doc.roles})
-      res.json(respondWith('accept', 'OK', Object.assign({token}, doc)))
-  })
+    const result = await User.findOneAndUpdate(
+      {'email': email, 'password': password},
+      {lastLoginAt: Date.now()},
+      {fields: {password: 0, __v: 0, roles: 0, hash: 0}, lean: true}
+    )
+
+    if (!result) return next(new Error('Login failed'))
+
+    const token = signTokenWith({email: result.email})
+    res.json(respondWith('accept', 'Sisse logitud', Object.assign({token}, result)))
+    
+  } catch (error) {return next(new Error(error))}
 }
 
-exports.find = (req, res, next) => {
+exports.find = async (req, res, next) => {
+  try {
     const {key, value} = req.query
 
     if (!key || !value) return next(new Error('Missing required params'))
@@ -53,45 +58,47 @@ exports.find = (req, res, next) => {
       conditions = [q1, q2, ...conditions]
     }
 
-    const q = {$or: conditions}
+    const q = {$or: conditions},
+    result = await User.find(q)
 
-    User.find(q, (err, doc) => err ? next(err) : res.json(respondWith('accept', 'OK', doc)))
+    if (!result) return next(new Error('Kontot ei leitud'))
+
+    res.status(200).json(respondWith('accept', 'Leiti konto(d)', result))
+  } catch (error) {return next(new Error(error))}
 }
 
-exports.verifyHash = (req, res, next) => {
-  if (!req.params.hash) next()
+exports.verifyHash = async (req, res, next) => {
+  try {
+    if (!req.params.hash) next(new Error('Räsi parameeter puudu'))
 
-  const currentDate = new Date()
-  currentDate.setDate(currentDate.getDate() - 1)
+    const currentDate = new Date()
+    currentDate.setDate(currentDate.getDate() - 1)
 
-  User.findOne(
-    {
-      'hash.hash': req.params.hash,
-      'hash.created': {$gt: currentDate}
-    },
-    (err, doc) => {
-      err || !doc
-      ? next(err = new Error('Räsi ei sobi või aegunud'))
-      : res.json(respondWith('accept', 'OK', doc))
-    }
-  )
+    const result = await User.findOne({'hash.hash': req.params.hash, 'hash.created': {$gt: currentDate}})
+
+    if (!result) return res.status(204).json(respondWith('reject', 'Ei leitud'))
+
+    res.status(200).json(respondWith('accept', 'Leiti 1 kirje', result))
+
+  } catch (error) {return next(new Error(error))}
 }
 
 exports.validate = async (req, res, next) => {
-  if (req.body.password !== req.body.cpassword || req.body.hash.length !== 64) {
-    return res.status(400).json('Räsi/parool vigane')
-  }
+  try {
+    if (req.body.password !== req.body.cpassword || req.body.hash.length !== 64) {
+      return res.status(400).json('Räsi/parool vigane')
+    }
 
-  const result = await User.findOneAndUpdate(
-    {'hash.hash': req.params.hash, 'hash.created': {$gt: currentDate}},
-    {password: password, hash: {validated: Date.now()}},
-    {new: true, lean: true}
-  )
+    const result = await User.findOneAndUpdate(
+      {'hash.hash': req.params.hash, 'hash.created': {$gt: currentDate}},
+      {password: password, hash: {validated: Date.now()}},
+      {new: true, lean: true}
+    )
 
-  if (!result) return next (new Error('Päring nurjus'))
+    if (!result) return next (new Error('Päring nurjus'))
 
-  res.status(200).json(respondWith('accept', 'Konto aktiveeritud', result))
-
+    res.status(200).json(respondWith('accept', 'Konto aktiveeritud', result))
+  } catch (error) {return next(new Error(error))}
 }
 
 exports.forgotPassword = async (req, res, next) => {
