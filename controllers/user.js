@@ -7,19 +7,18 @@ generateHash = require('../utils/hash'),
 respondWith = require('../utils/response'),
 signTokenWith = require('../utils/token').create
 
-exports.create = (req, res, next) => {
-  if (!Object.keys(req.body).length) next()
+exports.create = async (req, res, next) => {
+  try {
+    if (!Object.keys(req.body).length) next()
 
-  req.body.hash = {hash: generateHash()}
+    req.body.hash = {hash: generateHash()}
 
-  User.create(req.body, (err, doc) => {
-    if (err) return next(err)
+    const result = await User.create(req.body)
+    
+    if (!result) return next(new Error('Päring nurjus'))
 
-    sendMagicLinkTo(doc.email, doc.hash.hash, (err, ok) => {
-      if (err) return next(new Error('Aktiveerimislinki ei saadetud – kontakteeru bossiga'))
-      res.status(201).json(respondWith('accept', `Aktiveerimislink saadeti meiliaadressile ${doc.email}`))
-    })
-  })
+    sendMagicLinkTo(result.email, result.hash.hash, res)
+  } catch (error) {return next(new Error(error))}
 }
 
 exports.login = (req, res, next) => {
@@ -39,24 +38,24 @@ exports.login = (req, res, next) => {
 }
 
 exports.find = (req, res, next) => {
-  const {key, value} = req.query
+    const {key, value} = req.query
 
-  if (!key || !value) return next(new Error('Missing required params'))
+    if (!key || !value) return next(new Error('Missing required params'))
 
-  let keys = req.query.key.split(','),
-  val = {$regex: req.query.value, $options: 'i'},
-  conditions = []
+    let keys = req.query.key.split(','),
+    val = {$regex: req.query.value, $options: 'i'},
+    conditions = []
 
-  for (const key of keys) {
-    let q1 = {}, q2 = {}
-    q1['personal_data.' + key] = val
-    q2[key] = val
-    conditions = [q1, q2, ...conditions]
-  }
+    for (const key of keys) {
+      let q1 = {}, q2 = {}
+      q1['personal_data.' + key] = val
+      q2[key] = val
+      conditions = [q1, q2, ...conditions]
+    }
 
-  const q = {$or: conditions}
+    const q = {$or: conditions}
 
-  User.find(q, (err, doc) => err ? next(err) : res.json(respondWith('accept', 'OK', doc)))
+    User.find(q, (err, doc) => err ? next(err) : res.json(respondWith('accept', 'OK', doc)))
 }
 
 exports.verifyHash = (req, res, next) => {
@@ -78,33 +77,37 @@ exports.verifyHash = (req, res, next) => {
   )
 }
 
-exports.validate = (req, res, next) => {
+exports.validate = async (req, res, next) => {
   if (req.body.password !== req.body.cpassword || req.body.hash.length !== 64) {
     return res.status(400).json('Räsi/parool vigane')
   }
 
-  User.findOneAndUpdate(
+  const result = await User.findOneAndUpdate(
     {'hash.hash': req.params.hash, 'hash.created': {$gt: currentDate}},
     {password: password, hash: {validated: Date.now()}},
-    {new: true},
-    (err, doc) => {
-      err ? next(err) : res.json(respondWith('accept', 'OK', doc))
-    }
-  )
-}
-
-exports.forgotPassword = async (req, res, next) => {
-  const hash = generateHash(), email = req.body.email
-
-  if (!email) return next(new Error('Missing required params'))
-
-  const result = await User.findOneAndUpdate(
-    {email: email},
-    {hash: {hash: hash, created: Date.now()}},
-    {new: true}
+    {new: true, lean: true}
   )
 
   if (!result) return next (new Error('Päring nurjus'))
 
-  sendMagicLinkTo(result.email, result.hash.hash, res)
+  res.status(200).json(respondWith('accept', 'Konto aktiveeritud', result))
+
+}
+
+exports.forgotPassword = async (req, res, next) => {
+  try {
+    const hash = generateHash(), email = req.body.email
+
+    if (!email) return next(new Error('Missing required params'))
+
+    const result = await User.findOneAndUpdate(
+      {email: email},
+      {hash: {hash: hash, created: Date.now()}},
+      {new: true, lean: true}
+    )
+
+    if (!result) return next (new Error('Päring nurjus'))
+
+    sendMagicLinkTo(result.email, result.hash.hash, res)
+  } catch (error) {return next(new Error(error))}
 }
