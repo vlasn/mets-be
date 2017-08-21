@@ -4,7 +4,7 @@ const Contract = require('../models/contract'),
 respondWith = require('../utils/response')
 
 exports.post = (req, res, next) => {
-  if (!req.files || !Object.keys(req.body).length) next()
+  if (!req.files || !Object.keys(req.body).length) return next()
 
   const fnames = req.files.map(r => r.filename)
   req.body.documents = {}

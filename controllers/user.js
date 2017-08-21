@@ -94,7 +94,9 @@ exports.validate = (req, res, next) => {
 }
 
 exports.forgotPassword = (req, res, next) => {
-  const hash = newHash()
+  const hash = generateHash(), email = req.body.email
+
+  if (!email) return next(new Error('Missing required params'))
 
   User.findOneAndUpdate(
     {email: email},
