@@ -93,17 +93,18 @@ exports.validate = (req, res, next) => {
   )
 }
 
-exports.forgotPassword = (req, res, next) => {
+exports.forgotPassword = async (req, res, next) => {
   const hash = generateHash(), email = req.body.email
 
   if (!email) return next(new Error('Missing required params'))
 
-  User.findOneAndUpdate(
+  const result = User.findOneAndUpdate(
     {email: email},
     {hash: {hash: hash, created: Date.now()}},
-    {new: true},
-    (err, doc) => err || !doc
-    ? next(err)
-    : res.json(respondWith('status', `Aktiveerimislink saadeti meiliaadressile ${doc.email}`, doc))
+    {new: true}
   )
+
+  if (!result) return next (new Error('Päring nurjus'))
+
+  res.status(200).json(respondWith('status', `Aktiveerimislink saadeti meiliaadressile ${result.email}`, result))
 }
