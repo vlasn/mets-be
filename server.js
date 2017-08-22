@@ -44,12 +44,8 @@ if (!productionEnvironment) {
   })
 }
 
-app.use((err, req, res, next)=>{
-  res.status(err.status || 500)
-  res.json({
-  	status: 'reject',
-    message: err.message
-  })
+app.use((err, req, res, next) => {
+  res.status(err.status || 500).json({status: 'reject', message: err.message})
 })
 
 

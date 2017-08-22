@@ -4,7 +4,8 @@ const nodemailer = require('nodemailer'),
 EMAIL_LOGIN = process.env.EMAIL_LOGIN,
 EMAIL_PASS = process.env.EMAIL_PASS,
 HOSTNAME = process.env.HOSTNAME,
-respondWith = require('./response')
+respondWith = require('./response'),
+_Error = require('./error')
 
 module.exports = (email, hash, res) => {
     const mailTransporter = nodemailer.createTransport({
@@ -23,7 +24,7 @@ module.exports = (email, hash, res) => {
       if (error || !info || !info.response.includes(' OK ') || info.envelope.to[0] !== email) {
       	console.log(error)
 
-        return res.status(500).json(respondWith('reject', error))
+        return new _Error(`Failed to send magic link`, 500)
       }
 
       console.log('Message %s sent: %s', info.messageId, info.response)
