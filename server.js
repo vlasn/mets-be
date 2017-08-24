@@ -31,21 +31,16 @@ app.get('/api', (req, res) => {
 app.use('/api', require('./routes'))
 
 app.use((req, res, next) => {
-  res.status(404).send('Specified URL was not found')
+  res.status(404).json({status: 'reject', message: 'Specified URL was not found'})
 })
 
-if (!productionEnvironment) {
-  app.use((err, req, res, next) => {
-    res.status(err.status || 500).json({
-      status: 'reject',
-      message: err.message,
-      error: err.stack
-    })
+app.use((err, req, res, next) => {
+  const error = productionEnvironment ? null : err.stack
+
+  res.status(err.status || 500).json({
+    status: `reject`,
+    message: err.message,
+    error
   })
-}
-
-// app.use((err, req, res, next) => {
-//   res.status(err.status || 500).json({status: 'reject', message: err.message})
-// })
-
+})
 

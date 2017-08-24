@@ -4,7 +4,7 @@ const mongoose = require('mongoose'),
 nodemailer = require('nodemailer'),
 schema = mongoose.Schema({
   email: {type: String, unique: true, trim: true},
-  password: String,
+  password: {type: String, select: false},
   hash: {
   	hash: {type: String, unique: true},
     createdAt: {type: Date, default: new Date()},
