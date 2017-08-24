@@ -44,14 +44,12 @@ exports.returnTemplate = () => {
 }
 
 // accepts report row json object
-exports.findProductReferenceId = async (req, res, next) => {
+exports.findProductReferenceId = async row => {
   try {
-    if (!Object.keys(req.body).length) return next(new Error('Vigane päring'))
-
-    const row = req.body, key = row['hinna gr  "võti"'] || '',
+    const key = row['hinna gr  "võti"'] || '',
     {Ostja = '', puuliik = '', kvaliteet = ''} = row
 
-    if (!Ostja || !puuliik || !kvaliteet || !key) return next(new Error('Missing required params'))
+    if (!Ostja || !puuliik || !kvaliteet || !key) return
 
     const result = (await Pricelist.findOne({
         Sihtkoht: {$regex: row['Ostja']},
@@ -61,8 +59,8 @@ exports.findProductReferenceId = async (req, res, next) => {
         Diameeter_max: row['hinna gr  "võti"'].replace(/,/g,'.').split('-')[1]
       }, '_id'))._id || null
 
-    res.status(200).json(respondWith('accept', 'Leiti 1 kirje', result))
-  } catch (error) {return next(error)}
+    if (result) return result
+  } catch (error) {return}
 }
 
 exports.addProduct = (req, res, next) => { 

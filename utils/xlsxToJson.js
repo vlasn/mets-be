@@ -1,21 +1,21 @@
 'use strict'
 
-const xlsx = require('xlsx')
+const xlsx = require('xlsx'),
+path = require('path')
 
-module.exports = (fileLocation, fileName) => 
+module.exports = location => 
 {
-  const workbook = xlsx.readFile(fileLocation),
+  const workbook = xlsx.readFile(location),
   sheet_name_list = workbook.SheetNames,
-  data = { unmatched: [], filename: fileName }
+  name = path.basename(location),
+  data = { unmatched: [], filename: name }
 
-  for(const y of sheet_name_list){
-    const worksheet = workbook.Sheets[y],
+  for(let y of sheet_name_list){
+    let worksheet = workbook.Sheets[y],
     headers = {}
-
     for (let z in worksheet) {
       if(z[0] === '!') continue
-      
-        let c, r = ''; const v = worksheet[z].v
+        let c, r = '', v = worksheet[z].v
       
       for (const s of z) isNaN(s) ? c+=s : r+=s*1
       if (r == 1) {
@@ -30,6 +30,5 @@ module.exports = (fileLocation, fileName) =>
     data.unmatched.shift()
     data.unmatched.shift()
   }
-
   return data
 }

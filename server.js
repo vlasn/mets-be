@@ -17,7 +17,9 @@ mongoose.connect(MONGO_IP, options, err =>
   err ? console.log('🚫 ', err)
       : app.listen(process.env.PORT || 3000) && console.log('\n🌲  Mets jookseb! 🌲'))
 
+mongoose.Promise = global.Promise
 mongoose.set('debug', true)
+
 app.use(bodyParser.json())
 app.use(require('morgan')('dev'))
 app.set('json spaces', 4)
@@ -34,9 +36,7 @@ app.use((req, res, next) => {
 
 if (!productionEnvironment) {
   app.use((err, req, res, next) => {
-    console.log(err.stack)
-    res.status(err.status || 500)
-    res.json({
+    res.status(err.status || 500).json({
       status: 'reject',
       message: err.message,
       error: err.stack
@@ -44,8 +44,8 @@ if (!productionEnvironment) {
   })
 }
 
-app.use((err, req, res, next) => {
-  res.status(err.status || 500).json({status: 'reject', message: err.message})
-})
+// app.use((err, req, res, next) => {
+//   res.status(err.status || 500).json({status: 'reject', message: err.message})
+// })
 
 

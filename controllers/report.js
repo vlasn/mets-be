@@ -10,16 +10,38 @@ path = require('path'),
 responseFactory = require('../utils/response'),
 parse = require('../utils/parse'),
 destructure = require('../utils/destructure'),
-secret = process.env.SECRET
+secret = process.env.SECRET,
+{ ERROR_MISSING_REQUIRED_PARAMS,
+  ERROR_MONGODB_QUERY_FAILED} = require('../constants'),
+_Error = require('../utils/error')
 
 // const insert = entry => new report(entry).save()
-exports.post = (req, res, next) => {
+exports.post = async (req, res, next) => {
   try {
-    if (!req.files) return next('no files')
+    const {file = null} = req.files || {}
+
+    if (!file) throw ERROR_MISSING_REQUIRED_PARAMS
     
-    const data = req.files ? xlsxToJson(fileName, fileLocation) : null
+    const {name} = file, extname = path.extname(name)
+
+    if (extname !== `.xlsx`) throw new _Error(`File not .xlsx`, 400)
+    
+    let uniqName = name.split(`.xlsx`).shift() + `_` + Date.now() + extname
+
+    let location = path.resolve(__dirname, `../uploaded_files/${uniqName}`)
+
+    file.mv(location, async error => {
+      if (error) throw error
+
+      const jsonData = xlsxToJson(location),
+      parsedJsonData = await parse(jsonData),
+      matched = parsedJsonData ? parsedJsonData.matched.length : null,
+      total = parsedJsonData ? matched + parsedJsonData.unmatched.length : null,
+      message = `Matched ${matched} out of ${total} rows`
+
+      res.status(200).json(responseFactory(`accept`, message, parsedJsonData))
+    })
   } catch (error) {next(error)}
-  req.files ? report.updateDoc(req, res, next) : res.status(400).send('No files were uploaded.')
 }
 
 exports.get = async (req, res, next)=>{

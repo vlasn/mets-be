@@ -5,7 +5,8 @@ user = require('./controllers/user'),
 contract = require('./controllers/contract'),
 pricelist = require('./controllers/pricelist'),
 upload = require('./utils/contractUpload.js'),
-report = require('./controllers/report')
+report = require('./controllers/report'),
+fileUpload = require('express-fileupload')
 
 // routes that do not require token authentication
 //
@@ -29,7 +30,7 @@ router.post('/pricelists/find', pricelist.findProductReferenceId)
 router.put('/pricelists/:id', pricelist.updateProduct)
 router.post('/pricelists/snapshot', pricelist.returnTemplate)
 
-router.post('/reports', report.post)
+router.post('/reports', fileUpload(), report.post)
 router.put('/reports/:id', report.put)
 router.get('/reports/:id', report.get)
 

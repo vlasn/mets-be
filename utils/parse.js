@@ -1,7 +1,7 @@
 'use strict'
 
 const mongoose = require('mongoose'),
-findProductReference = require('./../models/southNorthPricelistModel.js').findProductReferenceId
+findProductReference = require('../controllers/pricelist.js').findProductReferenceId
 
 module.exports = async old => {
   const [rows] = [Object.assign({}, old.unmatched)],
@@ -14,7 +14,7 @@ module.exports = async old => {
     if (foundMatch) {
       const vaste = foundMatch
       _new.matched = [Object.assign({vaste}, value), ..._new.matched]
-    } else _new.unmatched = [Object.assign({vaste}), ..._new.unmatched]
+    } else _new.unmatched = [value, ..._new.unmatched]
   }
 
   return _new
