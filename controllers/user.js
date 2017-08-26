@@ -1,14 +1,14 @@
 'use strict'
 
 const User = require('../models/user'),
-      crypto = require('crypto'),
-      sendMagicLinkTo = require('../utils/mailer'),
-      generateHash = require('../utils/hash'),
-      respondWith = require('../utils/response'),
-      signTokenWith = require('../utils/token').create,
-      {ERROR_MISSING_REQUIRED_PARAMS,
-      ERROR_MONGODB_QUERY_FAILED} = require('../constants'),
-      _Error = require('../utils/error')
+crypto = require('crypto'),
+sendMagicLinkTo = require('../utils/mailer'),
+generateHash = require('../utils/hash'),
+respondWith = require('../utils/response'),
+signTokenWith = require('../utils/token').create,
+{ERROR_MISSING_REQUIRED_PARAMS,
+ERROR_MONGODB_QUERY_FAILED} = require('../constants'),
+_Error = require('../utils/error')
 
 exports.create = async (req, res, next) => {
   try {
@@ -16,10 +16,8 @@ exports.create = async (req, res, next) => {
 
     if (!(nimi || aadress)) throw ERROR_MISSING_REQUIRED_PARAMS
 
-    const hash = {hash: generateHash()},
-          _new = email ? Object.assign({}, req.body, {hash}) : Object.assign({}, req.body)
-
-    console.log('new:', _new)
+    const hash = {hash: generateHash(), createdAt: new Date()},
+    _new = email ? Object.assign({}, req.body, {hash}) : Object.assign({}, req.body)
 
     const result = await User.create(_new)
     
@@ -39,7 +37,7 @@ exports.login = async (req, res, next) => {
 
     const result = await User.findOneAndUpdate(
       {email, password},
-      {lastLoginAt: Date.now()},
+      {lastLoginAt: new Date()},
       {fields: {password: 0, __v: 0, roles: 0, hash: 0}, lean: true}
     )
 
@@ -80,9 +78,9 @@ exports.find = async (req, res, next) => {
 exports.validate = async (req, res, next) => {
   try {
     const {hash = null} = req.params || {},
-          {password = null, cpassword = null} = req.body || {},
-          now = new Date(),
-          twentyFourHoursAgo = new Date(now.getYear(), now.getMonth(), now.getDate() - 1).toISOString()
+    {password = null, cpassword = null} = req.body || {},
+    now = new Date(),
+    twentyFourHoursAgo = new Date(now.getYear(), now.getMonth(), now.getDate() - 1).toISOString()
 
     if (!password.length || password.length < 6 || password !== cpassword || hash.length !== 64) {
       throw ERROR_MISSING_REQUIRED_PARAMS
@@ -91,7 +89,7 @@ exports.validate = async (req, res, next) => {
     const result = await User.findOneAndUpdate
     (
       {'hash.hash': hash, 'hash.createdAt': {$gt: new Date(twentyFourHoursAgo)}},
-      {password: password, hash: {validatedAt: Date.now()}},
+      {password: password, hash: {validatedAt: new Date()}},
       {new: true, lean: true}
     )
 
@@ -109,7 +107,7 @@ exports.forgotPassword = async (req, res, next) => {
 
     const result = await User.findOneAndUpdate(
       {email: email},
-      {hash: {hash: hash, createdAt: Date.now()}},
+      {hash: {hash: hash, createdAt: new Date()}},
       {new: true, lean: true}
     )
 

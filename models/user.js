@@ -6,16 +6,14 @@ schema = mongoose.Schema({
   email: {type: String, unique: true, sparse: true},
   password: {type: String, select: false},
   hash: {
-  	hash: {type: String, unique: true, select: false, sparse: true},
-    createdAt: {type: Date, default: new Date(), select: false},
-  	validatedAt: {type: Date, select: false}
+    type: {
+      hash: {type: String, unique: true, sparse: true},
+      createdAt: {type: Date, default: new Date()},
+      validatedAt: {type: Date}
+    }, select: false
   },
 	lastLoginAt: Date,
-  roles: [{
-    role: {type: String , select: false},
-  	createdAt: {type: Date, default: new Date(), select: false},
-  	disabled: {type: Boolean, default: false, select: false}
-  }],
+  role: {type: String, select: false, enum: ['EMPLOYEE', 'ADMIN', 'CLIENT'], default: 'CLIENT'},
   job_title: {type: String},
   personal_data: {
     nimi: {type: String, required: true},
