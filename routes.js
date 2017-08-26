@@ -4,7 +4,7 @@ const router = require('express').Router(),
 user = require('./controllers/user'),
 contract = require('./controllers/contract'),
 pricelist = require('./controllers/pricelist'),
-upload = require('./utils/contractUpload.js'),
+{uploadDocuments} = require('./utils/upload.js'),
 report = require('./controllers/report'),
 fileUpload = require('express-fileupload')
 
@@ -20,9 +20,9 @@ router.put('/auth/validate/:hash', user.validate)
 router.post('/users', user.create)
 router.get('/users', user.find)
 
-router.post('/contracts', upload, contract.post)
+router.post('/contracts', uploadDocuments, contract.post)
 router.get('/contracts', contract.get)
-// router.put('/contracts', contract.something)
+router.put('/contracts/:contractId', fileUpload(), contract.upload_single_document)
 
 router.post('/pricelists', pricelist.addProduct)
 router.post('/pricelists/find', pricelist.findProductReferenceId)

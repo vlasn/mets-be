@@ -1,14 +1,18 @@
 'use strict'
 
 const Contract = require('../models/contract'),
-respondWith = require('../utils/response')
+respondWith = require('../utils/response'),
+ObjectId = require('mongoose').Types.ObjectId,
+path = require('path'),
+{ERROR_MISSING_REQUIRED_PARAMS,
+ERROR_MONGODB_QUERY_FAILED} = require('../constants')
 
 exports.post = (req, res, next) => {
   if (!req.files || !Object.keys(req.body).length) return next()
 
-  const muu = req.files.muu ? req.files.muu.map(r => r.filename) : null,
-  leping = req.files.leping ? req.files['leping'].map(r => r.filename) : null,
-  metsateatis = req.files.metsateatis ? req.files['metsateatis'].map(r => r.filename) : null
+  const muu = req.files.muu ? req.files.muu.map(r => r.filename) : [],
+  leping = req.files.leping ? req.files['leping'].map(r => r.filename) : [],
+  metsateatis = req.files.metsateatis ? req.files['metsateatis'].map(r => r.filename) : []
 
   req.body.documents = {muu, leping, metsateatis}
 
@@ -93,25 +97,31 @@ exports.something = (req, res, next) => {
   })
 }
 
-exports.upload_single_contract_file_post = (req, res)=>{
-    upload(req, res, function (err) {
+exports.upload_single_document = (req, res, next)=>{
+  try {
+    const {contractId = null} = req.params || {},
+    {document = null} = req.body || {},
+    {file = null} = req.files || {}
 
-      if (err) {
-        console.log(err)
-        res.status(500).json(responseFactory("reject","Something went wrong... :("))
-      }
-      console.log(req.body)
-      res.status(200).json(responseFactory("accept","File was uploaded!"))
+    if (!(contractId && document && file) || (document !== 'muu' &&
+    document !== 'leping' && document !== 'metsateatis')) throw ERROR_MISSING_REQUIRED_PARAMS
+    
+    const {name} = file, extname = path.extname(name)
+
+    let uniqName = name.split('.').shift() + '_' + Date.now() + extname
+
+    let location = path.resolve(__dirname, `../uploaded_files/${uniqName}`)
+
+    file.mv(location, async error => {
+      if (error) throw error
+
+      const item = {}, update = {$push: item}
+      item[`documents.${document}`] = uniqName
+
+      Contract.findOneAndUpdate({_id: ObjectId(contractId)}, update, {new: true}, (err, doc) => {
+        if (err) return next(err)
+        res.status(200).json(respondWith('accept', 'Document added', doc))
+      })
     })
-}
-
-exports.upload_single_metsateatis_file_post = (req, res) => {
-	upload(req, res, function (err) {
-    if (err){
-    	console.log(err)
-    	res.status(500).json(responseFactory("reject","Something went wrong... :("))
-   	}
-    console.log(req.body)
-    res.status(200).json(responseFactory("accept","File was uploaded!"))
-  })
+  } catch (e) {return next(e)} 
 }
