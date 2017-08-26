@@ -12,8 +12,7 @@ fileUpload = require('express-fileupload')
 //
 router.post(`/auth/login`, user.login)
 router.post(`/auth/forgot`, user.forgotPassword)
-router.post(`/auth/validate`, user.validate)
-router.get(`/auth/:hash`, user.verifyHash)
+router.put(`/auth/validate/:hash`, user.validate)
 
 // all routes that require token authentication
 // router.use('*', require('./utils/token').verify)

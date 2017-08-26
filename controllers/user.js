@@ -1,31 +1,33 @@
 'use strict'
 
 const User = require('../models/user'),
-crypto = require('crypto'),
-sendMagicLinkTo = require('../utils/mailer'),
-generateHash = require('../utils/hash'),
-respondWith = require('../utils/response'),
-signTokenWith = require('../utils/token').create,
-{ ERROR_MISSING_REQUIRED_PARAMS,
-  ERROR_MONGODB_QUERY_FAILED} = require('../constants'),
-_Error = require('../utils/error')
+      crypto = require('crypto'),
+      sendMagicLinkTo = require('../utils/mailer'),
+      generateHash = require('../utils/hash'),
+      respondWith = require('../utils/response'),
+      signTokenWith = require('../utils/token').create,
+      {ERROR_MISSING_REQUIRED_PARAMS,
+      ERROR_MONGODB_QUERY_FAILED} = require('../constants'),
+      _Error = require('../utils/error')
 
 exports.create = async (req, res, next) => {
   try {
-    const {nimi = null, aadress = null} = req.body.personal_data || {},
-    {email = null} = req.body || {}
+    const {email = null, personal_data: {nimi = null, aadress = null}} = req.body || {}
 
-    if (!nimi || !aadress) throw ERROR_MISSING_REQUIRED_PARAMS
+    if (!(nimi || aadress)) throw ERROR_MISSING_REQUIRED_PARAMS
 
-    req.body.hash = {hash: generateHash()}
+    const hash = {hash: generateHash()},
+          _new = email ? Object.assign({}, req.body, {hash}) : Object.assign({}, req.body)
 
-    const result = await User.create(req.body)
+    console.log('new:', _new)
+
+    const result = await User.create(_new)
     
     if (!result) throw ERROR_MONGODB_QUERY_FAILED
 
     if (email) sendMagicLinkTo(result.email, result.hash.hash, res)
 
-    res.status(200).json(respondWith(`accept`, `Konto loodud`, result))
+    res.status(200).json(respondWith('accept', 'User created', result))
   } catch (e) {return next(e)}
 }
 
@@ -33,7 +35,7 @@ exports.login = async (req, res, next) => {
   try {
     const {email = null, password = null} = req.body || {}
 
-    if (!email || !password) throw ERROR_MISSING_REQUIRED_PARAMS
+    if (!(email || password)) throw ERROR_MISSING_REQUIRED_PARAMS
 
     const result = await User.findOneAndUpdate(
       {email, password},
@@ -53,7 +55,7 @@ exports.find = async (req, res, next) => {
   try {
     const {key = null, value = null} = req.query || {}
 
-    if (!key || !value) throw ERROR_MISSING_REQUIRED_PARAMS
+    if (!(key || value)) throw ERROR_MISSING_REQUIRED_PARAMS
 
     let keys = req.query.key.split(','),
     val = {$regex: req.query.value, $options: 'i'},
@@ -75,39 +77,27 @@ exports.find = async (req, res, next) => {
   } catch (e) {return next(e)}
 }
 
-exports.verifyHash = async (req, res, next) => {
-  try {
-    const {hash = null} = req.params || {} 
-
-    if (!hash) throw ERROR_MISSING_REQUIRED_PARAMS
-
-    const currentDate = new Date()
-    currentDate.setDate(currentDate.getDate() - 1)
-
-    const result = await User.findOne({'hash.hash': hash, 'hash.created': {$gt: currentDate}})
-
-    if (!result) res.status(200).json(respondWith(`accept`, `Leiti 0 kirjet`))
-
-    res.status(200).json(respondWith(`accept`, `Leiti 1 kirje`, result))
-
-  } catch (e) {return next(e)}
-}
-
 exports.validate = async (req, res, next) => {
   try {
-    if (req.body.password !== req.body.cpassword || req.body.hash.length !== 64) {
+    const {hash = null} = req.params || {},
+          {password = null, cpassword = null} = req.body || {},
+          now = new Date(),
+          twentyFourHoursAgo = new Date(now.getYear(), now.getMonth(), now.getDate() - 1).toISOString()
+
+    if (!password.length || password.length < 6 || password !== cpassword || hash.length !== 64) {
       throw ERROR_MISSING_REQUIRED_PARAMS
     }
 
-    const result = await User.findOneAndUpdate(
-      {'hash.hash': req.params.hash, 'hash.created': {$gt: currentDate}},
-      {password: password, hash: {validated: Date.now()}},
+    const result = await User.findOneAndUpdate
+    (
+      {'hash.hash': hash, 'hash.createdAt': {$gt: new Date(twentyFourHoursAgo)}},
+      {password: password, hash: {validatedAt: Date.now()}},
       {new: true, lean: true}
     )
 
-    if (!result) throw ERROR_MONGODB_QUERY_FAILED
+    if (!result) throw new _Error('Validation failed', 400)
 
-    res.status(200).json(respondWith(`accept`, 'Konto aktiveeritud', result))
+    res.status(200).json(respondWith('accept', 'Password updated', result))
   } catch (e) {return next(e)}
 }
 
@@ -119,7 +109,7 @@ exports.forgotPassword = async (req, res, next) => {
 
     const result = await User.findOneAndUpdate(
       {email: email},
-      {hash: {hash: hash, created: Date.now()}},
+      {hash: {hash: hash, createdAt: Date.now()}},
       {new: true, lean: true}
     )
 

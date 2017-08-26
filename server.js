@@ -31,7 +31,7 @@ app.get('/api', (req, res) => {
 app.use('/api', require('./routes'))
 
 app.use((req, res, next) => {
-  res.status(404).json({status: 'reject', message: 'Specified URL was not found'})
+  res.status(404).json({status: 'reject', message: 'Invalid route'})
 })
 
 app.use((err, req, res, next) => {

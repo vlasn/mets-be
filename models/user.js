@@ -3,36 +3,35 @@
 const mongoose = require('mongoose'),
 nodemailer = require('nodemailer'),
 schema = mongoose.Schema({
-  email: {type: String, unique: true, trim: true},
+  email: {type: String, unique: true, sparse: true},
   password: {type: String, select: false},
   hash: {
-  	hash: {type: String, unique: true},
-    createdAt: {type: Date, default: new Date()},
-  	validatedAt: {type: Date}
+  	hash: {type: String, unique: true, select: false, sparse: true},
+    createdAt: {type: Date, default: new Date(), select: false},
+  	validatedAt: {type: Date, select: false}
   },
 	lastLoginAt: Date,
   roles: [{
-    role: {type: String},
-  	createdAt: {type: Date, default: new Date()},
-  	disabled: {type: Boolean, default: false}
+    role: {type: String , select: false},
+  	createdAt: {type: Date, default: new Date(), select: false},
+  	disabled: {type: Boolean, default: false, select: false}
   }],
   job_title: {type: String},
   personal_data: {
     nimi: {type: String, required: true},
     tel_nr: String,
     aadress: {type: String, required: true},
-    isikukood: {type: String, unique: true},
-    dok_nr: {type: String, unique: true},
+    isikukood: {type: String, unique: true, sparse: true},
+    dok_nr: {type: String, unique: true, sparse: true},
     juriidiline_isik: Boolean,
-    reg_nr: {type: String, unique: true},
-    kmk_nr: {type: String, unique: true},
+    reg_nr: {type: String, unique: true, sparse: true},
+    kmk_nr: {type: String, unique: true, sparse: true},
     esindaja: {
       nimi: String,
       isikukood: String,
       volituse_alus: String
     }
-  },
-  createdAt: {type: Date, default: new Date()}
+  }
 })
 
 schema.post('save', (error, doc, next) => {
