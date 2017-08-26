@@ -63,14 +63,14 @@ exports.get = async (req, res, next)=>{
   } catch (error) {next(new Error(error))}
 }
 
-exports.put = async (req, res, next) => {
+exports.update = async (req, res, next) => {
   try {
-    const rowId = req.params.id,
+    const {report_row_id} = req.params,
     data = req.body,
-    conditions = {'unmatched': {$elemMatch:{_id: ObjectId(rowId)}}},
+    conditions = {'unmatched': {$elemMatch:{_id: ObjectId(report_row_id)}}},
     fields = {'unmatched.$' : 1}, 
     old = (await report.findOne(conditions, fields, {lean: true})).unmatched[0],
-    _id = ObjectId(rowId),
+    _id = ObjectId(report_row_id),
     _new = Object.assign({}, old, {_id}, data),
     update = {'$set': {'unmatched.$' : _new}},
     result = (await report.findOneAndUpdate(conditions, update, {new: true, lean: true}))

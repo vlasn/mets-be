@@ -29,15 +29,8 @@ th {
     <th>URI</th>
     <th>Method</th>
     <th>Action</th>
-    <th>Params</th>
+    <th>Required Params</th>
     <th>Response 200</th>
-  </tr>
-  <tr>
-    <td>/api</td>
-    <td>GET</td>
-    <td>sends html</td>
-    <td>-</td>
-    <td>.html file</td>
   </tr>
   <tr>
     <td>/api/auth/login</td>
@@ -47,25 +40,43 @@ th {
     <td>{token, _id, email, job_title, lastLogin, personal_data[]}</td>
   </tr>
   <tr>
-    <td>/api/auth/:hash</td>
-    <td>GET</td>
-    <td>verifies hash</td>
-    <td>{hash}</td>
-    <td>{email}</td>
+    <td>/api/auth/validate/:hash</td>
+    <td>PUT</td>
+    <td>applies given password</td>
+    <td>{password, cpassword}</td>
+    <td>{new}</td>
   </tr>
   <tr>
     <td>/api/auth/forgot</td>
     <td>POST</td>
-    <td>forgot password</td>
+    <td>send 24h password reset link to email</td>
     <td>{email}</td>
     <td>-</td>
   </tr>
   <tr>
-    <td>/api/auth/validate</td>
+    <td>
+    </td>
+  </tr>
+  <tr>
+    <td>/api/user/create</td>
     <td>POST</td>
-    <td>validate</td>
-    <td>{password, cpassword, hash}</td>
+    <td>create user</td>
+    <td>{personal_data: {nimi, aadress}}</td>
+    <td>{new}</td>
+  </tr>
+  <tr>
+    <td>/api/user/:user_id</td>
+    <td>GET</td>
+    <td>fetch user data</td>
     <td>-</td>
+    <td>user document</td>
+  </tr>
+  <tr>
+    <td>/api/users/search?key=key1,key2...&value=value0</td>
+    <td>GET</td>
+    <td>search for user(s)</td>
+    <td>-</td>
+    <td>user document(s)</td>
   </tr>
 </table>
 

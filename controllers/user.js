@@ -14,7 +14,7 @@ exports.create = async (req, res, next) => {
   try {
     const {email = null, personal_data: {nimi = null, aadress = null}} = req.body || {}
 
-    if (!(nimi || aadress)) throw ERROR_MISSING_REQUIRED_PARAMS
+    if (!(nimi && aadress)) throw ERROR_MISSING_REQUIRED_PARAMS
 
     const hash = {hash: generateHash(), createdAt: new Date()},
     _new = email ? Object.assign({}, req.body, {hash}) : Object.assign({}, req.body)
@@ -33,7 +33,7 @@ exports.login = async (req, res, next) => {
   try {
     const {email = null, password = null} = req.body || {}
 
-    if (!(email || password)) throw ERROR_MISSING_REQUIRED_PARAMS
+    if (!(email && password)) throw ERROR_MISSING_REQUIRED_PARAMS
 
     const result = await User.findOneAndUpdate(
       {email, password},
@@ -49,11 +49,11 @@ exports.login = async (req, res, next) => {
   } catch (e) {return next(e)}
 }
 
-exports.find = async (req, res, next) => {
+exports.search = async (req, res, next) => {
   try {
     const {key = null, value = null} = req.query || {}
 
-    if (!(key || value)) throw ERROR_MISSING_REQUIRED_PARAMS
+    if (!(key && value)) throw ERROR_MISSING_REQUIRED_PARAMS
 
     let keys = req.query.key.split(','),
     val = {$regex: req.query.value, $options: 'i'},
@@ -71,8 +71,16 @@ exports.find = async (req, res, next) => {
 
     if (!result) throw ERROR_MONGODB_QUERY_FAILED
 
-    res.status(200).json(respondWith(`accept`, `Leiti konto(d)`, result))
+    res.status(200).json(respondWith('accept', 'success', result))
   } catch (e) {return next(e)}
+}
+
+exports.findById = async (req, res, next) => {
+  try {
+    return res.status(200).json(respondWith('accept', 'success', await User.findById(req.params.user_id)))
+  } catch (e) {
+    return res.status(204).json(respondWith('reject'))
+  }
 }
 
 exports.validate = async (req, res, next) => {

@@ -99,11 +99,11 @@ exports.something = (req, res, next) => {
 
 exports.upload_single_document = (req, res, next)=>{
   try {
-    const {contractId = null} = req.params || {},
+    const {contract_id = null} = req.params || {},
     {document = null} = req.body || {},
     {file = null} = req.files || {}
 
-    if (!(contractId && document && file) || (document !== 'muu' &&
+    if (!(contract_id && document && file) || (document !== 'muu' &&
     document !== 'leping' && document !== 'metsateatis')) throw ERROR_MISSING_REQUIRED_PARAMS
     
     const {name} = file, extname = path.extname(name)
@@ -118,7 +118,7 @@ exports.upload_single_document = (req, res, next)=>{
       const item = {}, update = {$push: item}
       item[`documents.${document}`] = uniqName
 
-      Contract.findOneAndUpdate({_id: ObjectId(contractId)}, update, {new: true}, (err, doc) => {
+      Contract.findOneAndUpdate({_id: ObjectId(contract_id)}, update, {new: true}, (err, doc) => {
         if (err) return next(err)
         res.status(200).json(respondWith('accept', 'Document added', doc))
       })
