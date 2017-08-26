@@ -1,9 +1,10 @@
 'use strict'
 
 const mongoose = require('mongoose'),
-schema = mongoose.Schema({
+Schema = mongoose.Schema,
+contractSchema = mongoose.Schema({
   // esindaja objectId'd
-  esindajad: [String],
+  esindajad: [{required: true, type: Schema.Types.ObjectId, ref: 'user'}],
   metsameister: String,
   projektijuht: String,
   dates: {
@@ -29,5 +30,5 @@ schema = mongoose.Schema({
   status: String
 })
 
-module.exports = mongoose.model('contract', schema)
+module.exports = mongoose.model('contract', contractSchema)
 

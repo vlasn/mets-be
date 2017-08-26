@@ -6,7 +6,7 @@ findProductReference = require('../controllers/pricelist.js').findProductReferen
 module.exports = async old => {
   const [rows] = [Object.assign({}, old.unmatched)],
   matched = old.matched ? [...old.matched] : [],
-  _new = Object.assign({}, old, {matched, unmatched : []})
+  _new = Object.assign({}, old, {matched, unmatched : []}, {status: 'pending'})
 
   for (const [key, value] of Object.entries(rows)) {
     const foundMatch = await findProductReference(value)

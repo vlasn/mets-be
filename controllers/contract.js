@@ -6,9 +6,11 @@ respondWith = require('../utils/response')
 exports.post = (req, res, next) => {
   if (!req.files || !Object.keys(req.body).length) return next()
 
-  const fnames = req.files.map(r => r.filename)
-  req.body.documents = {}
-  req.body.documents.muu = [...fnames]
+  const muu = req.files.muu ? req.files.muu.map(r => r.filename) : null,
+  leping = req.files.leping ? req.files['leping'].map(r => r.filename) : null,
+  metsateatis = req.files.metsateatis ? req.files['metsateatis'].map(r => r.filename) : null
+
+  req.body.documents = {muu, leping, metsateatis}
 
   Contract.create(req.body, (err, doc) => {
     if (err) return next(err)

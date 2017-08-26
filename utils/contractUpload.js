@@ -24,6 +24,10 @@ fs = require('fs')
             cb(null, true)
         }
     }),
-    documentsUpload = upload.array('documents', 6)
+    documentsUpload = upload.fields([
+        { name: 'muu', maxCount: 5 },
+        { name: 'leping', maxCount: 5 },
+        { name: 'metsateatis', maxCount : 5}
+    ])
 
 module.exports = documentsUpload

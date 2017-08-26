@@ -1,6 +1,7 @@
 'use strict'
 
 module.exports = d => {
+  d.status = 'finished'
   let p = new Promise((resolve,reject) => {
     if (d.unmatched.length === 0 && d.matched.length > 0) {
       for (let row of d.matched) {
