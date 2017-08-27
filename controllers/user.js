@@ -77,9 +77,9 @@ exports.search = async (req, res, next) => {
 
 exports.findById = async (req, res, next) => {
   try {
-    return res.status(200).json(respondWith('accept', 'success', await User.findById(req.params.user_id)))
+    res.status(200).json(respondWith('accept', 'success', await User.findById(req.params.user_id)))
   } catch (e) {
-    return res.status(204).json(respondWith('reject'))
+    res.status(204).end()
   }
 }
 
@@ -107,7 +107,7 @@ exports.validate = async (req, res, next) => {
   } catch (e) {return next(e)}
 }
 
-exports.forgotPassword = async (req, res, next) => {
+exports.forgot = async (req, res, next) => {
   try {
     const hash = generateHash(), {email = null} = req.body || {}
 

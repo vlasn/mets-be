@@ -1,7 +1,7 @@
 'use strict'
 
 const mongoose = require('mongoose'),
-findProductReference = require('../controllers/pricelist.js').findProductReferenceId
+{match} = require('../controllers/product.js')
 
 module.exports = async old => {
   const [rows] = [Object.assign({}, old.unmatched)],
@@ -9,7 +9,9 @@ module.exports = async old => {
   _new = Object.assign({}, old, {matched, unmatched : []}, {status: 'pending'})
 
   for (const [key, value] of Object.entries(rows)) {
-    const foundMatch = await findProductReference(value)
+    if (!value.hasOwnProperty('_id')) value._id = mongoose.Types.ObjectId()
+
+    const foundMatch = await match(value)
 
     if (foundMatch) {
       const vaste = foundMatch

@@ -1,6 +1,6 @@
 'use strict'
 
-const Pricelist = require('../models/southNorthPricelistModel.js'),
+const Product = require('../models/southNorthPricelistModel.js'),
 mongoose = require('mongoose'),
 respondWith = require('../utils/response')
 
@@ -36,22 +36,22 @@ respondWith = require('../utils/response')
 // }
 
 exports.returnDistinct = k => {
-  return Pricelist.find().distinct(k)
+  return Product.find().distinct(k)
 }
 
-exports.returnTemplate = () => {
-  return Pricelist.find({})
+exports.find = async (req, res, next) => {
+  res.status(200).json(respondWith('accept', 'success', await Product.find({})))
 }
 
 // accepts report row json object
-exports.findProductReferenceId = async row => {
+exports.match = async row => {
   try {
     const key = row['hinna gr  "võti"'] || '',
     {Ostja = '', puuliik = '', kvaliteet = ''} = row
 
     if (!Ostja || !puuliik || !kvaliteet || !key) return
 
-    const result = (await Pricelist.findOne({
+    const result = (await Product.findOne({
         Sihtkoht: {$regex: row['Ostja']},
         Puuliik: row['puuliik'],
         Kvaliteet: {$regex: row['kvaliteet'], $options: 'i'},
@@ -63,22 +63,22 @@ exports.findProductReferenceId = async row => {
   } catch (error) {return}
 }
 
-exports.addProduct = (req, res, next) => { 
+exports.create = (req, res, next) => {
   const new_product_data = req.body
 
-  Pricelist.create(new_product_data, (err, doc) => {
+  Product.create(new_product_data, (err, doc) => {
     if (err) return res.status(400).json(respondWith('reject', 'Salvestamisel tekkis viga'))
     res.status(201).json(respondWith('accept', 'Kirje loodud', doc._id))
   })
 }
 
-exports.updateProduct = async (req, res, next) => {
+exports.update = async (req, res, next) => {
   const _id = {_id: mongoose.Types.ObjectId(req.params.id)}, update_data = req.body,
-  old_product_data = (await Pricelist.findOne(_id, {},{lean: true})),
+  old_product_data = (await Product.findOne(_id, {},{lean: true})),
   new_product_data = Object.assign({}, old_product_data, {_id}, update_data),
   update = {'$set': new_product_data}
 
-  Pricelist.findOneAndUpdate(_id, update_data, {new: true, lean: true}, (err, doc) => {
+  Product.findOneAndUpdate(_id, update_data, {new: true, lean: true}, (err, doc) => {
     if (err) return res.status(400).json(respondWith('reject', 'Salvestamisel tekkis viga'))
     res.json(respondWith('accept', 'Kirje muudetud', doc))
   })

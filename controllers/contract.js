@@ -7,7 +7,7 @@ path = require('path'),
 {ERROR_MISSING_REQUIRED_PARAMS,
 ERROR_MONGODB_QUERY_FAILED} = require('../constants')
 
-exports.post = (req, res, next) => {
+exports.create = (req, res, next) => {
   if (!req.files || !Object.keys(req.body).length) return next()
 
   const muu = req.files.muu ? req.files.muu.map(r => r.filename) : [],
@@ -22,11 +22,12 @@ exports.post = (req, res, next) => {
   })
 }
 
-exports.findByEmail = () => {
-  Contract.find({'esindajad': { $in: [client_email]}}, (err, doc) => {
-    if (err) return next(err)
-    res.status(200).json(respondWith('accept', '', doc))
-  })
+exports.findById = async (req, res, next) => {
+  try {
+    res.status(200).json(respondWith('accept', 'success', await Contract.findById(req.params.contract_id)))
+  } catch (e) {
+    res.status(204).end()
+  }
 }
 
 //very basic, needs
@@ -50,8 +51,8 @@ exports.updateContractLine = (id, key, value, remove = false) => {
   })
 }
 
-exports.get = (req, res, next) => {
-  if (!req.query.cadastre && !req.query.metsameister && !req.query.status) return next()
+exports.filter = (req, res, next) => {
+  if (!(req.query.cadastre && req.query.metsameister && req.query.status)) return next()
 
   Contract.find({
     $or: [
@@ -97,14 +98,13 @@ exports.something = (req, res, next) => {
   })
 }
 
-exports.upload_single_document = (req, res, next)=>{
+exports.uploadSingleDocument = (req, res, next)=>{
   try {
-    const {contract_id = null} = req.params || {},
-    {document = null} = req.body || {},
+    const {contract_id = null, document_type = null} = req.params || {},
     {file = null} = req.files || {}
 
-    if (!(contract_id && document && file) || (document !== 'muu' &&
-    document !== 'leping' && document !== 'metsateatis')) throw ERROR_MISSING_REQUIRED_PARAMS
+    if (!(contract_id && document_type && file) || (document_type !== 'muu' &&
+    document_type !== 'leping' && document_type !== 'metsateatis')) throw ERROR_MISSING_REQUIRED_PARAMS
     
     const {name} = file, extname = path.extname(name)
 
@@ -116,7 +116,7 @@ exports.upload_single_document = (req, res, next)=>{
       if (error) throw error
 
       const item = {}, update = {$push: item}
-      item[`documents.${document}`] = uniqName
+      item[`documents.${document_type}`] = uniqName
 
       Contract.findOneAndUpdate({_id: ObjectId(contract_id)}, update, {new: true}, (err, doc) => {
         if (err) return next(err)

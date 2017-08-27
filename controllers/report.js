@@ -3,11 +3,11 @@
 const router = require('express').Router(),
 fileUpload = require('express-fileupload'),
 xlsxToJson = require('../utils/xlsxToJson'),
-report = require('./../models/report.js'),
-pricelist = require('./../models/southNorthPricelistModel.js'),
+report = require('../models/report.js'),
+product = require('../models/southNorthPricelistModel.js'),
 ObjectId = require('mongoose').Types.ObjectId,
 path = require('path'),
-responseFactory = require('../utils/response'),
+respondWith = require('../utils/response'),
 parse = require('../utils/parse'),
 destructure = require('../utils/destructure'),
 secret = process.env.SECRET,
@@ -16,7 +16,7 @@ secret = process.env.SECRET,
 _Error = require('../utils/error')
 
 // const insert = entry => new report(entry).save()
-exports.post = async (req, res, next) => {
+exports.create = async (req, res, next) => {
   try {
     const {file = null} = req.files || {}
 
@@ -39,44 +39,53 @@ exports.post = async (req, res, next) => {
       total = parsedJsonData ? matched + parsedJsonData.unmatched.length : null,
       message = `Matched ${matched} out of ${total} rows`
 
-      res.status(200).json(responseFactory(`accept`, message, parsedJsonData))
+      res.status(200).json(respondWith('accept', message, await report.create(parsedJsonData)))
     })
   } catch (error) {next(error)}
 }
 
-exports.get = async (req, res, next)=>{
+// exports.get = async (req, res, next)=>{
+//   try {
+//     const {report_id} = req.params
+
+//     if (!ObjectId.isValid(req.params.id)) next(new Error('Vigane id'))
+
+//     const result = await report.findOne({
+//       $or: [
+//         {_id: ObjectId(reportId)},
+//         {'unmatched': {$elemMatch:{_id: ObjectId(reportId)}}}
+//       ]
+//     })
+
+//     if (!result) return res.status(204).json(respondWith('reject', 'Kirjet ei leitud'))
+
+//     res.send(respondWith('accept', '', result))
+//   } catch (error) {next(new Error(error))}
+// }
+
+exports.findById = async (req, res, next) => {
   try {
-    const reportId = req.params.id
-
-    if (!ObjectId.isValid(req.params.id)) next(new Error('Vigane id'))
-
-    const result = await report.findOne({
-      $or: [
-        {_id: ObjectId(reportId)},
-        {'unmatched': {$elemMatch:{_id: ObjectId(reportId)}}}
-      ]
-    })
-
-    if (!result) return res.status(204).json(responseFactory('reject', 'Kirjet ei leitud'))
-
-    res.send(responseFactory('accept', '', result))
-  } catch (error) {next(new Error(error))}
+    res.status(200).json(respondWith('accept', 'success', await report.findById(req.params.report_id)))
+  } catch (e) {
+    console.log(e)
+    res.status(204).end()
+  }
 }
 
 exports.update = async (req, res, next) => {
   try {
-    const {report_row_id} = req.params,
+    const {report_id = null, row_id = null} = req.params || {},
     data = req.body,
-    conditions = {'unmatched': {$elemMatch:{_id: ObjectId(report_row_id)}}},
+    conditions = {_id: ObjectId(report_id), 'unmatched': {$elemMatch:{_id: ObjectId(row_id)}}},
     fields = {'unmatched.$' : 1}, 
     old = (await report.findOne(conditions, fields, {lean: true})).unmatched[0],
-    _id = ObjectId(report_row_id),
+    _id = ObjectId(row_id),
     _new = Object.assign({}, old, {_id}, data),
     update = {'$set': {'unmatched.$' : _new}},
     result = (await report.findOneAndUpdate(conditions, update, {new: true, lean: true}))
 
-    return res.status(201).json(responseFactory('accept', 'Kirje muudetud', result))
-  } catch (error) {return new Error(error)}
+    return res.status(201).json(respondWith('accept', 'Kirje muudetud', result))
+  } catch (error) {next(new Error(error))}
 }
 
 exports.fetchCargoPages = (req, res) => {
@@ -96,14 +105,14 @@ exports.fetchCargoPages = (req, res) => {
         volume: row['arvestus maht']
       }))
     console.log(response)
-    res.status(200).json(responseFactory("accept", "Siin on stuffi", response))
+    res.status(200).json(respondWith("accept", "Siin on stuffi", response))
   })
-  .catch(err=>{res.status(500).send(responseFactory("reject", err))})
+  .catch(err=>{res.status(500).send(respondWith("reject", err))})
 }
 
 // '/fieldOpts/:fieldKey'
 exports.getColumnArray = (req, res) => {
-  pricelist.returnDistinct(req.params.fieldKey)
+  product.returnDistinct(req.params.fieldKey)
   .then(d=>{
     let r
     if(req.params.fieldKey.includes("Diameeter") || req.params.fieldKey.includes("Pikkus")) {
@@ -111,7 +120,7 @@ exports.getColumnArray = (req, res) => {
     } else {
       r = d
     }
-    res.status(200).json(responseFactory("accept", "Siin on stuffi", r))
+    res.status(200).json(respondWith("accept", "Siin on stuffi", r))
   })
   .catch(err=>{res.status(500).send(err)})
 }
@@ -129,6 +138,3 @@ exports.getColumnArray = (req, res) => {
 
 
 // }
-
-const namify = x => x.split(`.`).shift()+`_`+ Date.now() +`.`+extensify(x)
-const extensify = x => x.split(`.`).pop()

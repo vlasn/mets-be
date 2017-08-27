@@ -3,7 +3,7 @@
 const router = require('express').Router(),
 user = require('./controllers/user'),
 contract = require('./controllers/contract'),
-pricelist = require('./controllers/pricelist'),
+product = require('./controllers/product'),
 {uploadDocuments} = require('./utils/upload.js'),
 report = require('./controllers/report'),
 fileUpload = require('express-fileupload')
@@ -11,7 +11,7 @@ fileUpload = require('express-fileupload')
 // routes that do not require token authentication
 //
 router.post('/auth/login', user.login)
-router.post('/auth/forgot', user.forgotPassword)
+router.post('/auth/forgot', user.forgot)
 router.put('/auth/validate/:hash', user.validate)
 
 // all routes that require token authentication
@@ -19,21 +19,26 @@ router.put('/auth/validate/:hash', user.validate)
 
 router.post('/user/create', user.create)
 router.get('/user/:user_id', user.findById)
+// WIP
+// router.put('/user/:user_id', user.update)
 router.get('/users/search', user.search)
 
-router.post('/contracts', uploadDocuments, contract.post)
-router.get('/contract/:contract_id', contract.get)
-router.put('/contract/:contract_id/document', fileUpload(), contract.upload_single_document)
+router.post('/contract/create', uploadDocuments, contract.create)
+router.get('/contract/:contract_id', contract.findById)
+// WIP
+// router.put('/contract/:contract_id', contract.update)
+router.get('/contracts/filter', contract.filter)
+router.put('/contract/:contract_id/:document_type', fileUpload(), contract.uploadSingleDocument)
 
-router.post('/pricelists', pricelist.addProduct)
-router.post('/pricelists/find', pricelist.findProductReferenceId)
-router.put('/pricelists/:id', pricelist.updateProduct)
-router.post('/pricelists/snapshot', pricelist.returnTemplate)
+router.post('/product/create', product.create)
+router.get('/products', product.find)
+router.put('/product/:id', product.update)
+// WIP
+// router.post('/products/snapshot', product.returnTemplate)
+router.post('/product/match', product.match)
 
-router.post('/reports', fileUpload(), report.post)
-router.put('/reports/rows/:report_row_id', report.update)
-router.get('/reports/:id', report.get)
-
-
+router.post('/report/create', fileUpload(), report.create)
+router.get('/report/:report_id', report.findById)
+router.put('/report/:report_id/row/:row_id', report.update)
 
 module.exports = router
