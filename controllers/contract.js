@@ -52,8 +52,6 @@ exports.updateContractLine = (id, key, value, remove = false) => {
 }
 
 exports.filter = (req, res, next) => {
-  if (!(req.query.cadastre && req.query.metsameister && req.query.status)) return next()
-
   Contract.find({
     $or: [
       {'kinnistu.nimi': {$regex: req.query.cadastre || ''}},
