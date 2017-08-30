@@ -30,6 +30,18 @@ exports.findById = async (req, res, next) => {
   }
 }
 
+exports.update = async (req, res, next) => {
+  const _id = {_id: mongoose.Types.ObjectId(req.params.id)}, update_data = req.body,
+  old_contract_data = (await Contract.findOne(_id, {}, {lean: true})),
+  new_contract_data = Object.assign({}, old_contract_data, {_id}, update_data),
+  update = {'$set': new_contract_data}
+
+  Product.findOneAndUpdate(_id, update_data, {new: true, lean: true}, (err, doc) => {
+    if (err) return res.status(400).json(respondWith('reject', 'Salvestamisel tekkis viga'))
+    res.json(respondWith('accept', 'Kirje muudetud', doc))
+  })
+}
+
 //very basic, needs
 exports.updateContractLine = (id, key, value, remove = false) => {
   /*

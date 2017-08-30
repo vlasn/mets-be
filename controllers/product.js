@@ -78,7 +78,7 @@ exports.update = async (req, res, next) => {
   new_product_data = Object.assign({}, old_product_data, {_id}, update_data),
   update = {'$set': new_product_data}
 
-  Product.findOneAndUpdate(_id, update_data, {new: true, lean: true}, (err, doc) => {
+  Product.findOneAndUpdate(_id, new_product_data, {new: true, lean: true}, (err, doc) => {
     if (err) return res.status(400).json(respondWith('reject', 'Salvestamisel tekkis viga'))
     res.json(respondWith('accept', 'Kirje muudetud', doc))
   })

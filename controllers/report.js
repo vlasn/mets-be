@@ -44,24 +44,16 @@ exports.create = async (req, res, next) => {
   } catch (error) {next(error)}
 }
 
-// exports.get = async (req, res, next)=>{
-//   try {
-//     const {report_id} = req.params
-
-//     if (!ObjectId.isValid(req.params.id)) next(new Error('Vigane id'))
-
-//     const result = await report.findOne({
-//       $or: [
-//         {_id: ObjectId(reportId)},
-//         {'unmatched': {$elemMatch:{_id: ObjectId(reportId)}}}
-//       ]
-//     })
-
-//     if (!result) return res.status(204).json(respondWith('reject', 'Kirjet ei leitud'))
-
-//     res.send(respondWith('accept', '', result))
-//   } catch (error) {next(new Error(error))}
-// }
+exports.find = async (req, res, next) => {
+  try {
+    res.status(200).json(respondWith('accept', 'success', await report.find({
+      status: {$regex: req.query.status || '', $options: 'i'}
+    })))
+  } catch (e) {
+    console.log(e)
+    res.status(204).end()
+  }
+}
 
 exports.findById = async (req, res, next) => {
   try {
@@ -88,26 +80,16 @@ exports.update = async (req, res, next) => {
   } catch (error) {next(new Error(error))}
 }
 
-exports.fetchCargoPages = (req, res) => {
-  let cadastreID = req.query.cadastreid.split(',')
-  console.log(cadastreID)
-  //for(c in req.body.cadastreIdentifiers) {cadastreIdentifiers.push(cadastreIdentifiers[c])}
-  report.fetchCargoPages(cadastreID)
-   .then(docs => {
-     let response = docs
-     .reduce((acc, val) => acc = [...acc, ...val.veoselehed],[])
-     .map(val => val.rows)
-     .reduce((acc,val) => [...acc,...val],[])
-     .map(row => ({
-        price: row['Hind'],
-        date: row['veoselehe kuupäev'],
-        name: row['Elvise VL nr'],
-        volume: row['arvestus maht']
-      }))
-    console.log(response)
-    res.status(200).json(respondWith("accept", "Siin on stuffi", response))
-  })
-  .catch(err=>{res.status(500).send(respondWith("reject", err))})
+exports.findCargoPages = async (req, res, next) => {
+  try {
+    const {cadastre_id = ''} = req.params
+
+    const result = await report.find(
+      {'veoselehed.cadastre': cadastre_id}, {veoselehed: 1}, {lean: true}
+    )
+
+    res.status(200).json(respondWith('accept', 'success', result))
+  } catch (e) {next(e)}
 }
 
 // '/fieldOpts/:fieldKey'

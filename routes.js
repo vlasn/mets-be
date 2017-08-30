@@ -22,7 +22,6 @@ router.get('/user/:user_id', user.findById)
 // WIP
 // router.put('/user/:user_id', user.update)
 router.get('/users/search', user.search)
-
 router.post('/contract/create', uploadDocuments, contract.create)
 router.get('/contract/:contract_id', contract.findById)
 // WIP
@@ -39,6 +38,9 @@ router.post('/product/match', product.match)
 
 router.post('/report/create', fileUpload(), report.create)
 router.get('/report/:report_id', report.findById)
+router.get('/reports', report.find)
 router.put('/report/:report_id/row/:row_id', report.update)
+
+router.get('/cargopages/:cadastre_id', report.findCargoPages)
 
 module.exports = router
