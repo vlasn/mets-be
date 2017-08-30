@@ -18,13 +18,14 @@ contractSchema = mongoose.Schema({
     muu: [String]
   },
   // tuleb objectId
-  hinnatabel: String,
+  hinnatabel: {required: true, type: Schema.Types.ObjectId},
   kinnistu: {
     nimi: String,
     katastritunnus: String
   },
   // tuleb objectid
   lepingu_looja: String,
+  lastModifiedAt: {type: Date, default: new Date()},
   createdAt: {type: Date, default: new Date()},
   // aktiivne, ootel, lõppenud, tehtud
   status: String
