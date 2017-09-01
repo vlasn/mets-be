@@ -25,7 +25,7 @@ exports.create = (req, res, next) => {
 
 exports.findById = async (req, res, next) => {
   try {
-    res.status(200).json(respondWith('accept', 'success', await Contract.findById(req.params.contract_id)))
+    res.status(200).json(respondWith('accept', 'success', await Contract.findById(req.params.contract_id).populate({path: 'esindajad', select: 'personal_data -_id'})))
   } catch (e) {
     res.status(204).end()
   }
