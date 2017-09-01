@@ -1,6 +1,7 @@
 'use strict'
 
-const Contract = require('../models/contract'),
+const mongoose = require('mongoose'),
+Contract = require('../models/contract'),
 respondWith = require('../utils/response'),
 ObjectId = require('mongoose').Types.ObjectId,
 path = require('path'),
@@ -31,36 +32,21 @@ exports.findById = async (req, res, next) => {
 }
 
 exports.update = async (req, res, next) => {
-  const _id = {_id: mongoose.Types.ObjectId(req.params.id)}, update_data = req.body,
-  old_contract_data = (await Contract.findOne(_id, {}, {lean: true})),
-  new_contract_data = Object.assign({}, old_contract_data, {_id}, update_data),
-  update = {'$set': new_contract_data}
+  try {
+    if (!(req.params.contract_id && req.body)) throw ERROR_MISSING_REQUIRED_PARAMS
 
-  Product.findOneAndUpdate(_id, update_data, {new: true, lean: true}, (err, doc) => {
-    if (err) return res.status(400).json(respondWith('reject', 'Salvestamisel tekkis viga'))
-    res.json(respondWith('accept', 'Kirje muudetud', doc))
-  })
-}
+    const {contract_id} = req.params,
+    update_data = Object.assign({}, req.body),
+    old_data = await Contract.findById(contract_id, {_id: 0}, {lean: true}),
+    new_data = Object.assign({}, old_data, update_data)
 
-//very basic, needs
-exports.updateContractLine = (id, key, value, remove = false) => {
-  /*
-    Vajab dates objekti uuendamiseks edasist query-buildingut
-   */
-  if(key==='katastritunnused'){
-    update = {$set : {'kinnistu.katastritunnused': value}}
-  } else if(key==='kinnistu') {
-    update = {$set: {'kinnistu.nimi': value}}
-  } else {
-    update = {$set:{[key]:value}}
-  }
+    if (!(contract_id && update_data && old_data && new_data)) {
+      throw new _Error('update failed', 500)
+    }
 
-  console.log(update)
-
-  Contract.findOneAndUpdate({_id: id}, update, {new: true}, (err, doc) => {
-    if (err) return next(err)
-    res.status(200).json(respondWith('accept', '', doc))
-  })
+    const result = await Contract.findByIdAndUpdate(contract_id, new_data, {new: true, lean: true})
+    res.status(200).json(respondWith('accept', 'updated', result))
+  } catch (e) {next(e)}
 }
 
 exports.filter = (req, res, next) => {
@@ -74,37 +60,6 @@ exports.filter = (req, res, next) => {
   }, (err, doc) => {
     if (err) return next(err)
     res.status(200).json(respondWith('accept', '', doc))
-  })
-}
-
-exports.insertById = (contract_id, file_name) => {
-  const conditions = {'_id': contract_id},
-  update = {'documents.leping': file_name}
-
-  Contract.findOneAndUpdate(conditions, update, {new: true}, (err, doc) => {
-    if (err) return next(err)
-    res.status(200).json(respondWith('accept', '', doc))
-  })
-}
-
-exports.something = (req, res, next) => {
-  let id = req.params.id
-  let key = req.body.key
-  let value = req.body.value
-  let remove = !!req.body.remove
-  contract.updateContractLine(id, key, value, remove)
-  .then(d => {
-    if(!d || d === null) {
-      console.log(`Couldn't find document ${id} to update.`)
-      res.status(500).json(respondWith('reject','Kirjet ei leitud!'))
-    } else {
-      console.log(`${key} of document ${id} is now ${value}`)
-      res.status(200).json(respondWith('accept','ok',d))
-    }
-  })
-  .catch(e => {
-    console.log(e)
-    res.status(500).json(respondWith('reject', '', e))
   })
 }
 

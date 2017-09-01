@@ -25,7 +25,7 @@ router.get('/users/search', user.search)
 router.post('/contract/create', uploadDocuments, contract.create)
 router.get('/contract/:contract_id', contract.findById)
 // WIP
-// router.put('/contract/:contract_id', contract.update)
+router.put('/contract/:contract_id', contract.update)
 router.get('/contracts/filter', contract.filter)
 router.put('/contract/:contract_id/:document_type', fileUpload(), contract.uploadSingleDocument)
 
