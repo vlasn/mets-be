@@ -38,7 +38,7 @@ app.use((err, req, res, next) => {
   const error = productionEnvironment ? null : err.stack
 
   res.status(err.status || 500).json({
-    status: `reject`,
+    status: 'reject',
     message: err.message,
     error
   })

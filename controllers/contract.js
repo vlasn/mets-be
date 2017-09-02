@@ -19,7 +19,7 @@ exports.create = (req, res, next) => {
 
   Contract.create(req.body, (err, doc) => {
     if (err) return next(err)
-    res.status(201).json(respondWith('accept', 'Leping loodud', doc))
+    res.status(201).json(respondWith('accept', 'success', doc))
   })
 }
 
@@ -33,19 +33,15 @@ exports.findById = async (req, res, next) => {
 
 exports.update = async (req, res, next) => {
   try {
-    if (!(req.params.contract_id && req.body)) throw ERROR_MISSING_REQUIRED_PARAMS
-
     const {contract_id} = req.params,
-    update_data = Object.assign({}, req.body),
-    old_data = await Contract.findById(contract_id, {_id: 0}, {lean: true}),
-    new_data = Object.assign({}, old_data, update_data)
+    update_data = Object.keys(req.body).length ? Object.assign({}, req.body) : null
 
-    if (!(contract_id && update_data && old_data && new_data)) {
-      throw new _Error('update failed', 500)
-    }
-
-    const result = await Contract.findByIdAndUpdate(contract_id, new_data, {new: true, lean: true})
-    res.status(200).json(respondWith('accept', 'updated', result))
+    if (update_data && mongoose.Types.ObjectId.isValid(contract_id)) {
+      const old_data = await Contract.findById(contract_id, {_id: 0}, {lean: true}),
+      new_data = Object.assign({}, old_data, update_data),
+      result = await Contract.findByIdAndUpdate(contract_id, new_data, {new: true, lean: true})
+      res.status(200).json(respondWith('accept', 'updated', result))
+    } else throw new _Error('failure', 400)
   } catch (e) {next(e)}
 }
 

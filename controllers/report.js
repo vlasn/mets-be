@@ -12,7 +12,8 @@ parse = require('../utils/parse'),
 destructure = require('../utils/destructure'),
 secret = process.env.SECRET,
 { ERROR_MISSING_REQUIRED_PARAMS,
-  ERROR_MONGODB_QUERY_FAILED} = require('../constants'),
+  ERROR_MONGODB_QUERY_FAILED,
+  ERROR_INVALID_PARAMS} = require('../constants'),
 _Error = require('../utils/error')
 
 // const insert = entry => new report(entry).save()
@@ -120,3 +121,13 @@ exports.getColumnArray = (req, res) => {
 
 
 // }
+
+exports.parse = async (req, res, next) => {
+  try {
+    const {report_id = null} = req.params; if (!report_id) throw ERROR_MISSING_REQUIRED_PARAMS
+    const opts = {lean: true}
+    const old_data = await report.findById(report_id, {}, opts); if (!old_data) throw ERROR_INVALID_PARAMS
+    const new_data = await parse(old_data)
+    res.status(200).json(respondWith('accept', 'success', await report.findByIdAndUpdate(report_id ,new_data)))
+  } catch (e) {next(e)}
+}

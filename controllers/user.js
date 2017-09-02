@@ -41,7 +41,7 @@ exports.login = async (req, res, next) => {
       {fields: {password: 0, __v: 0, roles: 0, hash: 0}, lean: true}
     )
 
-    if (!result) throw new _Error(`Authentication failed`, 401)
+    if (!result) throw new _Error('Authentication failed', 401)
 
     const token = signTokenWith({email: result.email})
 
@@ -123,4 +123,20 @@ exports.forgot = async (req, res, next) => {
 
     sendMagicLinkTo(result.email, result.hash.hash, res)
   } catch (e) {return next(e)}
+}
+
+exports.update = async (req, res, next) => {
+  try {
+    const {user_id = null} = req.params,
+    data = req.body,
+    conditions = {_id: ObjectId(report_id), 'unmatched': {$elemMatch:{_id: ObjectId(row_id)}}},
+    fields = {'unmatched.$' : 1}, 
+    old = (await report.findOne(conditions, fields, {lean: true})).unmatched[0],
+    _id = ObjectId(row_id),
+    _new = Object.assign({}, old, {_id}, data),
+    update = {'$set': {'unmatched.$' : _new}},
+    result = (await report.findOneAndUpdate(conditions, update, {new: true, lean: true}))
+
+    return res.status(201).json(respondWith('accept', 'Kirje muudetud', result))
+  } catch (error) {next(new Error(error))}
 }

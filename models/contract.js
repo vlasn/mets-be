@@ -18,7 +18,7 @@ contractSchema = mongoose.Schema({
     muu: [String]
   },
   // tuleb objectId
-  hinnatabel: {required: true, type: Schema.Types.ObjectId},
+  hinnatabel: {type: Schema.Types.ObjectId},
   kinnistu: {
     nimi: String,
     katastritunnus: String
