@@ -8,19 +8,22 @@ path = require('path'),
 {ERROR_MISSING_REQUIRED_PARAMS,
 ERROR_MONGODB_QUERY_FAILED} = require('../constants')
 
-exports.create = (req, res, next) => {
-  if (!req.files || !Object.keys(req.body).length) return next()
+exports.create = async (req, res, next) => {
+  try {
+    const {files = null, body = null} = req
 
-  const muu = req.files.muu ? req.files.muu.map(r => r.filename) : [],
-  leping = req.files.leping ? req.files['leping'].map(r => r.filename) : [],
-  metsateatis = req.files.metsateatis ? req.files['metsateatis'].map(r => r.filename) : []
+    if (!(files && Object.keys(body).length)) throw ERROR_MISSING_REQUIRED_PARAMS
 
-  req.body.documents = {muu, leping, metsateatis}
+    const muu = files.muu ? files.muu.map(r => r.filename) : [],
+    leping = files.leping ? files.leping.map(r => r.filename) : [],
+    metsateatis = files.metsateatis ? files.metsateatis.map(r => r.filename) : []
 
-  Contract.create(req.body, (err, doc) => {
-    if (err) return next(err)
-    res.status(201).json(respondWith('accept', 'success', doc))
-  })
+    body.documents = {muu, leping, metsateatis}
+
+    const savedToDb = await Contract.create(body)
+    
+    res.status(201).json(respondWith('accept', 'success', savedToDb))
+  } catch (e) {next(e)}
 }
 
 exports.findById = async (req, res, next) => {
@@ -49,10 +52,10 @@ exports.filter = (req, res, next) => {
   Contract.find({
     $or: [
       {'kinnistu.nimi': {$regex: req.query.cadastre || ''}},
-      {'kinnistu.katastritunnused': { $regex: req.query.cadastre || '' }}
+      {'kinnistu.katastritunnus': { $regex: req.query.cadastre || '' }}
     ],
-    metsameister: {$regex: req.query.metsameister || ''},
-    status: {$regex: req.query.status || ''}
+    metsameister: {$regex: req.query.metsameister || ''}
+    // status: {$regex: req.query.status || ''}
   }, (err, doc) => {
     if (err) return next(err)
     res.status(200).json(respondWith('accept', '', doc))
