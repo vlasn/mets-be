@@ -5,7 +5,7 @@ schema = mongoose.Schema({
   testSum: Number,
   matched: [],
   unmatched: [],
-  veoselehed: [],
+  waybills: [],
   status: {type: String, required: true},
   date: {type: Date, default: new Date()},
   filename: {type: String, required: true}

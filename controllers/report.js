@@ -125,9 +125,11 @@ exports.getColumnArray = (req, res) => {
 exports.parse = async (req, res, next) => {
   try {
     const {report_id = null} = req.params; if (!report_id) throw ERROR_MISSING_REQUIRED_PARAMS
-    const opts = {lean: true}
-    const old_data = await report.findById(report_id, {}, opts); if (!old_data) throw ERROR_INVALID_PARAMS
-    const new_data = await parse(old_data)
-    res.status(200).json(respondWith('accept', 'success', await report.findByIdAndUpdate(report_id ,new_data)))
+    const opts = {lean: true},
+    old_data = await report.findById(report_id, {}, opts); if (!old_data) throw ERROR_INVALID_PARAMS
+    const new_data = await parse(old_data),
+    destructured = destructure(new_data)
+    console.log(destructured)
+    res.status(200).json(respondWith('accept', 'success', await report.findByIdAndUpdate(report_id, destructured)))
   } catch (e) {next(e)}
 }
