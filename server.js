@@ -2,27 +2,21 @@
 require('dotenv').config()
 
 const app = require("express")(),
-mongoose = require('mongoose'),
-MONGO_USER=process.env.MONGO_USER,
-MONGO_PASS=process.env.MONGO_PASS,
-MONGO_IP=process.env.MONGO_IP,
-SECRET=process.env.SECRET,
-PORT=process.env.PORT,
-options = {user: MONGO_USER, pass: MONGO_PASS, auth: {authSource: 'admin'}},
-productionEnvironment = process.env.NODE_ENV === 'production',
-path = require("path"),
-bodyParser = require('body-parser')
+  databaseConnection = require('./databaseConnection'),
+  isProduction = process.env.NODE_ENV === 'production',
+  path = require("path"),
+  bodyParser = require('body-parser'),
+  port = process.env.PORT || 3000;
 
-mongoose.connect(MONGO_IP, options, err =>
-  err ? console.log('🚫 ', err)
-      : app.listen(process.env.PORT || 3000) && console.log('\n🌲  Mets jookseb! 🌲'))
-
-mongoose.Promise = global.Promise
-mongoose.set('debug', true)
+databaseConnection.once('connected', () => {
+  app.listen(port, () => {
+    console.log(`✅  Metsahaldur API listening on ${port} 🌲`)
+  })
+})
 
 app.use(bodyParser.json())
 app.use(require('morgan')('dev'))
-app.set('json spaces', 4)
+app.set('json spaces', 2)
 
 app.get('/api', (req, res) => {
 	res.sendFile(path.join(__dirname + '/api.html'))
@@ -35,7 +29,7 @@ app.use((req, res, next) => {
 })
 
 app.use((err, req, res, next) => {
-  const error = productionEnvironment ? null : err.stack
+  const error = isProduction ? null : err.stack
 
   res.status(err.status || 500).json({
     status: 'reject',
