@@ -6,22 +6,22 @@ sendMagicLinkTo = require('../utils/mailer'),
 generateHash = require('../utils/hash'),
 respondWith = require('../utils/response'),
 signTokenWith = require('../utils/token').create,
-{ERROR_MISSING_REQUIRED_PARAMS,
-ERROR_MONGODB_QUERY_FAILED} = require('../constants'),
+{MISSING_REQUIRED_PARAMS,
+MONGODB_QUERY_FAILED} = require('../constants'),
 _Error = require('../utils/error')
 
 exports.create = async (req, res, next) => {
   try {
     const {email = null, personal_data: {nimi = null, aadress = null}} = req.body || {}
 
-    if (!(nimi && aadress)) throw ERROR_MISSING_REQUIRED_PARAMS
+    if (!(nimi && aadress)) throw MISSING_REQUIRED_PARAMS
 
     const hash = {hash: generateHash(), createdAt: new Date()},
     _new = email ? Object.assign({}, req.body, {hash}) : Object.assign({}, req.body)
 
     const result = await User.create(_new)
     
-    if (!result) throw ERROR_MONGODB_QUERY_FAILED
+    if (!result) throw MONGODB_QUERY_FAILED
 
     if (email) sendMagicLinkTo(result.email, result.hash.hash, res)
 
@@ -33,7 +33,7 @@ exports.login = async (req, res, next) => {
   try {
     const {email = null, password = null} = req.body || {}
 
-    if (!(email && password)) throw ERROR_MISSING_REQUIRED_PARAMS
+    if (!(email && password)) throw MISSING_REQUIRED_PARAMS
 
     const result = await User.findOneAndUpdate(
       {email, password},
@@ -53,7 +53,7 @@ exports.search = async (req, res, next) => {
   try {
     const {key = null, value = null} = req.query || {}
 
-    if (!(key && value)) throw ERROR_MISSING_REQUIRED_PARAMS
+    if (!(key && value)) throw MISSING_REQUIRED_PARAMS
 
     let keys = req.query.key.split(','),
     val = {$regex: req.query.value, $options: 'i'},
@@ -69,7 +69,7 @@ exports.search = async (req, res, next) => {
     const q = {$or: conditions},
     result = await User.find(q)
 
-    if (!result) throw ERROR_MONGODB_QUERY_FAILED
+    if (!result) throw MONGODB_QUERY_FAILED
 
     res.status(200).json(respondWith('accept', 'success', result))
   } catch (e) {return next(e)}
@@ -91,7 +91,7 @@ exports.validate = async (req, res, next) => {
     twentyFourHoursAgo = new Date(now.getYear(), now.getMonth(), now.getDate() - 1).toISOString()
 
     if (!password.length || password.length < 6 || password !== cpassword || hash.length !== 64) {
-      throw ERROR_MISSING_REQUIRED_PARAMS
+      throw MISSING_REQUIRED_PARAMS
     }
 
     const result = await User.findOneAndUpdate
@@ -111,7 +111,7 @@ exports.forgot = async (req, res, next) => {
   try {
     const hash = generateHash(), {email = null} = req.body || {}
 
-    if (!email) throw ERROR_MISSING_REQUIRED_PARAMS
+    if (!email) throw MISSING_REQUIRED_PARAMS
 
     const result = await User.findOneAndUpdate(
       {email: email},
@@ -119,7 +119,7 @@ exports.forgot = async (req, res, next) => {
       {new: true, lean: true}
     )
 
-    if (!result) throw ERROR_MONGODB_QUERY_FAILED
+    if (!result) throw MONGODB_QUERY_FAILED
 
     sendMagicLinkTo(result.email, result.hash.hash, res)
   } catch (e) {return next(e)}

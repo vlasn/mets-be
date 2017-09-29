@@ -2,10 +2,11 @@
 
 const mongoose = require('mongoose'),
 Schema = mongoose.Schema,
-contractSchema = mongoose.Schema({
+{MISSING_REQUIRED_PARAMS, MONGODB_QUERY_FAILED} = require('../constants'),
+schema = mongoose.Schema({
   // esindaja objectId'd
   esindajad: [{required: true, type: Schema.Types.ObjectId, ref: 'user'}],
-  metsameister: String,
+  metsameister: {type: String, required: true},
   projektijuht: String,
   dates: {
     raie_teostamine: Date,
@@ -17,19 +18,21 @@ contractSchema = mongoose.Schema({
     leping: [String],
     muu: [String]
   },
-  // tuleb objectId
   hinnatabel: {type: Schema.Types.ObjectId},
   kinnistu: {
     nimi: String,
     katastritunnus: String
   },
-  // tuleb objectid
-  lepingu_looja: String,
+  lepingu_looja: {type: Schema.Types.ObjectId},
   lastModifiedAt: {type: Date, default: new Date()},
   createdAt: {type: Date, default: new Date()},
   // aktiivne, ootel, lõppenud, tehtud
-  status: String
+  status: {type: String, enum: ['active', 'pending']}
 })
 
-module.exports = mongoose.model('contract', contractSchema)
+schema.post('save', (err, doc, next) => {
+  err.name === 'ValidationError' ? next(MISSING_REQUIRED_PARAMS) : next(MONGODB_QUERY_FAILED)
+})
+
+module.exports = mongoose.model('contract', schema)
 

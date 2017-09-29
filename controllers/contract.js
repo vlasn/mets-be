@@ -5,14 +5,12 @@ Contract = require('../models/contract'),
 respondWith = require('../utils/response'),
 ObjectId = require('mongoose').Types.ObjectId,
 path = require('path'),
-{ERROR_MISSING_REQUIRED_PARAMS,
-ERROR_MONGODB_QUERY_FAILED} = require('../constants')
+{MISSING_REQUIRED_PARAMS,
+MONGODB_QUERY_FAILED} = require('../constants')
 
 exports.create = async (req, res, next) => {
   try {
-    const {files = null, body = null} = req
-
-    if (!(files && Object.keys(body).length)) throw ERROR_MISSING_REQUIRED_PARAMS
+    const {files = null, body = null} = req; if (isEmpty(files || body)) throw MISSING_REQUIRED_PARAMS
 
     const muu = files.muu ? files.muu.map(r => r.filename) : [],
     leping = files.leping ? files.leping.map(r => r.filename) : [],
@@ -39,12 +37,12 @@ exports.update = async (req, res, next) => {
     const {contract_id} = req.params,
     update_data = Object.keys(req.body).length ? Object.assign({}, req.body) : null
 
-    if (update_data && mongoose.Types.ObjectId.isValid(contract_id)) {
+    if (!(update_data && mongoose.Types.ObjectId.isValid(contract_id))) throw new _Error('failure', 400)
+    
       const old_data = await Contract.findById(contract_id, {_id: 0}, {lean: true}),
-      new_data = Object.assign({}, old_data, update_data),
-      result = await Contract.findByIdAndUpdate(contract_id, new_data, {new: true, lean: true})
-      res.status(200).json(respondWith('accept', 'updated', result))
-    } else throw new _Error('failure', 400)
+    new_data = Object.assign({}, old_data, update_data),
+    result = await Contract.findByIdAndUpdate(contract_id, new_data, {new: true, lean: true})
+    res.status(200).json(respondWith('accept', 'updated', result))
   } catch (e) {next(e)}
 }
 
@@ -68,7 +66,7 @@ exports.uploadSingleDocument = (req, res, next)=>{
     {file = null} = req.files || {}
 
     if (!(contract_id && document_type && file) || (document_type !== 'muu' &&
-    document_type !== 'leping' && document_type !== 'metsateatis')) throw ERROR_MISSING_REQUIRED_PARAMS
+    document_type !== 'leping' && document_type !== 'metsateatis')) throw MISSING_REQUIRED_PARAMS
     
     const {name} = file, extname = path.extname(name)
 
@@ -89,3 +87,5 @@ exports.uploadSingleDocument = (req, res, next)=>{
     })
   } catch (e) {return next(e)} 
 }
+
+const isEmpty = object => !Object.keys(object).length

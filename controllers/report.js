@@ -11,9 +11,9 @@ respondWith = require('../utils/response'),
 parse = require('../utils/parse'),
 destructure = require('../utils/destructure'),
 secret = process.env.SECRET,
-{ ERROR_MISSING_REQUIRED_PARAMS,
-  ERROR_MONGODB_QUERY_FAILED,
-  ERROR_INVALID_PARAMS} = require('../constants'),
+{ MISSING_REQUIRED_PARAMS,
+  MONGODB_QUERY_FAILED,
+  INVALID_PARAMS} = require('../constants'),
 _Error = require('../utils/error')
 
 // const insert = entry => new report(entry).save()
@@ -21,7 +21,7 @@ exports.create = async (req, res, next) => {
   try {
     const {file = null} = req.files || {}
 
-    if (!file) throw ERROR_MISSING_REQUIRED_PARAMS
+    if (!file) throw MISSING_REQUIRED_PARAMS
     
     const {name} = file, extname = path.extname(name)
 
@@ -107,26 +107,12 @@ exports.getColumnArray = (req, res) => {
   })
   .catch(err=>{res.status(500).send(err)})
 }
-// // LEGACY CODE
-// const updateWholeDoc = d => {
-//   return report.findOneAndUpdate({_id: d.id}, d, {new: true})
-// }
-
-// const fetchCargoPages = cadastreId => report.find({'veoselehed.cadastre': {$in: cadastreId}})
-
-// const retrieve = id => {
-//   console.log(id)
-//   if(id) return report.findOne({_id: id})
-//   return report.find({$or: [{status: "reject"},{status: "pending"}]}, {status: 1, filename: 1}).sort('-date')
-
-
-// }
 
 exports.parse = async (req, res, next) => {
   try {
-    const {report_id = null} = req.params; if (!report_id) throw ERROR_MISSING_REQUIRED_PARAMS
+    const {report_id = null} = req.params; if (!report_id) throw MISSING_REQUIRED_PARAMS
     const opts = {lean: true},
-    old_data = await report.findById(report_id, {}, opts); if (!old_data) throw ERROR_INVALID_PARAMS
+    old_data = await report.findById(report_id, {}, opts); if (!old_data) throw INVALID_PARAMS
     const new_data = await parse(old_data),
     destructured = destructure(new_data)
     console.log(destructured)

@@ -1,7 +1,7 @@
 'use strict'
 
 const mongoose = require('mongoose'),
-nodemailer = require('nodemailer'),
+{MISSING_REQUIRED_PARAMS, MONGODB_QUERY_FAILED} = require('../constants'),
 schema = mongoose.Schema({
   email: {type: String, unique: true, sparse: true},
   password: {type: String, select: false},
