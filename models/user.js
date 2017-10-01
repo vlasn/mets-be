@@ -16,9 +16,9 @@ schema = mongoose.Schema({
   role: {type: String, select: false, enum: ['EMPLOYEE', 'ADMIN', 'CLIENT'], default: 'CLIENT'},
   job_title: {type: String},
   personal_data: {
-    nimi: {type: String, required: true},
+    name: {type: String, required: true},
     tel_nr: String,
-    aadress: {type: String, required: true},
+    address: { type: String, required: true },
     isikukood: {type: String, unique: true, sparse: true},
     dok_nr: {type: String, unique: true, sparse: true},
     juriidiline_isik: Boolean,
@@ -30,6 +30,10 @@ schema = mongoose.Schema({
       volituse_alus: String
     }
   }
+},
+{
+  timestamps: true,
+  versionKey: false
 })
 
 schema.post('save', (error, doc, next) => {

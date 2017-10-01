@@ -16,23 +16,37 @@ exports.create = asyncMiddleware(async (req, res, next) => {
   const {
     email = null, 
     personal_data: {
-      nimi = null, 
-      aadress = null
-    }
+      name = null, 
+      address = null
+    } = {}
   } = req.body
 
-  if (!(nimi && aadress)) throw MISSING_REQUIRED_PARAMS
+  if (!(name && address)) throw MISSING_REQUIRED_PARAMS
 
-  const hash = {hash: generateHash(), createdAt: new Date()},
-  _new = email ? Object.assign({}, req.body, {hash}) : Object.assign({}, req.body)
+  const newUserData = Object.assign({}, {
+    personal_data: {
+      name,
+      address
+    }
+  })
 
-  const result = await User.create(_new)
+  if (email) {
+    const hash = {
+      hash: generateHash(), 
+      createdAt: new Date()
+    }
+
+    newUserData.email = email
+    newUserData.hash = hash
+
+    sendMagicLinkTo(email, hash, res)
+  }
+
+  const createdNewUser = await User.create(newUserData)
   
-  if (!result) throw MONGODB_QUERY_FAILED
+  if (!createdNewUser) throw MONGODB_QUERY_FAILED
 
-  if (email) sendMagicLinkTo(result.email, result.hash.hash, res)
-
-  res.status(200).json(respondWith('accept', 'User created', result))
+  success(res, createdNewUser)
 })
 
 exports.login = asyncMiddleware(async (req, res, next) => {
