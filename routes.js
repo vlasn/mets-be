@@ -1,12 +1,12 @@
 'use strict'
 
 const router = require('express').Router(),
-user = require('./controllers/user'),
-contract = require('./controllers/contract'),
-product = require('./controllers/product'),
-{uploadDocuments} = require('./utils/upload.js'),
-report = require('./controllers/report'),
-fileUpload = require('express-fileupload')
+  user = require('./controllers/user'),
+  contract = require('./controllers/contract'),
+  product = require('./controllers/product'),
+  {uploadDocuments} = require('./utils/upload.js'),
+  report = require('./controllers/report'),
+  fileUpload = require('express-fileupload')
 
 // routes that do not require token authentication
 //
@@ -17,10 +17,10 @@ router.put('/auth/validate/:hash', user.validate)
 // all routes that require token authentication
 // router.use('*', require('./utils/token').verify)
 
-router.post('/user/create', user.create)    // create an user
-router.get('/user/:user_id', user.findById)    // fetch user data
-router.put('/user/:user_id', user.update)    // update user data
-router.get('/users/search', user.search)    // query for users
+router.post('/users', user.create)
+router.get('/users/:userId', user.findOne)
+router.get('/users', user.findAll)
+router.put('/users/:userId', user.update)
 
 router.post('/contract/create', uploadDocuments, contract.create)    // create a contract
 router.get('/contract/:contract_id', contract.findById)    // fetch contract data
