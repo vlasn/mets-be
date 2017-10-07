@@ -24,5 +24,5 @@ schema.post('save', (err, doc, next) => {
   err.name === 'ValidationError' ? next(MISSING_REQUIRED_PARAMS) : next(MONGODB_QUERY_FAILED)
 })
 
-module.exports = mongoose.model('product', productSchema)
+module.exports = mongoose.model('product', schema)
 

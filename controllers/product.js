@@ -1,6 +1,6 @@
 'use strict'
 
-const Product = require('../models/southNorthPricelistModel.js'),
+const Product = require('../models/product.js'),
 mongoose = require('mongoose'),
 respondWith = require('../utils/response')
 
