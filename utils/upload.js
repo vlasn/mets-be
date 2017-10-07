@@ -21,9 +21,9 @@ upload = multer({
     }
 }),
 documentsUpload = upload.fields([
-    { name: 'muu', maxCount: 5 },
-    { name: 'leping', maxCount: 5 },
-    { name: 'metsateatis', maxCount : 5}
+    { name: 'other', maxCount: 5 },
+    { name: 'contracts', maxCount: 5 },
+    { name: 'forestNotices', maxCount : 5}
 ])
 
 exports.uploadDocuments = documentsUpload

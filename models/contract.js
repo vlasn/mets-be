@@ -35,7 +35,7 @@ schema = mongoose.Schema({
   property: {
     required: true,
     type: Schema.Types.ObjectId,
-    ref: 'user'
+    ref: 'property'
   },
   contractCreator: {
     type: Schema.Types.ObjectId,
