@@ -3,8 +3,15 @@
 const mongoose = require('mongoose'),
 {MISSING_REQUIRED_PARAMS, MONGODB_QUERY_FAILED} = require('../constants'),
 schema = mongoose.Schema({
-  email: {type: String, unique: true, sparse: true},
-  password: {type: String, select: false},
+  email: {
+    type: String,
+    unique: true,
+    sparse: true
+  },
+  password: {
+    type: String,
+    select: false
+  },
   hash: {
     type: {
       hash: {type: String, unique: true, sparse: true},
@@ -13,21 +20,36 @@ schema = mongoose.Schema({
     }, select: false
   },
 	lastLoginAt: Date,
-  role: {type: String, select: false, enum: ['EMPLOYEE', 'ADMIN', 'CLIENT'], default: 'CLIENT'},
-  job_title: {type: String},
-  personal_data: {
-    name: {type: String, required: true},
-    tel_nr: String,
+  role: {
+    type: String,
+    select: false,
+    enum: ['EMPLOYEE', 'ADMIN', 'CLIENT'],
+    default: 'CLIENT'
+  },
+  personalData: {
+    name: {
+      type: String,
+      required: true
+    },
+    phone: String,
     address: { type: String, required: true },
-    isikukood: {type: String, unique: true, sparse: true},
-    dok_nr: {type: String, unique: true, sparse: true},
-    juriidiline_isik: Boolean,
-    reg_nr: {type: String, unique: true, sparse: true},
-    kmk_nr: {type: String, unique: true, sparse: true},
-    esindaja: {
-      nimi: String,
-      isikukood: String,
-      volituse_alus: String
+    idNumber: {type: String, unique: true, sparse: true},
+    documentNumber: {type: String, unique: true, sparse: true},
+    juridical: Boolean,
+    companyId: {
+      type: String,
+      unique: true,
+      sparse: true
+    },
+    vatDutyNumber: {
+      type: String,
+      unique: true,
+      sparse: true
+    },
+    representative: {
+      name: String,
+      idNumber: String,
+      mandate: String
     }
   }
 },
