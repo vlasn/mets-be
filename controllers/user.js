@@ -46,7 +46,7 @@ exports.login = asyncMiddleware(async (req, res, next) => {
     {fields: {password: 0, __v: 0, roles: 0, hash: 0}, lean: true}
   ),
     loginSuccess = !!result,
-    { name } = result.personal_data
+    { name } = result.personalData
 
   if (!loginSuccess) throw new _Error('Authentication failed', 401)
 
