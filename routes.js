@@ -34,7 +34,7 @@ router.put('/product/:id', product.update)    // update product data
 // router.post('/products/snapshot', product.returnTemplate)    // create snapshot with POST data
 router.post('/product/match', product.match)    // match a product against POST data
 
-router.post('/report/create', fileUpload(), report.create)    // create a report 
+router.post('/report/create', fileUpload(), report.create)    // create a report
 router.get('/report/:report_id', report.findById)    // fetch report data
 router.get('/reports', report.find)    // query for reports
 router.put('/report/:report_id/row/:row_id', report.update)    // update report row data

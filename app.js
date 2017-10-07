@@ -1,7 +1,7 @@
 'use strict'
 
 const app = require('express')(),
-  isProduction = process.env.NODE_ENV !== 'production',
+  isProduction = process.env.NODE_ENV === 'production',
   path = require('path'),
   bodyParser = require('body-parser')
 
@@ -17,12 +17,10 @@ app.use((req, res, next) => {
 })
 
 app.use((err, req, res, next) => {
-  const error = (() => {
-    if (isProduction) delete err.stack
-    return err
-  })()
+  const error = err.message, 
+    stack = isProduction ? undefined : err.stack
 
-  res.status(err.status || 500).json({ success: false, error })
+  res.status(err.status || 500).json({ success: false, error, stack })
 })
 
 app.get('/api', (req, res) => {
