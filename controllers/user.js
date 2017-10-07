@@ -61,13 +61,15 @@ exports.login = asyncMiddleware(async (req, res, next) => {
     {email, password},
     {lastLoginAt: new Date()},
     {fields: {password: 0, __v: 0, roles: 0, hash: 0}, lean: true}
-  ), loginSuccess = !!result
+  ), 
+    loginSuccess = !!result,
+    { name } = result.personal_data
 
   if (!loginSuccess) throw new _Error('Authentication failed', 401)
   
   const token = signTokenWith({ email: result.email })
 
-  success(res, { token })
+  success(res, { token, name })
 })
 
 exports.findAll = asyncMiddleware(async (req, res, next) => {
