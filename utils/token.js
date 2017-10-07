@@ -1,10 +1,10 @@
 'use strict'
 
-const jwt = require('jsonwebtoken'),
-secret = process.env.SECRET,
-respondWith = require('./response')
+const jwt = require('jsonwebtoken')
+const secret = process.env.SECRET
+const respondWith = require('./response')
 
-exports.create = userData => jwt.sign(userData, secret, {expiresIn: 3600*365})
+exports.create = userData => jwt.sign(userData, secret, {expiresIn: 3600 * 365})
 
 exports.verify = (req, res, next) => {
   if (req.originalUrl.includes('/api/auth')) return next()
