@@ -18,10 +18,8 @@ app.use((req, res, next) => {
 
 app.use((err, req, res, next) => {
   const error = (() => {
-    if (isProduction) {
-      delete err.stack
-      return err.message
-    } else return err.stack
+    if (isProduction) delete err.stack
+    return err
   })()
 
   res.status(err.status || 500).json({ success: false, error })

@@ -4,30 +4,51 @@ const mongoose = require('mongoose'),
 Schema = mongoose.Schema,
 {MISSING_REQUIRED_PARAMS, MONGODB_QUERY_FAILED} = require('../constants'),
 schema = mongoose.Schema({
-  // esindaja objectId'd
-  esindajad: [{required: true, type: Schema.Types.ObjectId, ref: 'user'}],
-  metsameister: {type: String, required: true},
-  projektijuht: String,
+  // esindajad
+  representatives: [{
+    required: true,
+    type: Schema.Types.ObjectId,
+    ref: 'user'
+  }],
+  // metsameister
+  foreman: {
+    type: String,
+    required: true
+  },
+  projectManager: {
+    type: String,
+    required: true
+  },
   dates: {
-    raie_teostamine: Date,
-    metsamaterjali_valjavedu: Date,
-    raidmete_valjavedu: Date
+    logging: Date,
+    timberTransport: Date,
+    wasteTransport: Date
   },
   documents: {
-    metsateatis: [String],
-    leping: [String],
-    muu: [String]
+    forestNotices: [String],
+    contracts: [String],
+    other: [String]
   },
-  hinnatabel: {type: Schema.Types.ObjectId},
-  kinnistu: {
-    nimi: String,
-    katastritunnus: String
+  hinnatabel: {
+    type: Schema.Types.ObjectId
   },
-  lepingu_looja: {type: Schema.Types.ObjectId},
-  lastModifiedAt: {type: Date, default: new Date()},
-  createdAt: {type: Date, default: new Date()},
-  // aktiivne, ootel, lõppenud, tehtud
-  status: {type: String, enum: ['active', 'pending']}
+  property: {
+    required: true,
+    type: Schema.Types.ObjectId,
+    ref: 'user'
+  },
+  contractCreator: {
+    type: Schema.Types.ObjectId,
+    ref: 'user'
+  },
+  status: {
+    type: String,
+    enum: ['active', 'pending', 'executed', 'expired'],
+    default: 'pending'
+  }
+},
+{
+  timestamps: true
 })
 
 schema.post('save', (err, doc, next) => {
