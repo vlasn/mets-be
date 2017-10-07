@@ -17,7 +17,7 @@ exports.create = asyncMiddleware(async (req, res, next) => {
     email = null, 
     personal_data: {
       name = null, 
-      address = null
+      address = null 
     } = {}
   } = req.body
 
