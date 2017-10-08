@@ -20,9 +20,7 @@ const mongoose = require('mongoose'),
   })
 
 schema.post('save', (err, doc, next) => {
-  err.name === 'ValidationError' 
-    ? next(MISSING_REQUIRED_PARAMS) 
-    : next(MONGODB_QUERY_FAILED)
+  next(err)
 })
 
 module.exports = mongoose.model('product', schema)

@@ -7,21 +7,12 @@ const User = require('../models/user'),
   asyncMiddleware = require('../utils/asyncMiddleware')
 
 exports.create = asyncMiddleware(async (req, res, next) => {
-  // if (email) {
-  //   const hash = {
-  //     hash: generateHash(),
-  //     createdAt: new Date()
-  //   }
 
-  //   newUserData.email = email
-  //   newUserData.hash = hash
-
-  //   sendMagicLinkTo(email, hash, res)
-  // }
-  
   const user = await User.create(req.body)
 
-  // if (!createdNewUser) throw MONGODB_QUERY_FAILED
+  if (user.email) {
+    sendMagicLinkTo()
+  }
 
   success(res, user)
 })

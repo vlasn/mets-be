@@ -6,10 +6,13 @@ const nodemailer = require('nodemailer'),
   HOSTNAME = process.env.HOSTNAME,
   respondWith = require('./response')
 
-module.exports = async function(next, email, hash) {
+module.exports = function(next, email, hash) {
   const mailTransporter = nodemailer.createTransport({
     service: 'gmail',
-    auth: {user: EMAIL_LOGIN, pass: EMAIL_PASS}
+    auth: {
+      user: EMAIL_LOGIN,
+      pass: EMAIL_PASS
+    }
   }),
   mailFieldOptions = {
     from: '"Metsahaldur | Kasutaja valideerimine" <metsahaldur.test@gmail.com>',
@@ -19,10 +22,10 @@ module.exports = async function(next, email, hash) {
     html: `Palun kliki järgmisele lingile: <a href="${HOSTNAME}/validate/${hash}">Aktiveeri konto</a>`
   }
 
-  return await mailTransporter.sendMail(mailFieldOptions, (error, info) => {
+  mailTransporter.sendMail(mailFieldOptions, (error, info) => {
     if (error || !info || !info.response.includes(' OK ') || info.envelope.to[0] !== email) {
-      console.log(error)
-      return next(error)
+      const magicLinkError = new Error(`Failed to send activation link to ${email}`)
+      return next(magicLinkError)
     }
 
     console.log('Magic link with messageId %s sent to: %s', info.messageId, info.response)

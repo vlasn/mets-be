@@ -1,8 +1,6 @@
 'use strict'
 
 const mongoose = require('mongoose'),
-  generateHash = require('../utils/hash'),
-  sendMagicLinkTo = require('../utils/mailer'),
   schema = mongoose.Schema({
     email: {
       type: String,
@@ -42,7 +40,7 @@ const mongoose = require('mongoose'),
     personalData: {
       name: {
         type: String,
-        required: true,
+        required: 'name is required',
         minlength: 2,
         maxlength: 128
       },
@@ -53,7 +51,7 @@ const mongoose = require('mongoose'),
       },
       address: {
         type: String,
-        required: true,
+        required: 'address is required',
         minlength: 4,
         maxlength: 128
       },
@@ -111,31 +109,31 @@ const mongoose = require('mongoose'),
     }
   },
     {
-      timestamps: true,
-      versionKey: false
+      timestamps: true
     }
   )
 
-schema.post('save', (err, doc, next) => {
-  const error = new Error(err._message || err.message)
-  error.status = 400
-  
-  err.name === 'MongoError' &&
-  err.code === 11000
-  ? next(new Error('Duplicate key error'))
-  : next(error)
+schema.post('save', function(err, doc, next) {
+  if (err.name === 'MongoError' && err.code === 11000) {
+    const duplicateError = new Error('Duplicate key')
+    duplicateError.stack = err
+    duplicateError.status = 409
+    next(duplicateError)
+  } else if (err.name === 'ValidationError') {
+    const errors = Object.values(err.errors).map(error => error.message).join(' and ')
+    const validationError = new Error(errors)
+    validationError.stack = err
+    validationError.status = 400
+    next(validationError)
+  } else {
+    const databaseError = new Error('Database query failed')
+    databaseError.stack = err
+    next(databaseError)
+  }
 })
 
 schema.pre('save', function (next) {
-  if (this.email) {
-    if (!this.email.includes('@')) next()
-    this.hash = {
-      hash: generateHash(),
-      createdAt: new Date()
-    }
-
-    sendMagicLinkTo(next, this.email, this.hash.hash)
-  }
+  // pre-save hook – what useful can be done here?
   next()
 })
 
