@@ -6,8 +6,14 @@ const mongoose = require('mongoose'),
       type: String,
       unique: true,
       sparse: true,
-      minlength: 6,
-      maxlength: 128
+      minlength: [6, 'email is too short'],
+      maxlength: 128,
+      validate: {
+        validator: function(email) {
+          return email.includes('@')
+        },
+        message: 'invalid email'
+      }
     },
     password: {
       type: String,

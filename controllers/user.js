@@ -4,17 +4,18 @@ const User = require('../models/user'),
   respondWith = require('../utils/response'),
   signTokenWith = require('../utils/token').create,
   success = require('../utils/respond'),
-  asyncMiddleware = require('../utils/asyncMiddleware')
+  asyncMiddleware = require('../utils/asyncMiddleware'),
+  sendMagicLinkTo = require('../utils/mailer')
 
 exports.create = asyncMiddleware(async (req, res, next) => {
 
   const user = await User.create(req.body)
 
   if (user.email) {
-    sendMagicLinkTo()
+    sendMagicLinkTo(user, res, next)
+  } else {
+    success(res, user)
   }
-
-  success(res, user)
 })
 
 exports.login = asyncMiddleware(async (req, res, next) => {

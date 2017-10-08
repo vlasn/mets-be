@@ -4,9 +4,10 @@ const nodemailer = require('nodemailer'),
   EMAIL_LOGIN = process.env.EMAIL_LOGIN,
   EMAIL_PASS = process.env.EMAIL_PASS,
   HOSTNAME = process.env.HOSTNAME,
-  respondWith = require('./response')
+  success = require('./respond'),
+  hash = require('./hash')()
 
-module.exports = function(next, email, hash) {
+module.exports = function(user, res, next) {
   const mailTransporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -14,6 +15,7 @@ module.exports = function(next, email, hash) {
       pass: EMAIL_PASS
     }
   }),
+  { email } = user, 
   mailFieldOptions = {
     from: '"Metsahaldur | Kasutaja valideerimine" <metsahaldur.test@gmail.com>',
     to: `${email}`,
@@ -23,11 +25,16 @@ module.exports = function(next, email, hash) {
   }
 
   mailTransporter.sendMail(mailFieldOptions, (error, info) => {
-    if (error || !info || !info.response.includes(' OK ') || info.envelope.to[0] !== email) {
-      const magicLinkError = new Error(`Failed to send activation link to ${email}`)
+    if (error || !info || !info.response.includes(' OK ') || info.envelope.to[0] !== email || 
+        info.accepted[0] !== email) {
+      const magicLinkError = new Error(`failed to send activation link to ${email}`)
+      
       return next(magicLinkError)
     }
 
-    console.log('Magic link with messageId %s sent to: %s', info.messageId, info.response)
+    // below information should go to logs at some point
+    // console.log('Magic link with messageId %s sent to: %s', info.messageId, info.response)
+
+    success(res, user)
   })
 }
