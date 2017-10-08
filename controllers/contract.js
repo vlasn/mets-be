@@ -2,6 +2,7 @@
 
 const mongoose = require('mongoose'),
 Contract = require('../models/contract'),
+property = require("./property"),
 respondWith = require('../utils/response'),
 ObjectId = require('mongoose').Types.ObjectId,
 path = require('path')
@@ -9,13 +10,20 @@ path = require('path')
 exports.create = async (req, res, next) => {
   try {
     const {files = null, body = null} = req; if (isEmpty(files || body)) throw MISSING_REQUIRED_PARAMS
-
-    const muu = files.muu ? files.muu.map(r => r.filename) : [],
-    leping = files.leping ? files.leping.map(r => r.filename) : [],
-    metsateatis = files.metsateatis ? files.metsateatis.map(r => r.filename) : []
-
-    body.documents = {muu, leping, metsateatis}
-
+    const other = files.other ? files.other.map(r => r.filename) : [],
+      contracts = files.contracts ? files.contracts.map(r => r.filename) : [],
+      forestNotices = files.forestNotices ? files.forestNotices.map(r => r.filename) : []
+    
+      const propertyId = await property.create(
+        req.body.property.name,
+        [req.body.property.cadastreId], 
+        ""
+      ).then(p => {
+        return p._id
+      })
+    body.representatives = body.representatives.split(",")
+    body.property = propertyId
+    body.documents = { other, contracts, forestNotices }
     const savedToDb = await Contract.create(body)
     
     res.status(201).json(respondWith('accept', 'success', savedToDb))
