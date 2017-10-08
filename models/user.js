@@ -1,6 +1,8 @@
 'use strict'
 
 const mongoose = require('mongoose'),
+  { VALIDATION_ERROR,
+    DUPLICATION_ERROR } = require('../errors'),
   schema = mongoose.Schema({
     email: {
       type: String,
@@ -47,7 +49,7 @@ const mongoose = require('mongoose'),
       name: {
         type: String,
         required: 'name is required',
-        minlength: [6, 'name must be atleast 2 characters long'],
+        minlength: [2, 'name must be atleast 2 characters long'],
         maxlength: [128, 'name can\'t exceed 128 characters']
       },
       phone: {
@@ -120,22 +122,9 @@ const mongoose = require('mongoose'),
   )
 
 schema.post('save', function(err, doc, next) {
-  if (err.name === 'MongoError' && err.code === 11000) {
-    const duplicateError = new Error('duplicate key')
-    duplicateError.stack = err
-    duplicateError.status = 409
-    next(duplicateError)
-  } else if (err.name === 'ValidationError') {
-    const errors = Object.values(err.errors).map(error => error.message).join(', ')
-    const validationError = new Error(errors)
-    validationError.stack = err
-    validationError.status = 400
-    next(validationError)
-  } else {
-    const databaseError = new Error('database query failed')
-    databaseError.stack = err
-    next(databaseError)
-  }
+  if (err.name === 'MongoError' && err.code === 11000) next(DUPLICATION_ERROR(err))
+  else if (err.name === 'ValidationError') next(VALIDATION_ERROR(err))
+  else next(databaseError)
 })
 
 schema.pre('save', function (next) {
