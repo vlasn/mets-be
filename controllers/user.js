@@ -66,7 +66,7 @@ exports.findAll = asyncMiddleware(async (req, res, next) => {
 
   for (const key of keys) {
     let q1 = {}, q2 = {}
-    q1[`personal_data.` + key] = val
+    q1[`personalData.` + key] = val
     q2[key] = val
     conditions = [q1, q2, ...conditions]
   }
