@@ -10,11 +10,7 @@ const router = require('express').Router(),
   respondWith = require('../utils/response'),
   parse = require('../utils/parse'),
   destructure = require('../utils/destructure'),
-  secret = process.env.SECRET,
-  { MISSING_REQUIRED_PARAMS,
-  MONGODB_QUERY_FAILED,
-  INVALID_PARAMS} = require('../constants'),
-  _Error = require('../utils/error')
+  secret = process.env.SECRET
 
 // const insert = entry => new report(entry).save()
 exports.create = async (req, res, next) => {

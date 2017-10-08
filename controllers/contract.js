@@ -4,9 +4,7 @@ const mongoose = require('mongoose'),
 Contract = require('../models/contract'),
 respondWith = require('../utils/response'),
 ObjectId = require('mongoose').Types.ObjectId,
-path = require('path'),
-{MISSING_REQUIRED_PARAMS,
-MONGODB_QUERY_FAILED} = require('../constants')
+path = require('path')
 
 exports.create = async (req, res, next) => {
   try {

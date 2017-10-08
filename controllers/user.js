@@ -1,14 +1,8 @@
 'use strict'
 
 const User = require('../models/user'),
-  crypto = require('crypto'),
-  sendMagicLinkTo = require('../utils/mailer'),
-  generateHash = require('../utils/hash'),
   respondWith = require('../utils/response'),
   signTokenWith = require('../utils/token').create,
-  { MISSING_REQUIRED_PARAMS,
-  MONGODB_QUERY_FAILED } = require('../constants'),
-  _Error = require('../utils/error'),
   success = require('../utils/respond'),
   asyncMiddleware = require('../utils/asyncMiddleware')
 
