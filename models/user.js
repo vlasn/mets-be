@@ -2,7 +2,8 @@
 
 const mongoose = require('mongoose'),
   { VALIDATION_ERROR,
-    DUPLICATION_ERROR } = require('../errors'),
+    DUPLICATION_ERROR,
+    DATABASE_ERROR } = require('../errors'),
   schema = mongoose.Schema({
     email: {
       type: String,
@@ -124,7 +125,7 @@ const mongoose = require('mongoose'),
 schema.post('save', function(err, doc, next) {
   if (err.name === 'MongoError' && err.code === 11000) next(DUPLICATION_ERROR(err))
   else if (err.name === 'ValidationError') next(VALIDATION_ERROR(err))
-  else next(databaseError)
+  else next(DATABASE_ERROR(err))
 })
 
 schema.pre('save', function (next) {
