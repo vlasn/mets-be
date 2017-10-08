@@ -6,8 +6,8 @@ const mongoose = require('mongoose'),
       type: String,
       unique: true,
       sparse: true,
-      minlength: [6, 'email is too short'],
-      maxlength: 128,
+      minlength: [6, 'email must be atleast 6 characters long'],
+      maxlength: [128, 'email can\'t exceed 128 characters'],
       validate: {
         validator: function(email) {
           return email.includes('@')
@@ -18,8 +18,8 @@ const mongoose = require('mongoose'),
     password: {
       type: String,
       select: false,
-      minlength: 6,
-      maxlength: 128
+      minlength: [6, 'password must be atleast 6 characters long'],
+      maxlength: [128, 'password can\'t exceed 128 characters']
     },
     hash: {
       type: {
@@ -47,8 +47,8 @@ const mongoose = require('mongoose'),
       name: {
         type: String,
         required: 'name is required',
-        minlength: 2,
-        maxlength: 128
+        minlength: [6, 'name must be atleast 2 characters long'],
+        maxlength: [128, 'name can\'t exceed 128 characters']
       },
       phone: {
         type: String,
@@ -103,8 +103,8 @@ const mongoose = require('mongoose'),
         },
         idNumber: {
           type: String,
-          minlength: 11,
-          maxlength: 11
+          minlength: [11, 'invalid id number'],
+          maxlength: [11, 'invalid id number']
         },
         mandate: {
           type: String,
@@ -121,18 +121,18 @@ const mongoose = require('mongoose'),
 
 schema.post('save', function(err, doc, next) {
   if (err.name === 'MongoError' && err.code === 11000) {
-    const duplicateError = new Error('Duplicate key')
+    const duplicateError = new Error('duplicate key')
     duplicateError.stack = err
     duplicateError.status = 409
     next(duplicateError)
   } else if (err.name === 'ValidationError') {
-    const errors = Object.values(err.errors).map(error => error.message).join(' and ')
+    const errors = Object.values(err.errors).map(error => error.message).join(', ')
     const validationError = new Error(errors)
     validationError.stack = err
     validationError.status = 400
     next(validationError)
   } else {
-    const databaseError = new Error('Database query failed')
+    const databaseError = new Error('database query failed')
     databaseError.stack = err
     next(databaseError)
   }

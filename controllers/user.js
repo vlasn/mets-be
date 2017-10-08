@@ -8,7 +8,6 @@ const User = require('../models/user'),
   sendMagicLinkTo = require('../utils/mailer')
 
 exports.create = asyncMiddleware(async (req, res, next) => {
-
   const user = await User.create(req.body)
 
   if (user.email) {
