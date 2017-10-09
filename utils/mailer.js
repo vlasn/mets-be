@@ -29,25 +29,18 @@ module.exports = function(user, res, next) {
   mailTransporter.sendMail(mailFieldOptions, (error, info) => {
     if (error || !info || !info.response.includes(' OK ') || info.envelope.to[0] !== email || 
         info.accepted[0] !== email) {
-      const magicLinkError = new Error(`failed to send activation link to ${email}`)
 
-      return next(magicLinkError)
+      const error = new Error(`failed to send activation link to ${email}`)
+
+      return next(error)
     }
 
     // below information should go to logs at some point
     // console.log('Magic link with messageId %s sent to: %s', info.messageId, info.response)
     User.findByIdAndUpdate(
       user._id,
-      {
-        hash : {
-          hash,
-          createdAt: new Date()
-        }
-      },
-      {
-        new: true,
-        lean: true
-      },
+      { hash : { hash, createdAt: new Date() } },
+      { new: true, lean: true },
       function(err) {
         if (err) return next(err)
         success(res, user)

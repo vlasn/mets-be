@@ -109,7 +109,11 @@ exports.forgot = asyncMiddleware(async (req, res, next) => {
   const conditions = { email },
     user = await User.findOne(conditions)
 
-  if (!user) throw new Error(`user with email ${email} does not exist`)
+  if (!user) {
+    const error = new Error(`user with email ${email} does not exist`)
+    error.status = 404
+    throw error
+  }
 
   sendMagicLinkTo(user, res, next)
 })
@@ -117,17 +121,22 @@ exports.forgot = asyncMiddleware(async (req, res, next) => {
 exports.update = asyncMiddleware(async (req, res, next) => {
   const { userId = null } = req.params
 
-  if (!ObjectId.isValid(userId)) throw MISSING_PARAMS_ERROR
+  if (!ObjectId.isValid(userId)) {
+    const error = new Error('invalid user id')
+    error.status = 400
+    throw error
+  }
 
-  // WIP – below is wrong code but for inspiration
-  // const data = req.body,
-  //   conditions = { _id: ObjectId(report_id), 'unmatched': {$elemMatch: {_id: ObjectId(row_id)}}},
-  //   fields = {'unmatched.$': 1},
-  //   old = (await report.findOne(conditions, fields, {lean: true})).unmatched[0],
-  //   _id = ObjectId(row_id),
-  //   _new = Object.assign({}, old, {_id}, data),
-  //   update = {'$set': {'unmatched.$': _new}},
-  //   result = (await report.findOneAndUpdate(conditions, update, {new: true, lean: true}))
+  const update = { $set: req.body },
+    options = { new: true, lean: true },
+    result = await User.findByIdAndUpdate(userId, update, options)
 
-  // return res.status(201).json(respondWith('accept', 'Kirje muudetud', result))
+  if (!result) {
+    const error = new Error(`user with id ${userId} does not exist`)
+    error.status = 404
+    throw error
+  }
+
+  success(res, result)
 })
+
