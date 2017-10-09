@@ -2,7 +2,9 @@
 
 const mongoose = require('mongoose'),
   Contract = require('../models/contract'),
+  User = require('../models/user'),
   property = require("./property"),
+  PropertyModel = require("../models/property"),
   respondWith = require('../utils/response'),
   ObjectId = require('mongoose').Types.ObjectId,
   path = require('path'),
@@ -56,17 +58,21 @@ exports.update = async (req, res, next) => {
 exports.contracts = async (req, res, next) => {
   try {
     const { term, status, foreman } = req.query
-    const populateQuery = [
-      {path: 'property', match: {name: {$regex: term}}},      
-      {path: 'representatives', match: {"personalData.idNumber": {$regex: term}}},
-    ]
-    
-    const raw = await Contract
-      .find({status: {$regex: status}, foreman: {$regex: foreman}})
-      .populate(populateQuery)
 
-    const results = raw.filter(result => result.property || result.representatives.length > 0)
-    
+    const users = await User.find({$or: [{"personalData.idNumber": { $regex: term }}, {"personalData.name": { $regex: term }}]})
+    const properties = await PropertyModel.find({name: { $regex: term }})
+    const userIds = users.map(u => u._id)
+    const propertyIds = properties.map(p => p._id)
+  
+    const results = await Contract
+      .find({ 
+        status: {$regex: status}, 
+        foreman: {$regex: foreman}, 
+        property: {$in: propertyIds}, 
+        representatives: {$in: userIds} 
+      })
+      .populate("property representatives")
+
     res.status(200).json(respondWith('accept', 'success', results))
   } catch (e) {next(e)}
 }
