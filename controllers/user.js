@@ -35,27 +35,29 @@ exports.login = asyncMiddleware(async (req, res, next) => {
 })
 
 exports.findAll = asyncMiddleware(async (req, res, next) => {
-  const { key = null, value = null } = req.query
+  const { query: queryString } = req,
+    queryStringKeys = Object.keys(queryString)
 
-  if (!(key && value)) throw MISSING_PARAMS_ERROR
+  const conditions = queryStringKeys
+    .filter(key => queryString[key])
+    .reduce((conditions, key) => {
+      const personalDataKey = 'personalData.' + key
+      
+      let userCondition = {}, userPersonalDataCondition = {}
 
-  let keys = req.query.key.split(','),
-    val = {$regex: req.query.value, $options: 'i'},
-    conditions = []
+      userCondition[key] = { $regex: queryString[key], $options: 'i' }
+      userPersonalDataCondition[personalDataKey] = { $regex: queryString[key], $options: 'i' }
 
-  for (const key of keys) {
-    let q1 = {}, q2 = {}
-    q1[`personalData.` + key] = val
-    q2[key] = val
-    conditions = [q1, q2, ...conditions]
-  }
+      conditions.push(userCondition, userPersonalDataCondition)
 
-  const q = {$or: conditions},
-    result = await User.find(q)
+      return conditions
+    }, [])
 
-  if (!result) throw MONGODB_QUERY_FAILED
+  if (!conditions.length) throw MISSING_PARAMS_ERROR
 
-  res.status(200).json(respondWith('accept', 'success', result))
+  const result = await User.find({ $or: conditions })
+
+  success(res, result)
 })
 
 exports.findOne = asyncMiddleware(async (req, res, next) => {
