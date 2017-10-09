@@ -34,7 +34,7 @@ const mongoose = require('mongoose'),
     property: {
       required: true,
       type: Schema.Types.ObjectId,
-      ref: 'user'
+      ref: 'property'
     },
     contractCreator: {
       type: Schema.Types.ObjectId,

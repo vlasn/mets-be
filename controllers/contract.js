@@ -52,17 +52,21 @@ exports.update = async (req, res, next) => {
   } catch (e) {next(e)}
 }
 
-exports.filter = async (req, res, next) => {
+exports.contracts = async (req, res, next) => {
   try {
-    const q = {}; for (const o of Object.entries(req.query)) {
-    if (!!o[1]) {
-      switch (o[0]) {
-        case 'cadastre':
-          q['kinnistu.katastritunnus'] = {$regex: o[1]}
-          q['kinnistu.nimi'] = {$regex: o[1]}; break
-        case 'metsameister': case 'status':
-          q[o[0]] = {$regex: o[1]}; break}}}
-    res.status(200).json(respondWith('accept', 'success', await Contract.find(q)))
+    const { term, status, foreman } = req.query
+    const populateQuery = [
+      {path: 'property', match: {name: {$regex: term}}},      
+      {path: 'representatives', match: {"personalData.idNumber": {$regex: term}}},
+    ]
+    
+    const raw = await Contract
+      .find({status: {$regex: status}, foreman: {$regex: foreman}})
+      .populate(populateQuery)
+
+    const results = raw.filter(result => result.property || result.representatives.length > 0)
+    
+    res.status(200).json(respondWith('accept', 'success', results))
   } catch (e) {next(e)}
 }
 

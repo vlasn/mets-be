@@ -25,7 +25,7 @@ router.put('/users/:userId', user.update)
 router.post('/contract/create', uploadDocuments, contract.create)    // create a contract
 router.get('/contract/:contract_id', contract.findById)    // fetch contract data
 router.put('/contract/:contract_id', contract.update)    // update contract data
-router.get('/contracts/filter', contract.filter)    // query for contracts
+router.get('/contracts', contract.contracts)    // query for contracts
 router.put('/contract/:contract_id/:document_type', fileUpload(), contract.uploadSingleDocument)
 
 router.post('/product/create', product.create)    // create a product
