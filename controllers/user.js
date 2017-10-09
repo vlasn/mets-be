@@ -18,6 +18,11 @@ exports.create = asyncMiddleware(async (req, res, next) => {
 })
 
 exports.login = asyncMiddleware(async (req, res, next) => {
+  const { email = null,
+          password = null } = req.body
+
+  if (!(email && password)) throw MISSING_PARAMS_ERROR
+
   const user = await User.findOneAndUpdate(
       req.body,
       { lastLoginAt: new Date() },
