@@ -35,21 +35,31 @@ exports.login = asyncMiddleware(async (req, res, next) => {
 })
 
 exports.findAll = asyncMiddleware(async (req, res, next) => {
-  const { query: queryString } = req,
+  const searchableFields = {
+      email: 'email',
+      name: 'personalData.name',
+      phone: 'personalData.phone',
+      address: 'personalData.address',
+      idNumber: 'personalData.idNumber',
+      documentNumber: 'personalData.documentNumber',
+      juridical: 'personalData.juridical',
+      companyId: 'personalData.companyId',
+      companyName: 'personalData.companyName',
+      representativeName: 'personalData.representative.name',
+      representativeIdNumber: 'personalData.representative.idNumber'
+    },
+    { query: queryString } = req,
     queryStringKeys = Object.keys(queryString)
 
   const conditions = queryStringKeys
-    .filter(key => queryString[key])
+    .filter(key => queryString[key] && searchableFields[key])
     .reduce((conditions, key) => {
-      const personalDataKey = 'personalData.' + key
+      const condition = {}
+
+      condition[searchableFields[key]] = { $regex: queryString[key], $options: 'i' }
       
-      let userCondition = {}, userPersonalDataCondition = {}
-
-      userCondition[key] = { $regex: queryString[key], $options: 'i' }
-      userPersonalDataCondition[personalDataKey] = { $regex: queryString[key], $options: 'i' }
-
-      conditions.push(userCondition, userPersonalDataCondition)
-
+      conditions.push(condition)
+      
       return conditions
     }, [])
 
