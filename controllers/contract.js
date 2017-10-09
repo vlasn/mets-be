@@ -1,11 +1,12 @@
 'use strict'
 
 const mongoose = require('mongoose'),
-Contract = require('../models/contract'),
-property = require("./property"),
-respondWith = require('../utils/response'),
-ObjectId = require('mongoose').Types.ObjectId,
-path = require('path')
+  Contract = require('../models/contract'),
+  property = require("./property"),
+  respondWith = require('../utils/response'),
+  ObjectId = require('mongoose').Types.ObjectId,
+  path = require('path'),
+  asyncMiddleware = require('../utils/asyncMiddleware')
 
 exports.create = async (req, res, next) => {
   try {
@@ -52,19 +53,30 @@ exports.update = async (req, res, next) => {
   } catch (e) {next(e)}
 }
 
-exports.filter = async (req, res, next) => {
-  try {
-    const q = {}; for (const o of Object.entries(req.query)) {
-    if (!!o[1]) {
-      switch (o[0]) {
-        case 'cadastre':
-          q['kinnistu.katastritunnus'] = {$regex: o[1]}
-          q['kinnistu.nimi'] = {$regex: o[1]}; break
-        case 'metsameister': case 'status':
-          q[o[0]] = {$regex: o[1]}; break}}}
-    res.status(200).json(respondWith('accept', 'success', await Contract.find(q)))
-  } catch (e) {next(e)}
-}
+exports.findAll = asyncMiddleware(async (req, res, next) => {
+  // const q = {}; for (const o of Object.entries(req.query)) {
+  // if (!!o[1]) {
+  //   switch (o[0]) {
+  //     case 'cadastre':
+  //       q['kinnistu.katastritunnus'] = {$regex: o[1]}
+  //       q['kinnistu.nimi'] = {$regex: o[1]}; break
+  //     case 'metsameister': case 'status':
+  //       q[o[0]] = {$regex: o[1]}; break}}}
+  // res.status(200).json(respondWith('accept', 'success', await Contract.find(q)))
+
+  console.log(req.query)
+
+  for (const key in req.query) {
+    if (req.query[key]) {
+      console.log('key:', key)
+      console.log('value:', req.query[key])
+    }
+  }
+
+  
+
+  res.end()
+})
 
 exports.uploadSingleDocument = (req, res, next)=>{
   try {
