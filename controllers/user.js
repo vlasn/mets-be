@@ -24,20 +24,17 @@ exports.login = asyncMiddleware(async (req, res, next) => {
   if (!(email && password)) throw MISSING_PARAMS_ERROR
 
   const user = await User.findOneAndUpdate(
-      req.body,
+      { email, password },
       { lastLoginAt: new Date() },
-      { fields: {
-        __v: 0,
-        hash: 0
-      }, lean: true }
+      { fields: {  __v: 0, hash: 0 }, lean: true }
     ),
     loginSuccess = !!user
 
   if (!loginSuccess) throw USER_AUTHENTICATION_ERROR()
 
-  // const token = signTokenWith({ email: result.email })
+  const token = signTokenWith({ email })
 
-  success(res, user)
+  success(res, { user, token })
 })
 
 exports.findAll = asyncMiddleware(async (req, res, next) => {
