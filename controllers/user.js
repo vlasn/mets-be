@@ -5,45 +5,41 @@ const User = require('../models/user'),
   signTokenWith = require('../utils/token').create,
   success = require('../utils/respond'),
   asyncMiddleware = require('../utils/asyncMiddleware'),
-  sendMagicLinkTo = require('../utils/mailer')
+  sendMagicLinkTo = require('../utils/mailer'),
+  { USER_AUTHENTICATION_ERROR,
+    USER_VALIDATION_ERROR,
+    MISSING_PARAMS_ERROR } = require('../errors')
 
 exports.create = asyncMiddleware(async (req, res, next) => {
   const user = await User.create(req.body)
 
-  if (user.email) {
-    sendMagicLinkTo(user, res, next)
-  } else {
-    success(res, user)
-  }
+  if (user.email) sendMagicLinkTo(user, res, next)
+  else success(res, user)
 })
 
 exports.login = asyncMiddleware(async (req, res, next) => {
-  const {
-    email = null,
-    password = null
-  } = req.body
+  const user = await User.findOneAndUpdate(
+      req.body,
+      { lastLoginAt: new Date() },
+      { fields: {
+        __v: 0,
+        hash: 0
+      }, lean: true }
+    ),
+    loginSuccess = !!user
 
-  if (!(email && password)) throw MISSING_REQUIRED_PARAMS
+  if (!loginSuccess) throw USER_AUTHENTICATION_ERROR()
 
-  const result = await User.findOneAndUpdate(
-    {email, password},
-    {lastLoginAt: new Date()},
-    {fields: {password: 0, __v: 0, roles: 0, hash: 0}, lean: true}
-  ),
-    loginSuccess = !!result,
-    { name } = result.personalData
+  // const token = signTokenWith({ email: result.email })
 
-  if (!loginSuccess) throw new _Error('Authentication failed', 401)
-
-  const token = signTokenWith({ email: result.email })
-
-  success(res, { token, name })
+  success(res, user)
 })
 
 exports.findAll = asyncMiddleware(async (req, res, next) => {
-  const {key = null, value = null} = req.query || {}
+  const { key = null,
+          value = null } = req.query
 
-  if (!(key && value)) throw MISSING_REQUIRED_PARAMS
+  if (!(key && value)) throw MISSING_PARAMS_ERROR
 
   let keys = req.query.key.split(','),
     val = {$regex: req.query.value, $options: 'i'},
@@ -65,29 +61,38 @@ exports.findAll = asyncMiddleware(async (req, res, next) => {
 })
 
 exports.findOne = asyncMiddleware(async (req, res, next) => {
-  res.status(200).json(respondWith('accept', 'success', await User.findById(req.params.user_id)))
+  success(res, await User.findById(req.params.userId))
 })
 
 exports.validate = asyncMiddleware(async (req, res, next) => {
-  const {hash = null} = req.params || {},
-    {password = null, cpassword = null} = req.body || {},
-    now = new Date(),
-    twentyFourHoursAgo = new Date(now.getYear(), now.getMonth(), now.getDate() - 1).toISOString()
+  const now = new Date(),
+    twentyFourHoursAgo = new Date(now.getYear(), now.getMonth(), now.getDate() - 1).toISOString(),
+    { hash } = req.params,
+    { password } = req.body
 
-  if (!password.length || password.length < 6 || password !== cpassword || hash.length !== 64) {
-    throw MISSING_REQUIRED_PARAMS
-  }
+    if (!(hash && password)) throw MISSING_PARAMS_ERROR
 
-  const result = await User.findOneAndUpdate
-  (
-    {'hash.hash': hash, 'hash.createdAt': {$gt: new Date(twentyFourHoursAgo)}},
-    {password: password, hash: {validatedAt: new Date()}},
-    {new: true, lean: true}
-  )
+    const user = await User.findOneAndUpdate(
+      { 'hash.hash': hash,
+        'hash.createdAt': {
+          $gt: new Date(twentyFourHoursAgo)
+        }
+      },
+      {
+        password: password,
+          hash: {
+          validatedAt: new Date()
+        }
+      },
+      {
+        new: true,
+        lean: true
+      }
+    )
 
-  if (!result) throw new _Error('Validation failed', 400)
+  if (!user) throw USER_VALIDATION_ERROR()
 
-  res.status(200).json(respondWith('accept', 'Password updated', result))
+  success(res, user)
 })
 
 exports.forgot = asyncMiddleware(async (req, res, next) => {

@@ -29,15 +29,15 @@ const mongoose = require('mongoose'),
         hash: {
           type: String,
           unique: true,
-          sparse: true
+          sparse: true,
+          select: false
         },
         createdAt: {
           type: Date,
           default: new Date()
         },
         validatedAt: Date
-      },
-      select: false
+      }
     },
     lastLoginAt: Date,
     role: {
