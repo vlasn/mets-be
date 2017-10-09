@@ -1,11 +1,12 @@
 'use strict'
 
 const mongoose = require('mongoose'),
-Contract = require('../models/contract'),
-property = require("./property"),
-respondWith = require('../utils/response'),
-ObjectId = require('mongoose').Types.ObjectId,
-path = require('path')
+  Contract = require('../models/contract'),
+  property = require("./property"),
+  respondWith = require('../utils/response'),
+  ObjectId = require('mongoose').Types.ObjectId,
+  path = require('path'),
+  asyncMiddleware = require('../utils/asyncMiddleware')
 
 exports.create = async (req, res, next) => {
   try {
@@ -69,6 +70,7 @@ exports.contracts = async (req, res, next) => {
     res.status(200).json(respondWith('accept', 'success', results))
   } catch (e) {next(e)}
 }
+
 
 exports.uploadSingleDocument = (req, res, next)=>{
   try {
