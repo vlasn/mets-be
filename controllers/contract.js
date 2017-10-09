@@ -42,15 +42,28 @@ exports.findById = async (req, res, next) => {
 }
 
 exports.update = async (req, res, next) => {
+  const dateKeys = ['logging', 'timberTransport', 'wasteTransport']
   try {
     const {contract_id} = req.params,
     update_data = Object.keys(req.body).length ? Object.assign({}, req.body) : null
 
     if (!(update_data && mongoose.Types.ObjectId.isValid(contract_id))) throw new _Error('failure', 400)
-    
-      const old_data = await Contract.findById(contract_id, {_id: 0}, {lean: true}),
-    new_data = Object.assign({}, old_data, update_data),
-    result = await Contract.findByIdAndUpdate(contract_id, new_data, {new: true, lean: true})
+
+    update_data.dates = {}
+
+    Object.keys(req.body)
+      .filter(key => dateKeys.indexOf(key) > -1)
+      .forEach(key => update_data.dates[key] = req.body[key])
+
+    const old_data = await Contract.findById(contract_id, {_id: 0}, {lean: true})
+    const new_dates = Object.assign({}, old_data.dates, update_data.dates)
+
+    const new_data = Object.assign({}, old_data, update_data, { dates: new_dates })
+
+    const result = await Contract
+      .findByIdAndUpdate(contract_id, new_data, {new: true, lean: true})
+      .populate("representatives property")
+
     res.status(200).json(respondWith('accept', 'updated', result))
   } catch (e) {next(e)}
 }
