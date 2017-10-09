@@ -8,7 +8,8 @@ const User = require('../models/user'),
   sendMagicLinkTo = require('../utils/mailer'),
   { USER_AUTHENTICATION_ERROR,
     USER_VALIDATION_ERROR,
-    MISSING_PARAMS_ERROR } = require('../errors')
+    MISSING_PARAMS_ERROR } = require('../errors'),
+  { ObjectId } = require('mongoose').Types
 
 exports.create = asyncMiddleware(async (req, res, next) => {
   const user = await User.create(req.body)
@@ -71,6 +72,8 @@ exports.findAll = asyncMiddleware(async (req, res, next) => {
 })
 
 exports.findOne = asyncMiddleware(async (req, res, next) => {
+  if (!ObjectId.isValid(req.params.userId)) throw MISSING_PARAMS_ERROR
+
   success(res, await User.findById(req.params.userId))
 })
 
@@ -80,57 +83,51 @@ exports.validate = asyncMiddleware(async (req, res, next) => {
     { hash } = req.params,
     { password } = req.body
 
-    if (!(hash && password)) throw MISSING_PARAMS_ERROR
+  if (!(hash && password)) throw MISSING_PARAMS_ERROR
 
-    const user = await User.findOneAndUpdate(
-      { 'hash.hash': hash,
-        'hash.createdAt': {
-          $gt: new Date(twentyFourHoursAgo)
-        }
-      },
-      {
-        password: password,
-          hash: {
-          validatedAt: new Date()
-        }
-      },
-      {
-        new: true,
-        lean: true
-      }
-    )
+  const conditions = {
+      'hash.hash': hash,
+      'hash.createdAt': { $gt: new Date(twentyFourHoursAgo) }
+    },
+    update = {
+      password: password,
+      hash: { validatedAt: new Date() }
+    },
+    options = { new: true, lean: true },
+    result = await User.findOneAndUpdate(conditions, update, options)
 
-  if (!user) throw USER_VALIDATION_ERROR()
+  if (!result) throw USER_VALIDATION_ERROR()
 
-  success(res, user)
+  success(res, result)
 })
 
 exports.forgot = asyncMiddleware(async (req, res, next) => {
-  const hash = generateHash(), {email = null} = req.body || {}
+  const { email = null } = req.body
 
   if (!email) throw MISSING_REQUIRED_PARAMS
 
-  const result = await User.findOneAndUpdate(
-    {email: email},
-    {hash: {hash: hash, createdAt: new Date()}},
-    {new: true, lean: true}
-  )
+  const conditions = { email },
+    user = await User.findOne(conditions)
 
-  if (!result) throw MONGODB_QUERY_FAILED
+  if (!user) throw new Error(`user with email ${email} does not exist`)
 
-  sendMagicLinkTo(result.email, result.hash.hash, res)
+  sendMagicLinkTo(user, res, next)
 })
 
 exports.update = asyncMiddleware(async (req, res, next) => {
-  const {user_id = null} = req.params,
-    data = req.body,
-    conditions = {_id: ObjectId(report_id), 'unmatched': {$elemMatch: {_id: ObjectId(row_id)}}},
-    fields = {'unmatched.$': 1},
-    old = (await report.findOne(conditions, fields, {lean: true})).unmatched[0],
-    _id = ObjectId(row_id),
-    _new = Object.assign({}, old, {_id}, data),
-    update = {'$set': {'unmatched.$': _new}},
-    result = (await report.findOneAndUpdate(conditions, update, {new: true, lean: true}))
+  const { userId = null } = req.params
 
-  return res.status(201).json(respondWith('accept', 'Kirje muudetud', result))
+  if (!ObjectId.isValid(userId)) throw MISSING_PARAMS_ERROR
+
+  // WIP – below is wrong code but for inspiration
+  // const data = req.body,
+  //   conditions = { _id: ObjectId(report_id), 'unmatched': {$elemMatch: {_id: ObjectId(row_id)}}},
+  //   fields = {'unmatched.$': 1},
+  //   old = (await report.findOne(conditions, fields, {lean: true})).unmatched[0],
+  //   _id = ObjectId(row_id),
+  //   _new = Object.assign({}, old, {_id}, data),
+  //   update = {'$set': {'unmatched.$': _new}},
+  //   result = (await report.findOneAndUpdate(conditions, update, {new: true, lean: true}))
+
+  // return res.status(201).json(respondWith('accept', 'Kirje muudetud', result))
 })
