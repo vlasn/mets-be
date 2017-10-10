@@ -51,10 +51,10 @@ const mongoose = require('mongoose'),
     }
   )
 
-schema.post('save', (err, doc, next) => {
-  err.name === 'ValidationError' 
-    ? next(MISSING_REQUIRED_PARAMS) 
-    : next(MONGODB_QUERY_FAILED)
+schema.post('save', function(err, doc, next) {
+  if (err.name === 'MongoError' && err.code === 11000) next(DUPLICATION_ERROR(err))
+  else if (err.name === 'ValidationError') next(VALIDATION_ERROR(err))
+  else next(DATABASE_ERROR(err))
 })
 
 module.exports = mongoose.model('contract', schema)
