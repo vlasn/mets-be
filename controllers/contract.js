@@ -8,30 +8,32 @@ const mongoose = require('mongoose'),
   respondWith = require('../utils/response'),
   ObjectId = require('mongoose').Types.ObjectId,
   path = require('path'),
-  asyncMiddleware = require('../utils/asyncMiddleware')
+  asyncMiddleware = require('../utils/asyncMiddleware'),
+  { MISSING_PARAMS_ERROR } = require('../errors')
 
-exports.create = async (req, res, next) => {
-  try {
-    const {files = null, body = null} = req; if (isEmpty(files || body)) throw MISSING_REQUIRED_PARAMS
-    const other = files.other ? files.other.map(r => r.filename) : [],
-      contracts = files.contracts ? files.contracts.map(r => r.filename) : [],
-      forestNotices = files.forestNotices ? files.forestNotices.map(r => r.filename) : []
-    
-      const propertyId = await property.create(
-        req.body.property.name,
-        [req.body.property.cadastreId], 
-        ""
-      ).then(p => {
-        return p._id
-      })
-    body.representatives = body.representatives.split(",")
-    body.property = propertyId
-    body.documents = { other, contracts, forestNotices }
-    const savedToDb = await Contract.create(body)
-    
-    res.status(201).json(respondWith('accept', 'success', savedToDb))
-  } catch (e) {next(e)}
-}
+exports.create = asyncMiddleware(async (req, res, next) => {
+  const { files = null, body = null } = req
+  
+  if (isEmptyObject(files || body)) throw MISSING_PARAMS_ERROR
+  
+  const other = files.other ? files.other.map(r => r.filename) : [],
+    contracts = files.contracts ? files.contracts.map(r => r.filename) : [],
+    forestNotices = files.forestNotices ? files.forestNotices.map(r => r.filename) : []
+  
+    const propertyId = await property.create(
+      req.body.property.name,
+      [req.body.property.cadastreId], 
+      ""
+    ).then(p => {
+      return p._id
+    })
+  body.representatives = body.representatives.split(",")
+  body.property = propertyId
+  body.documents = { other, contracts, forestNotices }
+  const savedToDb = await Contract.create(body)
+  
+  success(res, savedToDb)
+})
 
 exports.findById = async (req, res, next) => {
   try {
@@ -106,4 +108,4 @@ exports.uploadSingleDocument = (req, res, next)=>{
   } catch (e) {return next(e)} 
 }
 
-const isEmpty = object => !Object.keys(object).length
+const isEmptyObject = object => !Object.keys(object).length

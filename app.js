@@ -3,10 +3,12 @@
 const app = require('express')(),
   isProduction = process.env.NODE_ENV === 'production',
   path = require('path'),
-  bodyParser = require('body-parser')
+  bodyParser = require('body-parser'),
+  helmet = require('helmet')
 
 app.set('json spaces', 2)
 
+app.use(helmet())
 app.use(bodyParser.json())
 app.use(require('morgan')('dev'))
 
