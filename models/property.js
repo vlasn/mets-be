@@ -1,14 +1,17 @@
 'use strict'
 
 const mongoose = require('mongoose'),
+  { VALIDATION_ERROR,
+    DUPLICATION_ERROR,
+    DATABASE_ERROR } = require('../errors'),
   schema = mongoose.Schema({
     name: { 
       type: String,
-      required: true 
+      required: 'property name is required' 
     },
     cadastreIds: { 
       type: [String],
-      required: true 
+      required: 'cadastre identifier is required' 
     },
     location: { 
       type: String   

@@ -1,6 +1,9 @@
 'use strict'
 
 const mongoose = require('mongoose'),
+  { VALIDATION_ERROR,
+    DUPLICATION_ERROR,
+    DATABASE_ERROR } = require('../errors'),
   schema = mongoose.Schema({
     testSum: Number,
     matched: [],

@@ -1,22 +1,23 @@
 'use strict'
 
 const mongoose = require('mongoose'),
+  { VALIDATION_ERROR,
+    DUPLICATION_ERROR,
+    DATABASE_ERROR } = require('../errors'),
   Schema = mongoose.Schema,
-  schema = mongoose.Schema({
-    // esindajad
+  schema = Schema({
     representatives: [{
-      required: true,
+      required: 'atleast one representative is required',
       type: Schema.Types.ObjectId,
       ref: 'user'
     }],
-    // metsameister
     foreman: {
       type: String,
-      required: true
+      required: 'foreman is a required field'
     },
     projectManager: {
       type: String,
-      required: true
+      required: 'project manager is a required field'
     },
     dates: {
       logging: Date,
@@ -24,9 +25,24 @@ const mongoose = require('mongoose'),
       wasteTransport: Date
     },
     documents: {
-      forestNotices: [String],
-      contracts: [String],
-      other: [String]
+      forestNotices: [{
+        fileName: String,
+        filePath: String,
+        uploadedAt: { type: Date, default: new Date() },
+        _id: false
+      }],
+      contracts: [{
+        fileName: String,
+        filePath: String,
+        uploadedAt: { type: Date, default: new Date() },
+        _id: false
+      }],
+      other: [{
+        fileName: String,
+        filePath: String,
+        uploadedAt: { type: Date, default: new Date() },
+        _id: false
+      }]
     },
     hinnatabel: {
       type: Schema.Types.ObjectId

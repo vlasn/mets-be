@@ -3,20 +3,43 @@
 const jwt = require('jsonwebtoken')
 const secret = process.env.SECRET
 const respondWith = require('./response')
+const asyncMiddleware = require('./asyncMiddleware')
 
-exports.create = userData => jwt.sign(userData, secret, {expiresIn: 3600 * 365})
+exports.create = userData => jwt.sign(userData, secret, { expiresIn: 1 })
 
-exports.verify = (req, res, next) => {
+exports.verify = asyncMiddleware(async (req, res, next) => {
   if (req.originalUrl.includes('/api/auth')) return next()
 
   const token = req.headers['x-auth-token'] || null
 
-  if (!token) return res.status(401).json(respondWith('reject', 'Missing token'))
+  if (!token) {
+    const error = new Error('missing token')
+    error.status = 401
+    throw error
+  }
 
-  jwt.verify(token, secret, (error, decoded) => {
-    if (error || !decoded) return res.status(401).json(respondWith('reject', 'Invalid token'))
-    console.log(decoded)
+  const options = {
+    ignoreExpiration: true,
+    clockTimeStamp: Date.now()
+  }
+
+  jwt.verify(token, secret, options, (error, decoded) => {
+    if (error || !decoded) {
+      console.log('Token is invalid!')
+      const error = new Error('invalid token')
+      error.status = 401
+      console.log(decoded)
+      return next(error)
+    }
+
+    console.log('Token is valid!')
+    console.log(`Token is ${decoded.exp < Date.now() ? 'expired' : 'not yet expired'}`)
+
     req.user = decoded.email
     next()
   })
+})
+
+function isExpired() {
+  
 }
