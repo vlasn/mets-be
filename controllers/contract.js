@@ -8,23 +8,23 @@ const mongoose = require('mongoose'),
   ObjectId = require('mongoose').Types.ObjectId,
   path = require('path'),
   asyncMiddleware = require('../utils/asyncMiddleware'),
-  { MISSING_PARAMS_ERROR } = require('../errors'),
+  { MISSING_PARAMS_ERROR,
+    newError } = require('../errors'),
   success = require('../utils/respond')
 
 exports.create = asyncMiddleware(async (req, res, next) => {
   const { files = null, body = null } = req
-  
-  if (isEmpty(files || body)) throw MISSING_PARAMS_ERROR
 
-  const documents = Object.keys(files).reduce((allDocs, docs) => {
-    allDocs[docs] = files[docs].map(fileMapper)
+  if (isEmpty(files) || isEmpty(body)) throw newError(400, 'payload or files missing')
 
-    return allDocs
-  }, {})
+  const representatives = body.representatives &&
+    body.representatives.split(',').filter(repId => ObjectId.isValid(repId))
+
+  if (!representatives || !representatives.length) throw newError(400, 'representatives field is empty or contains invalid user id(s)')
+
+  const documents = getDocuments(files)
 
   const property = await Property.create(body.property)
-
-  const representatives = body.representatives.split(",")
 
   Object.assign(body, { documents }, { representatives }, { property })
 
@@ -126,4 +126,16 @@ function fileMapper(file) {
   }
 }
 
-const isEmpty = object => !Object.keys(object).length
+function getDocuments(files) {
+  return Object.keys(files).reduce((allDocs, docs) => {
+    allDocs[docs] = files[docs].map(fileMapper)
+
+    return allDocs
+  }, {})
+}
+
+function isEmpty(dataStructure) {
+  if (typeof dataStructure === 'object') return !Object.keys(dataStructure).length
+  else if (typeof dataStructure === 'array') return !dataStructure.length
+  else return !dataStructure
+}
