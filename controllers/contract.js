@@ -1,7 +1,6 @@
 'use strict'
 
-const mongoose = require('mongoose'),
-  Contract = require('../models/contract'),
+const Contract = require('../models/contract'),
   User = require('../models/user'),
   Property = require("../models/property"),
   respondWith = require('../utils/response'),
@@ -39,32 +38,17 @@ exports.findById = async (req, res, next) => {
   success(res, await Contract.findById(contractId).populate({ path: 'representatives', select: 'personal_data -_id' }))
 }
 
-exports.update = async (req, res, next) => {
-  const dateKeys = ['logging', 'timberTransport', 'wasteTransport']
-  try {
-    const {contractId} = req.params,
-    update_data = Object.keys(req.body).length ? Object.assign({}, req.body) : null
+exports.update = asyncMiddleware(async (req, res, next) => {
+  const { contractId = null } = req.params,
+    update = { $set: req.body }
 
-    if (!(update_data && mongoose.Types.ObjectId.isValid(contractId))) throw new _Error('failure', 400)
+  if (!update || !ObjectId.isValid(contractId)) throw newError(400, 'invalid contract id or empty payload')
 
-    update_data.dates = {}
+  const options = { new: true, lean: true },
+    result = await Contract.findByIdAndUpdate(contractId, update, options)
 
-    Object.keys(req.body)
-      .filter(key => dateKeys.indexOf(key) > -1)
-      .forEach(key => update_data.dates[key] = req.body[key])
-
-    const old_data = await Contract.findById(contractId, {_id: 0}, {lean: true})
-    const new_dates = Object.assign({}, old_data.dates, update_data.dates)
-
-    const new_data = Object.assign({}, old_data, update_data, { dates: new_dates })
-
-    const result = await Contract
-      .findByIdAndUpdate(contractId, new_data, {new: true, lean: true})
-      .populate("representatives property")
-
-    res.status(200).json(respondWith('accept', 'updated', result))
-  } catch (e) {next(e)}
-}
+  success(res, result)
+})
 
 exports.contracts = async (req, res, next) => {
   try {
