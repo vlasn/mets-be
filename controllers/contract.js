@@ -34,11 +34,9 @@ exports.create = asyncMiddleware(async (req, res, next) => {
 })
 
 exports.findById = async (req, res, next) => {
-  try {
-    res.status(200).json(respondWith('accept', 'success', await Contract.findById(req.params.contractId).populate({path: 'esindajad', select: 'personal_data -_id'})))
-  } catch (e) {
-    res.status(204).end()
-  }
+  const { contractId = null } = req.params
+  if (!ObjectId.isValid(contractId)) throw newError(400, 'invalid contract id')
+  success(res, await Contract.findById(contractId).populate({ path: 'representatives', select: 'personal_data -_id' }))
 }
 
 exports.update = async (req, res, next) => {

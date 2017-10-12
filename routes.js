@@ -6,7 +6,8 @@ const router = require('express').Router(),
   product = require('./controllers/product'),
   uploadMiddleware = require('./utils/uploadMiddleware.js'),
   report = require('./controllers/report'),
-  fileUpload = require('express-fileupload')
+  fileUpload = require('express-fileupload'),
+  asyncMiddleware = require('./utils/asyncMiddleware')
 
 // routes that do not require token authentication
 //
@@ -23,7 +24,7 @@ router.get('/users', user.findAll)
 router.put('/users/:userId', user.update)
 
 router.post('/contracts', uploadMiddleware, contract.create)    // create a contract
-router.get('/contracts/:contractId', contract.findById)    // fetch contract data
+router.get('/contracts/:contractId', asyncMiddleware(contract.findById))    // fetch contract data
 router.put('/contracts/:contractId', contract.update)    // update contract data
 router.get('/contracts', contract.contracts)    // query for contracts
 router.put('/contracts/:contract_id/:document_type', fileUpload(), contract.uploadSingleDocument)
