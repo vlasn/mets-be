@@ -4,7 +4,8 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "standard": "standard"
   },
   "author": "Veljo Lasn",
   "license": "MIT",
