@@ -64,9 +64,8 @@ exports.findAll = asyncMiddleware(async (req, res, next) => {
       return conditions
     }, [])
 
-  if (!conditions.length) throw MISSING_PARAMS_ERROR
-
-  const result = await User.find({ $or: conditions })
+  const query = conditions.length ? { $or: conditions } : {},
+    result = await User.find(query)
 
   success(res, result)
 })
