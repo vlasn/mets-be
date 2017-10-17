@@ -1,8 +1,13 @@
 'use strict'
 
-const Product = require('../models/product.js'),
-mongoose = require('mongoose'),
-respondWith = require('../utils/response')
+const Product = require('../models/product.js').model
+const mongoose = require('mongoose')
+const respondWith = require('../utils/response')
+const { MISSING_PARAMS_ERROR } = require('../utils/response')
+const isValid = mongoose.Types.ObjectId.isValid
+const success = require('../utils/respond')
+const asyncMiddleware = require('../utils/asyncMiddleware')
+const Offer = require('../models/offer')
 
 // // LEGACY CODE
 // exports.snapshot = (req, res, next) => {
@@ -60,7 +65,7 @@ exports.match = async row => {
       }, '_id'))._id || null
 
     if (result) return result
-  } catch (error) {return}
+  } catch (error) {}
 }
 
 exports.create = (req, res, next) => {
@@ -74,9 +79,9 @@ exports.create = (req, res, next) => {
 
 exports.update = async (req, res, next) => {
   const _id = {_id: mongoose.Types.ObjectId(req.params.id)}, update_data = req.body,
-  old_product_data = (await Product.findOne(_id, {},{lean: true})),
-  new_product_data = Object.assign({}, old_product_data, {_id}, update_data),
-  update = {'$set': new_product_data}
+    old_product_data = (await Product.findOne(_id, {}, {lean: true})),
+    new_product_data = Object.assign({}, old_product_data, {_id}, update_data),
+    update = {'$set': new_product_data}
 
   Product.findOneAndUpdate(_id, new_product_data, {new: true, lean: true}, (err, doc) => {
     if (err) return res.status(400).json(respondWith('reject', 'Salvestamisel tekkis viga'))
@@ -84,3 +89,29 @@ exports.update = async (req, res, next) => {
   })
 }
 
+exports.makeAnOffer = async (req, res, next) => {
+  const { Ylestootamine,
+          Vosatood,
+          Vedu,
+          Tasu,
+          propertyId } = req.body
+
+  if (!(Ylestootamine && Vosatood && Vedu && Tasu && isValid(propertyId))) throw MISSING_PARAMS_ERROR
+
+  const allProducts = await Product.find({}, {}, { lean: true })
+  const allProductWithMappedPrices = allProducts.map(product => Object.assign(
+      {},
+      product,
+      { Ylestootamine, Vosatood, Vedu, Tasu },
+      { Tulu: parseFloat(product.Hind) - (parseFloat(Ylestootamine) + parseFloat(Vosatood) + parseFloat(Vedu) + parseFloat(Tasu)) }
+    ))
+
+  const totalIncome = allProductWithMappedPrices.reduce((total, product) => {
+    console.log(total, product.Tulu)
+    return parseFloat(total) + parseFloat(product.Tulu ? product.Tulu : 0)
+  }, 0)
+
+  const offer = await Offer.create({ prices: allProductWithMappedPrices, propertyId, totalIncome })
+
+  success(res, offer)
+}

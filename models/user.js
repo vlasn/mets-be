@@ -1,10 +1,11 @@
 'use strict'
 
-const mongoose = require('mongoose'),
-  { VALIDATION_ERROR,
+const mongoose = require('mongoose')
+const { VALIDATION_ERROR,
     DUPLICATION_ERROR,
-    DATABASE_ERROR } = require('../errors'),
-  schema = mongoose.Schema({
+    DATABASE_ERROR } = require('../errors')
+const schema = mongoose.Schema(
+  {
     email: {
       type: String,
       unique: true,
@@ -12,7 +13,7 @@ const mongoose = require('mongoose'),
       minlength: [6, 'email must be atleast 6 characters long'],
       maxlength: [128, 'email can\'t exceed 128 characters'],
       validate: {
-        validator: function(email) {
+        validator: function (email) {
           return email.includes('@')
         },
         message: 'invalid email'
@@ -117,10 +118,10 @@ const mongoose = require('mongoose'),
       }
     }
   },
-    {
-      timestamps: true
-    }
-  )
+  {
+    timestamps: true
+  }
+)
 
 schema.post('save', function(err, doc, next) {
   if (err.name === 'MongoError' && err.code === 11000) next(DUPLICATION_ERROR(err))

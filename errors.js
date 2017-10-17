@@ -22,8 +22,8 @@ module.exports = {
     userAuthenticationError.status = 401
     return userAuthenticationError
   },
-  'USER_VALIDATION_ERROR' : userValidationError(),
-  'MISSING_PARAMS_ERROR' : missingParamsError(),
+  'USER_VALIDATION_ERROR': userValidationError(),
+  'MISSING_PARAMS_ERROR': missingParamsError(),
   newError: function(status = 500, message = 'something went wrong') {
     const error = new Error(message)
     error.status = status

@@ -1,14 +1,14 @@
 'use strict'
 
-const mongoose = require('mongoose'),
-  { VALIDATION_ERROR,
+const mongoose = require('mongoose')
+const { VALIDATION_ERROR,
     DUPLICATION_ERROR,
-    DATABASE_ERROR } = require('../errors'),
-  Schema = mongoose.Schema,
-  schema = Schema({
+    DATABASE_ERROR } = require('../errors')
+const schema = mongoose.Schema(
+  {
     representatives: [{
       required: 'atleast one representative is required',
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: 'user'
     }],
     foreman: {
@@ -45,15 +45,15 @@ const mongoose = require('mongoose'),
       }]
     },
     hinnatabel: {
-      type: Schema.Types.ObjectId
+      type: mongoose.Schema.Types.ObjectId
     },
     property: {
       required: true,
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: 'property'
     },
     contractCreator: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: 'user'
     },
     status: {
@@ -61,17 +61,16 @@ const mongoose = require('mongoose'),
       enum: ['active', 'pending', 'executed', 'expired'],
       default: 'pending'
     }
-    },
-    {
-      timestamps: true
-    }
-  )
+  },
+  {
+    timestamps: true
+  }
+)
 
-schema.post('save', function(err, doc, next) {
+schema.post('save', function (err, doc, next) {
   if (err.name === 'MongoError' && err.code === 11000) next(DUPLICATION_ERROR(err))
   else if (err.name === 'ValidationError') next(VALIDATION_ERROR(err))
   else next(DATABASE_ERROR(err))
 })
 
 module.exports = mongoose.model('contract', schema)
-

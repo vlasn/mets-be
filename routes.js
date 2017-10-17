@@ -10,37 +10,46 @@ const router = require('express').Router(),
   asyncMiddleware = require('./utils/asyncMiddleware')
 
 // routes that do not require token authentication
-//
 router.post('/auth/login', user.login)
 router.post('/auth/forgot', user.forgot)
 router.put('/auth/validate/:hash', user.validate)
 
 // all routes that require token authentication
 // router.use('*', require('./utils/token').verify)
+router.route('/users')
+      .post(user.create)
+      .get(user.findAll)
 
-router.post('/users', user.create)
-router.get('/users/:userId', user.findOne)
-router.get('/users', user.findAll)
-router.put('/users/:userId', user.update)
+router.route('/users/:userId')
+      .get(user.findOne)
+      .put(user.update)
 
-router.post('/contracts', uploadMiddleware, contract.create)    // create a contract
-router.get('/contracts/:contractId', asyncMiddleware(contract.findById))    // fetch contract data
-router.put('/contracts/:contractId', contract.update)    // update contract data
-router.get('/contracts', contract.contracts)    // query for contracts
-router.put('/contracts/:contract_id/:document_type', fileUpload(), contract.uploadSingleDocument)
+router.route('/contracts')
+      .post(uploadMiddleware, contract.create)    // create a contract
+      .get(contract.contracts)    // query for contracts
 
-router.post('/product/create', product.create)    // create a product
-router.get('/products', product.find)    // query all products
-router.put('/product/:id', product.update)    // update product data
-// router.post('/products/snapshot', product.returnTemplate)    // create snapshot with POST data
-router.post('/product/match', product.match)    // match a product against POST data
+router.route('/contracts/:contractId')
+      .get(asyncMiddleware(contract.findById))    // fetch contract data
+      .put(contract.update)    // update contract data
+// router.put('/contracts/:contract_id/:document_type', fileUpload(), contract.uploadSingleDocument)
 
-router.post('/report/create', fileUpload(), report.create)    // create a report
-router.get('/report/:report_id', report.findById)    // fetch report data
-router.get('/reports', report.find)    // query for reports
-router.put('/report/:report_id/row/:row_id', report.update)    // update report row data
-router.put('/report/parse/:report_id', report.parse)    // update report row data
+router.route('/products')
+      .post(product.create)    // create a product
+      .get(product.find)    // query all products
 
-router.get('/cargopages/:cadastre_id', report.findCargoPages)
+router.route('/products/:id')
+      .put(product.update)    // update product data
+
+router.route('/offers')
+      .post(asyncMiddleware(product.makeAnOffer))
+
+// routes that are not part of v1
+// router.post('/product/match', product.match)
+// router.post('/report/create', fileUpload(), report.create)
+// router.get('/report/:report_id', report.findById)
+// router.get('/reports', report.find)
+// router.put('/report/:report_id/row/:row_id', report.update)
+// router.put('/report/parse/:report_id', report.parse)
+// router.get('/cargopages/:cadastre_id', report.findCargoPages)
 
 module.exports = router

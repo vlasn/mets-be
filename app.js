@@ -15,7 +15,7 @@ app.use(require('morgan')('dev'))
 app.use('/api', require('./routes'))
 
 app.use((req, res, next) => {
-  res.status(404).json({ status: 'reject', error: 'invalid route' })
+  res.status(404).json({ success: false, error: 'invalid route' })
 })
 
 app.use((err, req, res, next) => {

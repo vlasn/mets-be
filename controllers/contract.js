@@ -2,7 +2,7 @@
 
 const Contract = require('../models/contract'),
   User = require('../models/user'),
-  Property = require("../models/property"),
+  Property = require('../models/property'),
   respondWith = require('../utils/response'),
   ObjectId = require('mongoose').Types.ObjectId,
   path = require('path'),
@@ -28,7 +28,7 @@ exports.create = asyncMiddleware(async (req, res, next) => {
   Object.assign(body, { documents }, { representatives }, { property })
 
   const contract = await Contract.create(body)
-  
+
   success(res, contract)
 })
 
@@ -39,13 +39,13 @@ exports.findById = async (req, res, next) => {
 }
 
 exports.update = asyncMiddleware(async (req, res, next) => {
-  const { contractId = null } = req.params,
-    update = { $set: req.body }
+  const { contractId = null } = req.params
+  const update = { $set: req.body }
 
   if (!update || !ObjectId.isValid(contractId)) throw newError(400, 'invalid contract id or empty payload')
 
-  const options = { new: true, lean: true },
-    result = await Contract.findByIdAndUpdate(contractId, update, options)
+  const options = { new: true, lean: true }
+  const result = await Contract.findByIdAndUpdate(contractId, update, options)
 
   success(res, result)
 })
@@ -54,33 +54,32 @@ exports.contracts = async (req, res, next) => {
   try {
     const { term, status, foreman } = req.query
 
-    const users = await User.find({$or: [{"personalData.idNumber": { $regex: term }}, {"personalData.name": { $regex: term }}]})
+    const users = await User.find({$or: [{'personalData.idNumber': { $regex: term }}, {'personalData.name': { $regex: term }}]})
     const properties = await Property.find({name: { $regex: term }})
     const userIds = users.map(u => u._id)
     const propertyIds = properties.map(p => p._id)
-  
+
     const results = await Contract
-      .find({ 
-        status: {$regex: status}, 
-        foreman: {$regex: foreman}, 
-        property: {$in: propertyIds}, 
-        representatives: {$in: userIds} 
+      .find({
+        status: {$regex: status},
+        foreman: {$regex: foreman},
+        property: {$in: propertyIds},
+        representatives: {$in: userIds}
       })
-      .populate("property representatives")
+      .populate('property representatives')
 
     res.status(200).json(respondWith('accept', 'success', results))
-  } catch (e) {next(e)}
+  } catch (e) { next(e) }
 }
 
-
-exports.uploadSingleDocument = (req, res, next)=>{
+exports.uploadSingleDocument = (req, res, next) => {
   try {
     const {contractId = null, document_type = null} = req.params || {},
-    {file = null} = req.files || {}
+      {file = null} = req.files || {}
 
     if (!(contractId && document_type && file) || (document_type !== 'muu' &&
-    document_type !== 'leping' && document_type !== 'metsateatis')) throw MISSING_REQUIRED_PARAMS
-    
+    document_type !== 'leping' && document_type !== 'metsateatis')) throw MISSING_PARAMS_ERROR
+
     const {name} = file, extname = path.extname(name)
 
     let uniqName = name.split('.').shift() + '_' + Date.now() + extname
@@ -98,17 +97,17 @@ exports.uploadSingleDocument = (req, res, next)=>{
         res.status(200).json(respondWith('accept', 'Document added', doc))
       })
     })
-  } catch (e) {return next(e)} 
+  } catch (e) { return next(e) }
 }
 
-function fileMapper(file) {
+function fileMapper (file) {
   return {
     fileName: file.filename,
     filePath: 'toDo'
   }
 }
 
-function getDocuments(files) {
+function getDocuments (files) {
   return Object.keys(files).reduce((allDocs, docs) => {
     allDocs[docs] = files[docs].map(fileMapper)
 
@@ -116,7 +115,7 @@ function getDocuments(files) {
   }, {})
 }
 
-function isEmpty(dataStructure) {
+function isEmpty (dataStructure) {
   if (typeof dataStructure === 'object') return !Object.keys(dataStructure).length
   else if (typeof dataStructure === 'array') return !dataStructure.length
   else return !dataStructure
