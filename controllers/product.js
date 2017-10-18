@@ -9,37 +9,6 @@ const success = require('../utils/respond')
 const asyncMiddleware = require('../utils/asyncMiddleware')
 const Offer = require('../models/offer')
 
-// // LEGACY CODE
-// exports.snapshot = (req, res, next) => {
-//   let region = req.body.region
-//       ylest = req.body.ylestootamine
-//       vosat = req.body.vosat
-//       vedu = req.body.vedu
-//       tasu = req.body.tasu
-//   pricelist.returnTemplate()
-//   .then(d=>{
-//     let snapshot = d.map(r=>{
-//       return {
-//         Sihtkoht: r.Sihtkoht,
-//         Puuliik: r.Puuliik,
-//         Sortiment: r.Sortiment,
-//         Diameeter_min: r.Diameeter_min,
-//         Diameeter_max: r.Diameeter_max,
-//         Pikkus_min: r.Pikkus_min,
-//         Pikkus_max: r.Pikkus_max,
-//         Kvaliteet: r.Kvaliteet,
-//         Hind: r.Hind,
-//         Ylestootamine: ylest,
-//         Vosatood: vosat,
-//         Vedu: vedu,
-//         Tasu: tasu,
-//         Tulu: parseFloat(r.Hind) - (parseFloat(ylest) + parseFloat(vosat) + parseFloat(vedu) + parseFloat(tasu))
-//       }
-//     })
-//     res.status(200).json(responseFactory("accept", "", snapshot))
-//   })
-// }
-
 exports.returnDistinct = k => {
   return Product.find().distinct(k)
 }

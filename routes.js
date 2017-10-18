@@ -17,12 +17,12 @@ router.put('/auth/validate/:hash', user.validate)
 // all routes that require token authentication
 // router.use('*', require('./utils/token').verify)
 router.route('/users')
-      .post(user.create)
-      .get(user.findAll)
+      .post(asyncMiddleware(user.create))
+      .get(asyncMiddleware(user.findAll))
 
 router.route('/users/:userId')
-      .get(user.findOne)
-      .put(user.update)
+      .get(asyncMiddleware(user.findOne))
+      .put(asyncMiddleware(user.update))
 
 router.route('/contracts')
       .post(uploadMiddleware, contract.create)    // create a contract

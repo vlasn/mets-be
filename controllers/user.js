@@ -10,14 +10,14 @@ const { USER_AUTHENTICATION_ERROR,
     MISSING_PARAMS_ERROR } = require('../errors')
 const { ObjectId } = require('mongoose').Types
 
-exports.create = asyncMiddleware(async (req, res, next) => {
+exports.create = async (req, res, next) => {
   const user = await User.create(req.body)
 
   if (user.email) sendMagicLinkTo(user, res, next)
   else success(res, user)
-})
+}
 
-exports.login = asyncMiddleware(async (req, res, next) => {
+exports.login = async (req, res, next) => {
   const { email = null, password = null } = req.body
 
   if (!(email && password)) throw MISSING_PARAMS_ERROR
@@ -32,9 +32,9 @@ exports.login = asyncMiddleware(async (req, res, next) => {
   const token = signTokenWith({ email })
 
   success(res, { user, token })
-})
+}
 
-exports.findAll = asyncMiddleware(async (req, res, next) => {
+exports.findAll = async (req, res, next) => {
   const searchableFields = {
     email: 'email',
     name: 'personalData.name',
@@ -68,15 +68,15 @@ exports.findAll = asyncMiddleware(async (req, res, next) => {
   const result = await User.find(query)
 
   success(res, result)
-})
+}
 
-exports.findOne = asyncMiddleware(async (req, res, next) => {
+exports.findOne = async (req, res, next) => {
   if (!ObjectId.isValid(req.params.userId)) throw MISSING_PARAMS_ERROR
 
   success(res, await User.findById(req.params.userId))
-})
+}
 
-exports.validate = asyncMiddleware(async (req, res, next) => {
+exports.validate = async (req, res, next) => {
   const now = new Date()
   const twentyFourHoursAgo = new Date(now.getYear(), now.getMonth(), now.getDate() - 1).toISOString()
   const { hash } = req.params
@@ -98,9 +98,9 @@ exports.validate = asyncMiddleware(async (req, res, next) => {
   if (!result) throw USER_VALIDATION_ERROR()
 
   success(res, result)
-})
+}
 
-exports.forgot = asyncMiddleware(async (req, res, next) => {
+exports.forgot = async (req, res, next) => {
   const { email = null } = req.body
 
   if (!email) throw MISSING_PARAMS_ERROR
@@ -115,9 +115,9 @@ exports.forgot = asyncMiddleware(async (req, res, next) => {
   }
 
   sendMagicLinkTo(user, res, next)
-})
+}
 
-exports.update = asyncMiddleware(async (req, res, next) => {
+exports.update = async (req, res, next) => {
   const { userId = null } = req.params
 
   if (!ObjectId.isValid(userId)) {
@@ -137,4 +137,4 @@ exports.update = asyncMiddleware(async (req, res, next) => {
   }
 
   success(res, result)
-})
+}
