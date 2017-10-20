@@ -4,5 +4,6 @@ node_modules
 .env/
 .env
 server.sublime-workspace
-.node-version
 .DS_Store
+package-lock.json
+npm-debug.log

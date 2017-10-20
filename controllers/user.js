@@ -1,142 +1,140 @@
 'use strict'
 
-const User = require('../models/user'),
-crypto = require('crypto'),
-sendMagicLinkTo = require('../utils/mailer'),
-generateHash = require('../utils/hash'),
-respondWith = require('../utils/response'),
-signTokenWith = require('../utils/token').create,
-{MISSING_REQUIRED_PARAMS,
-MONGODB_QUERY_FAILED} = require('../constants'),
-_Error = require('../utils/error')
+const User = require('../models/user')
+const signTokenWith = require('../utils/token').create
+const success = require('../utils/respond')
+const asyncMiddleware = require('../utils/asyncMiddleware')
+const sendMagicLinkTo = require('../utils/mailer')
+const { USER_AUTHENTICATION_ERROR,
+    USER_VALIDATION_ERROR,
+    MISSING_PARAMS_ERROR } = require('../errors')
+const { ObjectId } = require('mongoose').Types
 
 exports.create = async (req, res, next) => {
-  try {
-    const {email = null, personal_data: {nimi = null, aadress = null}} = req.body || {}
+  const user = await User.create(req.body)
 
-    if (!(nimi && aadress)) throw MISSING_REQUIRED_PARAMS
-
-    const hash = {hash: generateHash(), createdAt: new Date()},
-    _new = email ? Object.assign({}, req.body, {hash}) : Object.assign({}, req.body)
-
-    const result = await User.create(_new)
-    
-    if (!result) throw MONGODB_QUERY_FAILED
-
-    if (email) sendMagicLinkTo(result.email, result.hash.hash, res)
-
-    res.status(200).json(respondWith('accept', 'User created', result))
-  } catch (e) {return next(e)}
+  if (user.email) sendMagicLinkTo(user, res, next)
+  else success(res, user)
 }
 
 exports.login = async (req, res, next) => {
-  try {
-    const {email = null, password = null} = req.body || {}
+  const { email = null, password = null } = req.body
 
-    if (!(email && password)) throw MISSING_REQUIRED_PARAMS
+  if (!(email && password)) throw MISSING_PARAMS_ERROR
 
-    const result = await User.findOneAndUpdate(
-      {email, password},
-      {lastLoginAt: new Date()},
-      {fields: {password: 0, __v: 0, roles: 0, hash: 0}, lean: true}
-    )
+  const user = await User.findOneAndUpdate(
+      { email, password },
+      { lastLoginAt: new Date() },
+      { fields: { __v: 0, hash: 0 }, lean: true })
 
-    if (!result) throw new _Error('Authentication failed', 401)
+  if (!user) throw USER_AUTHENTICATION_ERROR()
 
-    const token = signTokenWith({email: result.email})
+  const token = signTokenWith({ email })
 
-    res.json(respondWith(`accept`, `Authenticated`, Object.assign({token}, result)))
-  } catch (e) {return next(e)}
+  success(res, { user, token })
 }
 
-exports.search = async (req, res, next) => {
-  try {
-    const {key = null, value = null} = req.query || {}
-
-    if (!(key && value)) throw MISSING_REQUIRED_PARAMS
-
-    let keys = req.query.key.split(','),
-    val = {$regex: req.query.value, $options: 'i'},
-    conditions = []
-
-    for (const key of keys) {
-      let q1 = {}, q2 = {}
-      q1[`personal_data.` + key] = val
-      q2[key] = val
-      conditions = [q1, q2, ...conditions]
-    }
-
-    const q = {$or: conditions},
-    result = await User.find(q)
-
-    if (!result) throw MONGODB_QUERY_FAILED
-
-    res.status(200).json(respondWith('accept', 'success', result))
-  } catch (e) {return next(e)}
-}
-
-exports.findById = async (req, res, next) => {
-  try {
-    res.status(200).json(respondWith('accept', 'success', await User.findById(req.params.user_id)))
-  } catch (e) {
-    res.status(204).end()
+exports.findAll = async (req, res, next) => {
+  const searchableFields = {
+    email: 'email',
+    name: 'personalData.name',
+    phone: 'personalData.phone',
+    address: 'personalData.address',
+    idNumber: 'personalData.idNumber',
+    documentNumber: 'personalData.documentNumber',
+    juridical: 'personalData.juridical',
+    companyId: 'personalData.companyId',
+    companyName: 'personalData.companyName',
+    representativeName: 'personalData.representative.name',
+    representativeIdNumber: 'personalData.representative.idNumber'
   }
+  const { query: queryString } = req
+  const queryStringKeys = Object.keys(queryString)
+
+  const conditions = queryStringKeys
+    .filter(key => queryString[key] && searchableFields[key])
+    .reduce((conditions, key) => {
+      const condition = {}
+
+      condition[searchableFields[key]] = { $regex: queryString[key], $options: 'i' }
+
+      conditions.push(condition)
+
+      return conditions
+    }, [])
+
+  const query = conditions.length ? { $or: conditions } : {}
+
+  const result = await User.find(query)
+
+  success(res, result)
+}
+
+exports.findOne = async (req, res, next) => {
+  if (!ObjectId.isValid(req.params.userId)) throw MISSING_PARAMS_ERROR
+
+  success(res, await User.findById(req.params.userId))
 }
 
 exports.validate = async (req, res, next) => {
-  try {
-    const {hash = null} = req.params || {},
-    {password = null, cpassword = null} = req.body || {},
-    now = new Date(),
-    twentyFourHoursAgo = new Date(now.getYear(), now.getMonth(), now.getDate() - 1).toISOString()
+  const now = new Date()
+  const twentyFourHoursAgo = new Date(now.getYear(), now.getMonth(), now.getDate() - 1).toISOString()
+  const { hash } = req.params
+  const { password } = req.body
 
-    if (!password.length || password.length < 6 || password !== cpassword || hash.length !== 64) {
-      throw MISSING_REQUIRED_PARAMS
-    }
+  if (!(hash && password)) throw MISSING_PARAMS_ERROR
 
-    const result = await User.findOneAndUpdate
-    (
-      {'hash.hash': hash, 'hash.createdAt': {$gt: new Date(twentyFourHoursAgo)}},
-      {password: password, hash: {validatedAt: new Date()}},
-      {new: true, lean: true}
-    )
+  const conditions = {
+    'hash.hash': hash,
+    'hash.createdAt': { $gt: new Date(twentyFourHoursAgo) }
+  }
+  const update = {
+    password: password,
+    hash: { validatedAt: new Date() }
+  }
+  const options = { new: true, lean: true }
+  const result = await User.findOneAndUpdate(conditions, update, options)
 
-    if (!result) throw new _Error('Validation failed', 400)
+  if (!result) throw USER_VALIDATION_ERROR()
 
-    res.status(200).json(respondWith('accept', 'Password updated', result))
-  } catch (e) {return next(e)}
+  success(res, result)
 }
 
 exports.forgot = async (req, res, next) => {
-  try {
-    const hash = generateHash(), {email = null} = req.body || {}
+  const { email = null } = req.body
 
-    if (!email) throw MISSING_REQUIRED_PARAMS
+  if (!email) throw MISSING_PARAMS_ERROR
 
-    const result = await User.findOneAndUpdate(
-      {email: email},
-      {hash: {hash: hash, createdAt: new Date()}},
-      {new: true, lean: true}
-    )
+  const conditions = { email }
+  const user = await User.findOne(conditions)
 
-    if (!result) throw MONGODB_QUERY_FAILED
+  if (!user) {
+    const error = new Error(`user with email ${email} does not exist`)
+    error.status = 404
+    throw error
+  }
 
-    sendMagicLinkTo(result.email, result.hash.hash, res)
-  } catch (e) {return next(e)}
+  sendMagicLinkTo(user, res, next)
 }
 
 exports.update = async (req, res, next) => {
-  try {
-    const {user_id = null} = req.params,
-    data = req.body,
-    conditions = {_id: ObjectId(report_id), 'unmatched': {$elemMatch:{_id: ObjectId(row_id)}}},
-    fields = {'unmatched.$' : 1}, 
-    old = (await report.findOne(conditions, fields, {lean: true})).unmatched[0],
-    _id = ObjectId(row_id),
-    _new = Object.assign({}, old, {_id}, data),
-    update = {'$set': {'unmatched.$' : _new}},
-    result = (await report.findOneAndUpdate(conditions, update, {new: true, lean: true}))
+  const { userId = null } = req.params
 
-    return res.status(201).json(respondWith('accept', 'Kirje muudetud', result))
-  } catch (error) {next(new Error(error))}
+  if (!ObjectId.isValid(userId)) {
+    const error = new Error('invalid user id')
+    error.status = 400
+    throw error
+  }
+
+  const update = { $set: req.body }
+  const options = { new: true, lean: true }
+  const result = await User.findByIdAndUpdate(userId, update, options)
+
+  if (!result) {
+    const error = new Error(`user with id ${userId} does not exist`)
+    error.status = 404
+    throw error
+  }
+
+  success(res, result)
 }

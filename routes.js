@@ -1,45 +1,55 @@
 'use strict'
 
 const router = require('express').Router(),
-user = require('./controllers/user'),
-contract = require('./controllers/contract'),
-product = require('./controllers/product'),
-{uploadDocuments} = require('./utils/upload.js'),
-report = require('./controllers/report'),
-fileUpload = require('express-fileupload')
+  user = require('./controllers/user'),
+  contract = require('./controllers/contract'),
+  product = require('./controllers/product'),
+  uploadMiddleware = require('./utils/uploadMiddleware.js'),
+  report = require('./controllers/report'),
+  fileUpload = require('express-fileupload'),
+  asyncMiddleware = require('./utils/asyncMiddleware')
 
 // routes that do not require token authentication
-//
 router.post('/auth/login', user.login)
 router.post('/auth/forgot', user.forgot)
 router.put('/auth/validate/:hash', user.validate)
 
 // all routes that require token authentication
 // router.use('*', require('./utils/token').verify)
+router.route('/users')
+      .post(asyncMiddleware(user.create))
+      .get(asyncMiddleware(user.findAll))
 
-router.post('/user/create', user.create)    // create an user
-router.get('/user/:user_id', user.findById)    // fetch user data
-router.put('/user/:user_id', user.update)    // update user data
-router.get('/users/search', user.search)    // query for users
+router.route('/users/:userId')
+      .get(asyncMiddleware(user.findOne))
+      .put(asyncMiddleware(user.update))
 
-router.post('/contract/create', uploadDocuments, contract.create)    // create a contract
-router.get('/contract/:contract_id', contract.findById)    // fetch contract data
-router.put('/contract/:contract_id', contract.update)    // update contract data
-router.get('/contracts/filter', contract.filter)    // query for contracts
-router.put('/contract/:contract_id/:document_type', fileUpload(), contract.uploadSingleDocument)
+router.route('/contracts')
+      .post(uploadMiddleware, contract.create)    // create a contract
+      .get(contract.contracts)    // query for contracts
 
-router.post('/product/create', product.create)    // create a product
-router.get('/products', product.find)    // query all products
-router.put('/product/:id', product.update)    // update product data
-// router.post('/products/snapshot', product.returnTemplate)    // create snapshot with POST data
-router.post('/product/match', product.match)    // match a product against POST data
+router.route('/contracts/:contractId')
+      .get(asyncMiddleware(contract.findById))    // fetch contract data
+      .put(contract.update)    // update contract data
+// router.put('/contracts/:contract_id/:document_type', fileUpload(), contract.uploadSingleDocument)
 
-router.post('/report/create', fileUpload(), report.create)    // create a report 
-router.get('/report/:report_id', report.findById)    // fetch report data
-router.get('/reports', report.find)    // query for reports
-router.put('/report/:report_id/row/:row_id', report.update)    // update report row data
-router.put('/report/parse/:report_id', report.parse)    // update report row data
+router.route('/products')
+      .post(product.create)    // create a product
+      .get(product.find)    // query all products
 
-router.get('/cargopages/:cadastre_id', report.findCargoPages)
+router.route('/products/:id')
+      .put(product.update)    // update product data
+
+router.route('/offers')
+      .post(asyncMiddleware(product.makeAnOffer))
+
+// routes that are not part of v1
+// router.post('/product/match', product.match)
+// router.post('/report/create', fileUpload(), report.create)
+// router.get('/report/:report_id', report.findById)
+// router.get('/reports', report.find)
+// router.put('/report/:report_id/row/:row_id', report.update)
+// router.put('/report/parse/:report_id', report.parse)
+// router.get('/cargopages/:cadastre_id', report.findCargoPages)
 
 module.exports = router

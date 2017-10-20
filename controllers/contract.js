@@ -1,73 +1,85 @@
 'use strict'
 
-const mongoose = require('mongoose'),
-Contract = require('../models/contract'),
-respondWith = require('../utils/response'),
-ObjectId = require('mongoose').Types.ObjectId,
-path = require('path'),
-{MISSING_REQUIRED_PARAMS,
-MONGODB_QUERY_FAILED} = require('../constants')
+const Contract = require('../models/contract'),
+  User = require('../models/user'),
+  Property = require('../models/property'),
+  respondWith = require('../utils/response'),
+  ObjectId = require('mongoose').Types.ObjectId,
+  path = require('path'),
+  asyncMiddleware = require('../utils/asyncMiddleware'),
+  { MISSING_PARAMS_ERROR,
+    newError } = require('../errors'),
+  success = require('../utils/respond')
 
-exports.create = async (req, res, next) => {
-  try {
-    const {files = null, body = null} = req; if (isEmpty(files || body)) throw MISSING_REQUIRED_PARAMS
+exports.create = asyncMiddleware(async (req, res, next) => {
+  const { files = null, body = null } = req
 
-    const muu = files.muu ? files.muu.map(r => r.filename) : [],
-    leping = files.leping ? files.leping.map(r => r.filename) : [],
-    metsateatis = files.metsateatis ? files.metsateatis.map(r => r.filename) : []
+  if (isEmpty(files) || isEmpty(body)) throw newError(400, 'payload or files missing')
 
-    body.documents = {muu, leping, metsateatis}
+  const representatives = body.representatives &&
+    body.representatives.split(',').filter(repId => ObjectId.isValid(repId))
 
-    const savedToDb = await Contract.create(body)
-    
-    res.status(201).json(respondWith('accept', 'success', savedToDb))
-  } catch (e) {next(e)}
-}
+  if (!representatives || !representatives.length) throw newError(400, 'representatives field is empty or contains invalid user id(s)')
+
+  const documents = getDocuments(files)
+
+  const property = await Property.create(body.property)
+
+  Object.assign(body, { documents }, { representatives }, { property })
+
+  const contract = await Contract.create(body)
+
+  success(res, contract)
+})
 
 exports.findById = async (req, res, next) => {
-  try {
-    res.status(200).json(respondWith('accept', 'success', await Contract.findById(req.params.contract_id).populate({path: 'esindajad', select: 'personal_data -_id'})))
-  } catch (e) {
-    res.status(204).end()
-  }
+  const { contractId = null } = req.params
+  if (!ObjectId.isValid(contractId)) throw newError(400, 'invalid contract id')
+  success(res, await Contract.findById(contractId).populate({ path: 'representatives', select: 'personal_data -_id' }))
 }
 
-exports.update = async (req, res, next) => {
-  try {
-    const {contract_id} = req.params,
-    update_data = Object.keys(req.body).length ? Object.assign({}, req.body) : null
+exports.update = asyncMiddleware(async (req, res, next) => {
+  const { contractId = null } = req.params
+  const update = { $set: req.body }
 
-    if (!(update_data && mongoose.Types.ObjectId.isValid(contract_id))) throw new _Error('failure', 400)
-    
-      const old_data = await Contract.findById(contract_id, {_id: 0}, {lean: true}),
-    new_data = Object.assign({}, old_data, update_data),
-    result = await Contract.findByIdAndUpdate(contract_id, new_data, {new: true, lean: true})
-    res.status(200).json(respondWith('accept', 'updated', result))
-  } catch (e) {next(e)}
+  if (!update || !ObjectId.isValid(contractId)) throw newError(400, 'invalid contract id or empty payload')
+
+  const options = { new: true, lean: true }
+  const result = await Contract.findByIdAndUpdate(contractId, update, options)
+
+  success(res, result)
+})
+
+exports.contracts = async (req, res, next) => {
+  try {
+    const { term, status, foreman } = req.query
+
+    const users = await User.find({$or: [{'personalData.idNumber': { $regex: term }}, {'personalData.name': { $regex: term }}]})
+    const properties = await Property.find({name: { $regex: term }})
+    const userIds = users.map(u => u._id)
+    const propertyIds = properties.map(p => p._id)
+
+    const results = await Contract
+      .find({
+        status: {$regex: status},
+        foreman: {$regex: foreman},
+        property: {$in: propertyIds},
+        representatives: {$in: userIds}
+      })
+      .populate('property representatives')
+
+    res.status(200).json(respondWith('accept', 'success', results))
+  } catch (e) { next(e) }
 }
 
-exports.filter = async (req, res, next) => {
+exports.uploadSingleDocument = (req, res, next) => {
   try {
-    const q = {}; for (const o of Object.entries(req.query)) {
-    if (!!o[1]) {
-      switch (o[0]) {
-        case 'cadastre':
-          q['kinnistu.katastritunnus'] = {$regex: o[1]}
-          q['kinnistu.nimi'] = {$regex: o[1]}; break
-        case 'metsameister': case 'status':
-          q[o[0]] = {$regex: o[1]}; break}}}
-    res.status(200).json(respondWith('accept', 'success', await Contract.find(q)))
-  } catch (e) {next(e)}
-}
+    const {contractId = null, document_type = null} = req.params || {},
+      {file = null} = req.files || {}
 
-exports.uploadSingleDocument = (req, res, next)=>{
-  try {
-    const {contract_id = null, document_type = null} = req.params || {},
-    {file = null} = req.files || {}
+    if (!(contractId && document_type && file) || (document_type !== 'muu' &&
+    document_type !== 'leping' && document_type !== 'metsateatis')) throw MISSING_PARAMS_ERROR
 
-    if (!(contract_id && document_type && file) || (document_type !== 'muu' &&
-    document_type !== 'leping' && document_type !== 'metsateatis')) throw MISSING_REQUIRED_PARAMS
-    
     const {name} = file, extname = path.extname(name)
 
     let uniqName = name.split('.').shift() + '_' + Date.now() + extname
@@ -80,12 +92,31 @@ exports.uploadSingleDocument = (req, res, next)=>{
       const item = {}, update = {$push: item}
       item[`documents.${document_type}`] = uniqName
 
-      Contract.findOneAndUpdate({_id: ObjectId(contract_id)}, update, {new: true}, (err, doc) => {
+      Contract.findOneAndUpdate({_id: ObjectId(contractId)}, update, {new: true}, (err, doc) => {
         if (err) return next(err)
         res.status(200).json(respondWith('accept', 'Document added', doc))
       })
     })
-  } catch (e) {return next(e)} 
+  } catch (e) { return next(e) }
 }
 
-const isEmpty = object => !Object.keys(object).length
+function fileMapper (file) {
+  return {
+    fileName: file.filename,
+    filePath: 'toDo'
+  }
+}
+
+function getDocuments (files) {
+  return Object.keys(files).reduce((allDocs, docs) => {
+    allDocs[docs] = files[docs].map(fileMapper)
+
+    return allDocs
+  }, {})
+}
+
+function isEmpty (dataStructure) {
+  if (typeof dataStructure === 'object') return !Object.keys(dataStructure).length
+  else if (typeof dataStructure === 'array') return !dataStructure.length
+  else return !dataStructure
+}
