@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th, td {
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even){background-color: #f2f2f2}
+
+th {
+    background-color: #4CAF50;
+    color: white;
+}
+</style>
+</head>
+<body>
+
+<h2>Metsahaldur API</h2>
+
+<table>
+  <tr>
+    <th>URI</th>
+    <th>Method</th>
+    <th>Action</th>
+    <th>Required Params</th>
+    <th>Response 200</th>
+  </tr>
+  <tr>
+    <td>/auth/login</td>
+    <td>POST</td>
+    <td>login</td>
+    <td>{email, password}</td>
+    <td>{token, _id, email, job_title, lastLogin, personal_data[]}</td>
+  </tr>
+  <tr>
+    <td>/auth/validate/:hash</td>
+    <td>PUT</td>
+    <td>change password if hash valid</td>
+    <td>{password, cpassword}</td>
+    <td>{new}</td>
+  </tr>
+  <tr>
+    <td>/auth/forgot</td>
+    <td>POST</td>
+    <td>send 24h password reset link to email</td>
+    <td>{email}</td>
+    <td>-</td>
+  </tr>
+  <tr style="background-color: #4CAF50; color: white">
+    <td>USERS</td>
+  </tr>
+  <tr>
+    <td>/user/create</td>
+    <td>POST</td>
+    <td>create user</td>
+    <td><a href="https://gist.github.com/gregnesselmann/488ff3f493db896b47615d0e4b4203fd">kliki mind</a></td>
+    <td>{new}</td>
+  </tr>
+  <tr>
+    <td>/user/:user_id</td>
+    <td>GET</td>
+    <td>fetch user data</td>
+    <td>-</td>
+    <td>user document</td>
+  </tr>
+  <tr>
+    <td>/users/search?key=key1,key2...&value=value0</td>
+    <td>GET</td>
+    <td>search for user(s)</td>
+    <td>-</td>
+    <td>user document(s)</td>
+  </tr>
+  <tr style="background-color: #4CAF50; color: white">
+    <td>CONTRACTS</td>
+  </tr>
+  <tr>
+    <td>/contract/create</td>
+    <td>POST</td>
+    <td>create contract</td>
+    <td><a href="https://gist.github.com/gregnesselmann/2597c811ced2644062b47b4f85ba73a9">kliki mind</a></td>
+    <td>{new}</td>
+  </tr>
+  <tr>
+    <td>/contract/:contract_id</td>
+    <td>GET</td>
+    <td>fetch contract data</td>
+    <td>-</td>
+    <td>contract document</td>
+  </tr>
+  <tr>
+    <td>/contracts/filter?cadastre=x&metsameister=y&status=z</td>
+    <td>GET</td>
+    <td>search for contract(s)</td>
+    <td>-</td>
+    <td>contract document(s)</td>
+  </tr>
+  <tr>
+    <td>/contract/:contract_id/:document_type</td>
+    <td>PUT</td>
+    <td>upload single document</td>
+    <td>file</td>
+    <td>contract document(s)</td>
+  </tr>
+  <tr style="background-color: #4CAF50; color: white">
+    <td>PRODUCTS</td>
+  </tr>
+  <tr>
+    <td>/product/create</td>
+    <td>POST</td>
+    <td>create product</td>
+    <td><a href="https://gist.github.com/gregnesselmann/c0bb7d8a056396e97ba5b075c5699421">kliki mind</a></td>
+    <td>report document</td>
+  </tr>
+  <tr>
+    <td>/products</td>
+    <td>GET</td>
+    <td>fetch all products</td>
+    <td>-</td>
+    <td>product collection</td>
+  </tr>
+  <tr>
+    <td>/product/:product_id</td>
+    <td>PUT</td>
+    <td>update product</td>
+    <td>w/e</td>
+    <td>updated document</td>
+  </tr>
+  <tr>
+    <td>/product/match</td>
+    <td>POST</td>
+    <td>find match for product in payload</td>
+    <td>report row</td>
+    <td>matching product _id</td>
+  </tr>
+  <tr style="background-color: #4CAF50; color: white">
+    <td>REPORTS</td>
+  </tr>
+  <tr>
+    <td>/report/create</td>
+    <td>POST</td>
+    <td>create report</td>
+    <td>file w/ key 'file'</td>
+    <td>report document</td>
+  </tr>
+  <tr>
+    <td>/report/:report_id</td>
+    <td>GET</td>
+    <td>fetch report document</td>
+    <td>-</td>
+    <td>report document</td>
+  </tr>
+  <tr>
+    <td>/report/:report_id/row/:row_id</td>
+    <td>PUT</td>
+    <td>update row in report</td>
+    <td>w/e fields you want to update</td>
+    <td>updated document</td>
+  </tr>
+</table>
+
+</body>
+</html>
