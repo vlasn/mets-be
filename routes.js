@@ -10,9 +10,9 @@ const router = require('express').Router(),
   asyncMiddleware = require('./utils/asyncMiddleware')
 
 // routes that do not require token authentication
-router.post('/auth/login', user.login)
-router.post('/auth/forgot', user.forgot)
-router.put('/auth/validate/:hash', user.validate)
+router.post('/auth/login', asyncMiddleware(user.login))
+router.post('/auth/forgot', asyncMiddleware(user.forgot))
+router.put('/auth/validate/:hash', asyncMiddleware(user.validate))
 
 // all routes that require token authentication
 // router.use('*', require('./utils/token').verify)
@@ -20,7 +20,7 @@ router.route('/users')
       .post(asyncMiddleware(user.create))
       .get(asyncMiddleware(user.findAll))
 
-router.route('/users/:userId')
+router.route('/users/:userId?')
       .get(asyncMiddleware(user.findOne))
       .put(asyncMiddleware(user.update))
 
