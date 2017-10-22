@@ -13,16 +13,14 @@ const mongoose = require('mongoose'),
     date: {type: Date, default: new Date()},
     filename: {type: String, required: true}
   },
-  {
-    timestamps: true
-  })
+    {
+      timestamps: true
+    })
 
-schema.post('save', function(err, doc, next) {
+schema.post('save', function (err, doc, next) {
   if (err.name === 'MongoError' && err.code === 11000) next(DUPLICATION_ERROR(err))
   else if (err.name === 'ValidationError') next(VALIDATION_ERROR(err))
   else next(DATABASE_ERROR(err))
 })
 
-module.exports =  mongoose.model('import', schema)
-
-
+module.exports = mongoose.model('import', schema)

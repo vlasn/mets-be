@@ -3,11 +3,8 @@
 const User = require('../models/user')
 const signTokenWith = require('../utils/token').create
 const success = require('../utils/respond')
-const asyncMiddleware = require('../utils/asyncMiddleware')
 const sendMagicLinkTo = require('../utils/mailer')
-const { USER_AUTHENTICATION_ERROR,
-    USER_VALIDATION_ERROR,
-    MISSING_PARAMS_ERROR } = require('../errors')
+const { MISSING_PARAMS_ERROR, newError } = require('../errors')
 const { ObjectId } = require('mongoose').Types
 
 exports.create = async (req, res, next) => {
@@ -20,14 +17,12 @@ exports.create = async (req, res, next) => {
 exports.login = async (req, res, next) => {
   const { email = null, password = null } = req.body
 
-  if (!(email && password)) throw MISSING_PARAMS_ERROR
-
   const user = await User.findOneAndUpdate(
-      { email, password },
-      { lastLoginAt: new Date() },
-      { fields: { __v: 0, hash: 0 }, lean: true })
+    { email, password },
+    { lastLoginAt: new Date() },
+    { fields: { __v: 0, hash: 0 }, lean: true })
 
-  if (!user) throw USER_AUTHENTICATION_ERROR()
+  if (!user) throw newError(401, 'authentication failed')
 
   const token = signTokenWith({ email })
 
@@ -46,8 +41,7 @@ exports.findAll = async (req, res, next) => {
     companyId: 'personalData.companyId',
     companyName: 'personalData.companyName',
     representativeName: 'personalData.representative.name',
-    representativeIdNumber: 'personalData.representative.idNumber'
-  }
+    representativeIdNumber: 'personalData.representative.idNumber' }
   const { query: queryString } = req
   const queryStringKeys = Object.keys(queryString)
 
@@ -65,7 +59,7 @@ exports.findAll = async (req, res, next) => {
 
   const query = conditions.length ? { $or: conditions } : {}
 
-  const result = await User.find(query)
+  const result = await User.find(query).lean().select('-__v ')
 
   success(res, result)
 }
@@ -95,7 +89,7 @@ exports.validate = async (req, res, next) => {
   const options = { new: true, lean: true }
   const result = await User.findOneAndUpdate(conditions, update, options)
 
-  if (!result) throw USER_VALIDATION_ERROR()
+  if (!result) throw newError(400, `failed to validate hash ${hash}`)
 
   success(res, result)
 }
@@ -108,11 +102,7 @@ exports.forgot = async (req, res, next) => {
   const conditions = { email }
   const user = await User.findOne(conditions)
 
-  if (!user) {
-    const error = new Error(`user with email ${email} does not exist`)
-    error.status = 404
-    throw error
-  }
+  if (!user) throw newError(404, `user with email ${email} does not exist`)
 
   sendMagicLinkTo(user, res, next)
 }
@@ -130,11 +120,7 @@ exports.update = async (req, res, next) => {
   const options = { new: true, lean: true }
   const result = await User.findByIdAndUpdate(userId, update, options)
 
-  if (!result) {
-    const error = new Error(`user with id ${userId} does not exist`)
-    error.status = 404
-    throw error
-  }
+  if (!result) throw newError(404, `user with id ${userId} does not exist`)
 
   success(res, result)
 }

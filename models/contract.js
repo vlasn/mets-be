@@ -4,6 +4,7 @@ const mongoose = require('mongoose')
 const { VALIDATION_ERROR,
     DUPLICATION_ERROR,
     DATABASE_ERROR } = require('../errors')
+const ObjectId = mongoose.Schema.Types.ObjectId
 const schema = mongoose.Schema(
   {
     representatives: [{
@@ -45,15 +46,15 @@ const schema = mongoose.Schema(
       }]
     },
     hinnatabel: {
-      type: mongoose.Schema.Types.ObjectId
+      type: ObjectId
     },
     property: {
       required: true,
-      type: mongoose.Schema.Types.ObjectId,
+      type: ObjectId,
       ref: 'property'
     },
     contractCreator: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: ObjectId,
       ref: 'user'
     },
     status: {

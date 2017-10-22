@@ -38,7 +38,8 @@ const schema = mongoose.Schema(
           default: new Date()
         },
         validatedAt: Date
-      }
+      },
+      select: false
     },
     lastLoginAt: Date,
     role: {
