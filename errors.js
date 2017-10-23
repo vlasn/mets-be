@@ -1,6 +1,6 @@
 module.exports = {
   'VALIDATION_ERROR': function (err) {
-    const errors = Obj
+    const errors = Object.values(err.errors).map(error => error.message)
     const validationError = new Error(errors[0])
     validationError.stack = err
     validationError.status = 400

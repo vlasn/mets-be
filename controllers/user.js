@@ -86,7 +86,7 @@ exports.validate = async (req, res, next) => {
     password: password,
     hash: { validatedAt: new Date() }
   }
-  const options = { new: true, lean: true }
+  const options = { new: true, lean: true, runValidators: true }
   const result = await User.findOneAndUpdate(conditions, update, options)
 
   if (!result) throw newError(400, `failed to validate hash ${hash}`)

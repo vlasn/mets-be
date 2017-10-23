@@ -20,17 +20,17 @@ exports.find = async (req, res, next) => {
 exports.match = async row => {
   try {
     const key = row['hinna gr  "võti"'] || '',
-    {Ostja = '', puuliik = '', kvaliteet = ''} = row
+      {Ostja = '', puuliik = '', kvaliteet = ''} = row
 
     if (!Ostja || !puuliik || !kvaliteet || !key) return
 
     const result = (await Product.findOne({
-        Sihtkoht: {$regex: row['Ostja']},
-        Puuliik: row['puuliik'],
-        Kvaliteet: {$regex: row['kvaliteet'], $options: 'i'},
-        Diameeter_min: row['hinna gr  "võti"'].replace(/,/g,'.').split('-')[0],
-        Diameeter_max: row['hinna gr  "võti"'].replace(/,/g,'.').split('-')[1]
-      }, '_id'))._id || null
+      Sihtkoht: {$regex: row['Ostja']},
+      Puuliik: row['puuliik'],
+      Kvaliteet: {$regex: row['kvaliteet'], $options: 'i'},
+      Diameeter_min: row['hinna gr  "võti"'].replace(/,/g, '.').split('-')[0],
+      Diameeter_max: row['hinna gr  "võti"'].replace(/,/g, '.').split('-')[1]
+    }, '_id'))._id || null
 
     if (result) return result
   } catch (error) {}
