@@ -1,9 +1,8 @@
 'use strict'
 
 const mongoose = require('mongoose')
-const { VALIDATION_ERROR,
-    DUPLICATION_ERROR,
-    DATABASE_ERROR } = require('../errors')
+const postSaveHook = require('../utils/modelPostSaveHook')
+
 const ObjectId = mongoose.Schema.Types.ObjectId
 const schema = mongoose.Schema(
   {
@@ -68,10 +67,6 @@ const schema = mongoose.Schema(
   }
 )
 
-schema.post('save', function (err, doc, next) {
-  if (err.name === 'MongoError' && err.code === 11000) next(DUPLICATION_ERROR(err))
-  else if (err.name === 'ValidationError') next(VALIDATION_ERROR(err))
-  else next(DATABASE_ERROR(err))
-})
+schema.post('save', postSaveHook)
 
 module.exports = mongoose.model('contract', schema)

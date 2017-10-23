@@ -7,7 +7,6 @@ const router = require('express').Router(),
   product = require('../models/product.js'),
   ObjectId = require('mongoose').Types.ObjectId,
   path = require('path'),
-  respondWith = require('../utils/response'),
   parse = require('../utils/parse'),
   destructure = require('../utils/destructure'),
   secret = process.env.SECRET

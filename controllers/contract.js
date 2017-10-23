@@ -3,7 +3,6 @@
 const Contract = require('../models/contract'),
   User = require('../models/user'),
   Property = require('../models/property'),
-  respondWith = require('../utils/response'),
   ObjectId = require('mongoose').Types.ObjectId,
   path = require('path'),
   asyncMiddleware = require('../utils/asyncMiddleware'),
@@ -68,7 +67,7 @@ exports.contracts = async (req, res, next) => {
       })
       .populate('property representatives')
 
-    res.status(200).json(respondWith('accept', 'success', results))
+    success(res, results)
   } catch (e) { next(e) }
 }
 

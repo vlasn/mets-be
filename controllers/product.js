@@ -2,8 +2,7 @@
 
 const Product = require('../models/product.js').model
 const mongoose = require('mongoose')
-const respondWith = require('../utils/response')
-const { MISSING_PARAMS_ERROR } = require('../utils/response')
+const { MISSING_PARAMS_ERROR } = require('../errors')
 const isValid = mongoose.Types.ObjectId.isValid
 const success = require('../utils/respond')
 const asyncMiddleware = require('../utils/asyncMiddleware')
@@ -14,7 +13,7 @@ exports.returnDistinct = k => {
 }
 
 exports.find = async (req, res, next) => {
-  res.status(200).json(respondWith('accept', 'success', await Product.find({})))
+  success(res, await Product.find({}))
 }
 
 // accepts report row json object

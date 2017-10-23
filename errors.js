@@ -28,7 +28,6 @@ module.exports = {
 const AUTHENTICATION_ERROR = newError(401, 'authentication failed')
 const DB_DUPLICATION_ERROR = msg => newError(409, msg)
 // const DB_VALIDATION_ERROR = newError(400, Object.values(err.errors).map(error => error.message)[0], )
-console.log(AUTHENTICATION_ERROR)
 
 const errWoStack = error => { return { error } }
 
