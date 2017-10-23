@@ -20,9 +20,10 @@ router.route('/users')
       .post(asyncMiddleware(user.create))
       .get(asyncMiddleware(user.findAll))
 
-router.route('/users/:userId?')
-      .get(asyncMiddleware(user.findOne))
+router.route('/users/:userId')
+      .get(asyncMiddleware(user.findById))
       .put(asyncMiddleware(user.update))
+      .delete(asyncMiddleware(user.findByIdAndRemove))
 
 router.route('/contracts')
       .post(uploadMiddleware, contract.create)    // create a contract

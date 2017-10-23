@@ -64,10 +64,20 @@ exports.findAll = async (req, res, next) => {
   success(res, result)
 }
 
-exports.findOne = async (req, res, next) => {
-  if (!isValid(req.params.userId)) throw MISSING_PARAMS_ERROR
+exports.findById = async (req, res, next) => {
+  const { userId = null } = req.params
 
-  success(res, await User.findById(req.params.userId))
+  if (!isValid(userId)) throw newError(400, 'invalid userId')
+
+  success(res, await User.findById(req.params.userId).select('hash.hash'))
+}
+
+exports.findByIdAndRemove = async (req, res, next) => {
+  const { userId = null } = req.params
+
+  if (!isValid(userId)) throw newError(400, 'invalid userId')
+
+  success(res, await User.findByIdAndRemove(req.params.userId))
 }
 
 exports.validate = async (req, res, next) => {  
@@ -126,4 +136,3 @@ exports.update = async (req, res, next) => {
 
   success(res, result)
 }
-
