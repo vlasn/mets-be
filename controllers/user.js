@@ -5,7 +5,7 @@ const signTokenWith = require('../utils/token').create
 const success = require('../utils/respond')
 const sendMagicLinkTo = require('../utils/mailer')
 const { MISSING_PARAMS_ERROR, newError } = require('../errors')
-const { ObjectId } = require('mongoose').Types
+const { isValid } = require('mongoose').Types.ObjectId
 
 exports.create = async (req, res, next) => {
   const user = await User.create(req.body)
@@ -65,15 +65,17 @@ exports.findAll = async (req, res, next) => {
 }
 
 exports.findOne = async (req, res, next) => {
-  if (!ObjectId.isValid(req.params.userId)) throw MISSING_PARAMS_ERROR
+  if (!isValid(req.params.userId)) throw MISSING_PARAMS_ERROR
 
   success(res, await User.findById(req.params.userId))
 }
 
-exports.validate = async (req, res, next) => {
+exports.validate = async (req, res, next) => {  
   const now = new Date()
   const twentyFourHoursAgo = new Date(now.getYear(), now.getMonth(), now.getDate() - 1).toISOString()
   const { hash } = req.params
+  console.log('komtrolleri hash', hash)
+  
   const { password } = req.body
 
   if (!(hash && password)) throw MISSING_PARAMS_ERROR
@@ -110,7 +112,7 @@ exports.forgot = async (req, res, next) => {
 exports.update = async (req, res, next) => {
   const { userId = null } = req.params
 
-  if (!ObjectId.isValid(userId)) {
+  if (!isValid(userId)) {
     const error = new Error('invalid user id')
     error.status = 400
     throw error
@@ -124,3 +126,4 @@ exports.update = async (req, res, next) => {
 
   success(res, result)
 }
+
