@@ -2,7 +2,6 @@
 
 const jwt = require('jsonwebtoken')
 const secret = process.env.SECRET
-const respondWith = require('./response')
 const asyncMiddleware = require('./asyncMiddleware')
 
 exports.create = userData => jwt.sign(userData, secret, { expiresIn: 1 })
@@ -39,7 +38,3 @@ exports.verify = asyncMiddleware(async (req, res, next) => {
     next()
   })
 })
-
-function isExpired() {
-  
-}
