@@ -124,6 +124,7 @@ const schema = mongoose.Schema(
 )
 
 schema.post('save', postSaveHook)
+schema.post('findOneAndUpdate', postSaveHook)
 
 schema.pre('save', function (next) {
   // pre-save hook – what useful can be done here?
