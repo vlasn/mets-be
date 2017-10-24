@@ -63,22 +63,21 @@ exports.makeAnOffer = async (req, res, next) => {
           plantation,
           brushClearing,
           timberTransport,
-          clientIncome,
+          income,
           property } = req.body
 
   const newProperty = await Property.create(property)
 
-  const allProducts = await Product.find({ region: {$regex: region, $options: 'i'} }, {}, { lean: true })
+  const allProducts = await Product.find({ region }, {}, { lean: true })
   const allProductWithMappedPrices = allProducts.map(product => Object.assign(
       {},
       product,
-      { plantation, brushClearing, timberTransport, clientIncome },
-      { totalIncome: parseFloat(product.Hind) - (parseFloat(plantation) + parseFloat(brushClearing) + parseFloat(timberTransport) + parseFloat(clientIncome)) }
+      { plantation, brushClearing, timberTransport, income },
+      { clientIncome: parseFloat(product.price) - (parseFloat(plantation) + parseFloat(brushClearing) + parseFloat(timberTransport) + parseFloat(income)) }
     ))
 
   const totalIncome = allProductWithMappedPrices.reduce((total, product) => {
-    console.log(total, product.totalIncome)
-    return parseFloat(total) + parseFloat(product.totalIncome ? product.totalIncome : 0)
+    return parseFloat(total) + parseFloat(product.clientIncome ? product.clientIncome : 0)
   }, 0)
 
   const offer = await Offer.create({ prices: allProductWithMappedPrices, propertyId: newProperty._id, totalIncome })
