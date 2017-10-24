@@ -10,7 +10,7 @@ describe('user', function () {
     it('should create new user', function (done) {
       this.timeout(5000)
       request.post('/api/users')
-        .send({ 'personalData': { name: 'Mo', address: 'joogeva' }, email: '666metsahaldur@test.ee'})
+        .send({ 'personalData': { name: 'Mo', address: 'joogeva' }, email: 'metsahaldurtest@test.ee'})
         .set('Content-Type', 'application/json')
         .end(function (error, response) {
           if (error) console.log(error)
