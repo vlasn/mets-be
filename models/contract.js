@@ -44,7 +44,7 @@ const schema = mongoose.Schema(
         _id: false
       }]
     },
-    hinnatabel: {
+    offer: {
       type: ObjectId
     },
     property: {
