@@ -5,6 +5,7 @@ const postSaveHook = require('../utils/modelPostSaveHook')
 
 const schema = mongoose.Schema(
   {
+    region: { type: String, required: 'region is a required field' },
     destination: { type: String, required: 'destination is a required field' },
     treeType: { type: String, required: 'treeType is a required field' },
     sortiment: { type: String, required: 'sortiment is a required field' },
