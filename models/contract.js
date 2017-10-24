@@ -45,7 +45,9 @@ const schema = mongoose.Schema(
       }]
     },
     offer: {
-      type: ObjectId
+      required: true,
+      type: ObjectId,
+      ref: 'offer'
     },
     property: {
       required: true,

@@ -22,8 +22,6 @@ exports.create = asyncMiddleware(async (req, res, next) => {
 
   const documents = getDocuments(files)
 
-  const property = await Property.create(body.property)
-
   Object.assign(body, { documents }, { representatives }, { property })
 
   const contract = await Contract.create(body)

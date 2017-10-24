@@ -2,8 +2,9 @@
 
 const Product = require('../models/product.js').model
 const mongoose = require('mongoose')
-const { MISSING_PARAMS_ERROR } = require('../errors')
+const { newError } = require('../errors')
 const isValid = mongoose.Types.ObjectId.isValid
+const Property = require('../models/property')
 const success = require('../utils/respond')
 const asyncMiddleware = require('../utils/asyncMiddleware')
 const Offer = require('../models/offer')
@@ -58,28 +59,29 @@ exports.update = async (req, res, next) => {
 }
 
 exports.makeAnOffer = async (req, res, next) => {
-  const { Ylestootamine,
-          Vosatood,
-          Vedu,
-          Tasu,
-          propertyId } = req.body
+  const { region,
+          plantation,
+          brushClearing,
+          timberTransport,
+          clientIncome,
+          property } = req.body
 
-  if (!(Ylestootamine && Vosatood && Vedu && Tasu && isValid(propertyId))) throw MISSING_PARAMS_ERROR
+  const newProperty = await Property.create(property)
 
-  const allProducts = await Product.find({}, {}, { lean: true })
+  const allProducts = await Product.find({ region: {$regex: region, $options: 'i'} }, {}, { lean: true })
   const allProductWithMappedPrices = allProducts.map(product => Object.assign(
       {},
       product,
-      { Ylestootamine, Vosatood, Vedu, Tasu },
-      { Tulu: parseFloat(product.Hind) - (parseFloat(Ylestootamine) + parseFloat(Vosatood) + parseFloat(Vedu) + parseFloat(Tasu)) }
+      { plantation, brushClearing, timberTransport, clientIncome },
+      { totalIncome: parseFloat(product.Hind) - (parseFloat(plantation) + parseFloat(brushClearing) + parseFloat(timberTransport) + parseFloat(clientIncome)) }
     ))
 
   const totalIncome = allProductWithMappedPrices.reduce((total, product) => {
-    console.log(total, product.Tulu)
-    return parseFloat(total) + parseFloat(product.Tulu ? product.Tulu : 0)
+    console.log(total, product.totalIncome)
+    return parseFloat(total) + parseFloat(product.totalIncome ? product.totalIncome : 0)
   }, 0)
 
-  const offer = await Offer.create({ prices: allProductWithMappedPrices, propertyId, totalIncome })
+  const offer = await Offer.create({ prices: allProductWithMappedPrices, propertyId: newProperty._id, totalIncome })
 
   success(res, offer)
 }
