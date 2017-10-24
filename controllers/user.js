@@ -84,8 +84,6 @@ exports.validate = async (req, res, next) => {
   const now = new Date()
   const twentyFourHoursAgo = new Date(now.getYear(), now.getMonth(), now.getDate() - 1).toISOString()
   const { hash } = req.params
-  console.log('komtrolleri hash', hash)
-  
   const { password } = req.body
 
   if (!(hash && password)) throw MISSING_PARAMS_ERROR
@@ -98,7 +96,7 @@ exports.validate = async (req, res, next) => {
     password: password,
     hash: { validatedAt: new Date() }
   }
-  const options = { new: true, lean: true, runValidators: true }
+  const options = { new: true, lean: true }
   const result = await User.findOneAndUpdate(conditions, update, options)
 
   if (!result) throw newError(400, `failed to validate hash ${hash}`)
