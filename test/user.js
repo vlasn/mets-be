@@ -10,7 +10,7 @@ describe('user', function () {
     it('should create new user', function (done) {
       this.timeout(5000)
       request.post('/api/users')
-        .send({ 'personalData': { name: 'Manny', address: 'joogeva' }, email: '1metsahaldur@test.ee'})
+        .send({ 'personalData': { name: 'Manny', address: 'joogeva' }, email: '66metsahaldur@test.ee'})
         .set('Content-Type', 'application/json')
         .end(function (error, response) {
           if (error) console.log(error)
@@ -50,6 +50,18 @@ describe('user', function () {
         })
     })
 
+    it('should not validate new user with test user hash because password is too short', function (done) {
+      request.put(`/api/auth/validate/${testUserHash}`)
+        .send({ password: 'asd' })
+        .set('Content-Type', 'application/json')
+        .end(function (error, response) {
+          if (error) console.log(error)
+          console.log(response.body)
+          expect(response.statusCode).to.equal(400)
+          expect(response.body).to.be.an('object').that.includes({ success: false }, { error: '' })
+          done()
+        })
+    })
     it('should validate new user with test user hash', function (done) {
       request.put(`/api/auth/validate/${testUserHash}`)
         .send({ password: 'mismis' })
