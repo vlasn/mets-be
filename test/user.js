@@ -63,7 +63,7 @@ describe('user', function () {
         })
     })
 
-    it('should not validate new user with test user hash because password is too short', function (done) {
+    it('should not validate new user with testUser hash because password is too short', function (done) {
       request.put(`/api/auth/validate/${testUserHash}`)
         .send({ password: '123' })
         .set('Content-Type', 'application/json')
@@ -76,7 +76,7 @@ describe('user', function () {
         })
     })
 
-    it('should not validate new user with test user hash because password is missing', function (done) {
+    it('should not validate new user with testUser hash because password is missing', function (done) {
       request.put(`/api/auth/validate/${testUserHash}`)
         .send({ password: '' })
         .set('Content-Type', 'application/json')
@@ -89,7 +89,7 @@ describe('user', function () {
         })
     })
 
-    it('should validate new user with test user hash', function (done) {
+    it('should validate new user with testUser hash', function (done) {
       request.put(`/api/auth/validate/${testUserHash}`)
         .send({ password: 'mismis' })
         .set('Content-Type', 'application/json')
@@ -115,7 +115,7 @@ describe('user', function () {
         })
     })
 
-    it('should return all users with name Mo', function (done) {
+    it('should find all users with name Mo', function (done) {
       request.get('/api/users/?name=Mo')
         .end(function (error, response) {
           if (error) console.log(error)
