@@ -1,14 +1,13 @@
 'use strict'
 
-const Contract = require('../models/contract'),
-  User = require('../models/user'),
-  Property = require('../models/property'),
-  ObjectId = require('mongoose').Types.ObjectId,
-  path = require('path'),
-  asyncMiddleware = require('../utils/asyncMiddleware'),
-  { MISSING_PARAMS_ERROR,
-    newError } = require('../errors'),
-  success = require('../utils/respond')
+const Contract = require('../models/contract')
+const User = require('../models/user')
+const Property = require('../models/property')
+const ObjectId = require('mongoose').Types.ObjectId
+const path = require('path')
+const asyncMiddleware = require('../utils/asyncMiddleware')
+const { MISSING_PARAMS_ERROR, newError } = require('../errors')
+const success = require('../utils/respond')
 
 exports.create = asyncMiddleware(async (req, res, next) => {
   const { files = null, body = null } = req
@@ -18,7 +17,7 @@ exports.create = asyncMiddleware(async (req, res, next) => {
   const representatives = body.representatives &&
     body.representatives.split(',').filter(repId => ObjectId.isValid(repId))
 
-  if (!representatives || !representatives.length) throw newError(400, 'representatives field is empty or contains invalid user id(s)')
+  if (isEmpty(representatives)) throw newError(400, 'representatives field is empty or contains invalid user id(s)')
 
   const documents = getDocuments(files)
 
@@ -114,9 +113,9 @@ function getDocuments (files) {
 
 function isEmpty (dataStructure) {
   for (const dataStructure of arguments) {
-    if ((typeof dataStructure === 'object' && !Object.keys(dataStructure).length) ||
-        (typeof dataStructure === 'array' && !dataStructure.length) ||
-        !dataStructure) {
+    if (!dataStructure ||
+        (typeof dataStructure === 'object' && !Object.keys(dataStructure).length) ||
+        (typeof dataStructure === 'array' && !dataStructure.length)) {
       return true
     }
   }
