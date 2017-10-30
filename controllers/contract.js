@@ -13,7 +13,7 @@ const Contract = require('../models/contract'),
 exports.create = asyncMiddleware(async (req, res, next) => {
   const { files = null, body = null } = req
 
-  if (isEmpty(files) || isEmpty(body)) throw newError(400, 'payload or files missing')
+  if (isEmpty(files, body)) throw newError(400, 'payload or files missing')
 
   const representatives = body.representatives &&
     body.representatives.split(',').filter(repId => ObjectId.isValid(repId))
@@ -113,7 +113,13 @@ function getDocuments (files) {
 }
 
 function isEmpty (dataStructure) {
-  if (typeof dataStructure === 'object') return !Object.keys(dataStructure).length
-  else if (typeof dataStructure === 'array') return !dataStructure.length
-  else return !dataStructure
+  for (const dataStructure of arguments) {
+    if ((typeof dataStructure === 'object' && !Object.keys(dataStructure).length) ||
+        (typeof dataStructure === 'array' && !dataStructure.length) ||
+        !dataStructure) {
+      return true
+    }
+  }
+
+  return false
 }
