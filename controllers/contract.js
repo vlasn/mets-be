@@ -3,7 +3,7 @@
 const Contract = require('../models/contract')
 const User = require('../models/user')
 const Property = require('../models/property')
-const ObjectId = require('mongoose').Types.ObjectId
+const { ObjectId: { isValid } } = require('mongoose').Types.ObjectId
 const path = require('path')
 const asyncMiddleware = require('../utils/asyncMiddleware')
 const { MISSING_PARAMS_ERROR, newError } = require('../errors')
@@ -14,14 +14,17 @@ exports.create = asyncMiddleware(async (req, res, next) => {
 
   if (isEmpty(files, body)) throw newError(400, 'payload or files missing')
 
-  const representatives = body.representatives &&
-    body.representatives.split(',').filter(repId => ObjectId.isValid(repId))
+  const representativesIds = body.representatives && body.representatives
+    .split(',')
+    .filter(id => isValid(id))
 
-  if (isEmpty(representatives)) throw newError(400, 'representatives field is empty or contains invalid user id(s)')
+  if (isEmpty(representativesIds)) throw newError(400, 'representatives field is empty or contains invalid user id(s)')
 
   const documents = getDocuments(files)
 
-  Object.assign(body, { documents }, { representatives }, { property })
+  const property = await Property.create(body.property)
+
+  Object.assign(body, { documents }, { representativesIds }, { property })
 
   const contract = await Contract.create(body)
 
@@ -30,7 +33,7 @@ exports.create = asyncMiddleware(async (req, res, next) => {
 
 exports.findById = async (req, res, next) => {
   const { contractId = null } = req.params
-  if (!ObjectId.isValid(contractId)) throw newError(400, 'invalid contract id')
+  if (!isValid(contractId)) throw newError(400, 'invalid contract id')
   success(res, await Contract.findById(contractId).populate({ path: 'representatives', select: 'personal_data -_id' }))
 }
 
@@ -38,7 +41,7 @@ exports.update = asyncMiddleware(async (req, res, next) => {
   const { contractId = null } = req.params
   const update = { $set: req.body }
 
-  if (!update || !ObjectId.isValid(contractId)) throw newError(400, 'invalid contract id or empty payload')
+  if (!update || !isValid(contractId)) throw newError(400, 'invalid contract id or empty payload')
 
   const options = { new: true, lean: true }
   const result = await Contract.findByIdAndUpdate(contractId, update, options)
@@ -96,19 +99,20 @@ exports.uploadSingleDocument = (req, res, next) => {
   } catch (e) { return next(e) }
 }
 
-function fileMapper (file) {
-  return {
-    fileName: file.filename,
-    filePath: 'toDo'
-  }
-}
-
 function getDocuments (files) {
   return Object.keys(files).reduce((allDocs, docs) => {
     allDocs[docs] = files[docs].map(fileMapper)
 
     return allDocs
   }, {})
+}
+
+function fileMapper (file) {
+  console.log(file)
+  return {
+    fileName: file.filename,
+    filePath: 'toDo'
+  }
 }
 
 function isEmpty (dataStructure) {
