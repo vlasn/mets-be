@@ -2,7 +2,7 @@
 
 const Product = require('../models/product.js').model
 const mongoose = require('mongoose')
-const { newError } = require('../errors')
+const error = require('../utils/error')
 const isValid = mongoose.Types.ObjectId.isValid
 const Property = require('../models/property')
 const success = require('../utils/respond')

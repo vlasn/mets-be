@@ -6,19 +6,19 @@ const Property = require('../models/property')
 const { ObjectId: { isValid } } = require('mongoose').Types.ObjectId
 const path = require('path')
 const asyncMiddleware = require('../utils/asyncMiddleware')
-const { MISSING_PARAMS_ERROR, newError } = require('../errors')
+const error = require('../utils/error')
 const success = require('../utils/respond')
 
 exports.create = asyncMiddleware(async (req, res, next) => {
   const { files = null, body = null } = req
 
-  if (isEmpty(files, body)) throw newError(400, 'payload or files missing')
+  if (isEmpty(files, body)) error(400, 'payload or files missing')
 
   const representativesIds = body.representatives && body.representatives
     .split(',')
     .filter(id => isValid(id))
 
-  if (isEmpty(representativesIds)) throw newError(400, 'representatives field is empty or contains invalid user id(s)')
+  if (isEmpty(representativesIds)) error(400, 'representatives field is empty or contains invalid user id(s)')
 
   const documents = getDocuments(files)
 
@@ -33,7 +33,7 @@ exports.create = asyncMiddleware(async (req, res, next) => {
 
 exports.findById = async (req, res, next) => {
   const { contractId = null } = req.params
-  if (!isValid(contractId)) throw newError(400, 'invalid contract id')
+  if (!isValid(contractId)) error(400, 'invalid contract id')
   success(res, await Contract.findById(contractId).populate({ path: 'representatives', select: 'personal_data -_id' }))
 }
 
@@ -41,7 +41,7 @@ exports.update = asyncMiddleware(async (req, res, next) => {
   const { contractId = null } = req.params
   const update = { $set: req.body }
 
-  if (!update || !isValid(contractId)) throw newError(400, 'invalid contract id or empty payload')
+  if (!update || !isValid(contractId)) error(400, 'invalid contract id or empty payload')
 
   const options = { new: true, lean: true }
   const result = await Contract.findByIdAndUpdate(contractId, update, options)
@@ -76,8 +76,10 @@ exports.uploadSingleDocument = (req, res, next) => {
     const {contractId = null, document_type = null} = req.params || {},
       {file = null} = req.files || {}
 
-    if (!(contractId && document_type && file) || (document_type !== 'muu' &&
-    document_type !== 'leping' && document_type !== 'metsateatis')) throw MISSING_PARAMS_ERROR
+    if (!(contractId && document_type && file) || 
+    (document_type !== 'muu' && document_type !== 'leping' && document_type !== 'metsateatis')) {
+      error(400, 'Missing required parameter(s)')
+    }
 
     const {name} = file, extname = path.extname(name)
 

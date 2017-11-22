@@ -4,7 +4,7 @@ const User = require('../models/user')
 const signTokenWith = require('../utils/token').create
 const success = require('../utils/respond')
 const sendMagicLinkTo = require('../utils/mailer')
-const { MISSING_PARAMS_ERROR, newError } = require('../errors')
+const error = require('../utils/error')
 const { isValid } = require('mongoose').Types.ObjectId
 
 exports.create = async (req, res, next) => {
@@ -22,7 +22,7 @@ exports.login = async (req, res, next) => {
     { lastLoginAt: new Date() },
     { fields: { __v: 0, hash: 0 }, lean: true })
 
-  if (!user) throw newError(401, 'authentication failed')
+  if (!user) error(401, 'Authentication failed: E-mail and password don\'t match')
 
   const token = signTokenWith({ email })
 
@@ -67,7 +67,7 @@ exports.findAll = async (req, res, next) => {
 exports.findById = async (req, res, next) => {
   const { userId = null } = req.params
 
-  if (!isValid(userId)) throw newError(400, 'invalid userId')
+  if (!isValid(userId)) error(400, 'invalid userId')
 
   success(res, await User.findById(req.params.userId).select('hash.hash'))
 }
@@ -75,7 +75,7 @@ exports.findById = async (req, res, next) => {
 exports.findByIdAndRemove = async (req, res, next) => {
   const { userId = null } = req.params
 
-  if (!isValid(userId)) throw newError(400, 'invalid userId')
+  if (!isValid(userId)) error(400, 'invalid userId')
 
   success(res, await User.findByIdAndRemove(req.params.userId))
 }
@@ -86,7 +86,7 @@ exports.validate = async (req, res, next) => {
   const { hash } = req.params
   const { password } = req.body
 
-  if (!(hash && password)) throw MISSING_PARAMS_ERROR
+  if (!(hash && password)) error(400, 'Missing required parameter(s)')
 
   const conditions = {
     'hash.hash': hash,
@@ -99,7 +99,7 @@ exports.validate = async (req, res, next) => {
   const options = { new: true, lean: true }
   const result = await User.findOneAndUpdate(conditions, update, options)
 
-  if (!result) throw newError(400, `failed to validate hash ${hash}`)
+  if (!result) error(400, `failed to validate hash ${hash}`)
 
   success(res, result)
 }
@@ -107,12 +107,12 @@ exports.validate = async (req, res, next) => {
 exports.forgot = async (req, res, next) => {
   const { email = null } = req.body
 
-  if (!email) throw MISSING_PARAMS_ERROR
+  if (!email) error(400, 'Missing required parameter: email')
 
   const conditions = { email }
   const user = await User.findOne(conditions)
 
-  if (!user) throw newError(404, `user with email ${email} does not exist`)
+  if (!user) error(404, `user with email ${email} does not exist`)
 
   sendMagicLinkTo(user, res, next)
 }
@@ -130,7 +130,7 @@ exports.update = async (req, res, next) => {
   const options = { new: true, lean: true }
   const result = await User.findByIdAndUpdate(userId, update, options)
 
-  if (!result) throw newError(404, `user with id ${userId} does not exist`)
+  if (!result) error(404, `user with id ${userId} does not exist`)
 
   success(res, result)
 }
