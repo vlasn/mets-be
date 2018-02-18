@@ -51,9 +51,14 @@ exports.update = asyncMiddleware(async (req, res, next) => {
 
 exports.contracts = async (req, res, next) => {
   try {
-    const { term, status, foreman } = req.query
+    const {term = '', status = '', foreman = ''} = req.query
 
-    const users = await User.find({$or: [{'personalData.idNumber': { $regex: term }}, {'personalData.name': { $regex: term }}]})
+    const users = await User.find({
+      $or: [
+        {'personalData.idNumber': { $regex: term }},
+        {'personalData.name': { $regex: term }}
+      ]
+    })
     const properties = await Property.find({name: { $regex: term }})
     const userIds = users.map(u => u._id)
     const propertyIds = properties.map(p => p._id)
