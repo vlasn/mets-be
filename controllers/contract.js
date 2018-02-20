@@ -133,3 +133,30 @@ function isEmpty (dataStructure) {
 
   return false
 }
+
+// module.exports = {
+//   GET: async (req, res, next) => res.status(200).json({
+//     success: true,
+//     data: req.params.id
+//       ? await Todo.findById(req.params.id)
+//       : await Todo.find({})
+//   }),
+//   POST: async (req, res, next) => res.status(201).json({
+//     success: true,
+//     data: await Todo.create(req.body)
+//   }),
+//   PUT: async (req, res, next) => {
+//     const { id } = req.params
+//     const update = req.body
+//     const options = { new: true, lean: true, runValidators: true }
+
+//     res.status(200).json({
+//       success: true,
+//       data: await Todo.findByIdAndUpdate(id, update, options)
+//     })
+//   },
+//   DELETE: async (req, res, next) => res.status(200).json({
+//     success: true,
+//     data: await Todo.findByIdAndRemove(req.params.id)
+//   })
+// }
