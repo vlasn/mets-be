@@ -21,7 +21,7 @@ const notFoundHandler = (req, res, next) => res.status(404).json({ success: fals
 app.use(helmet, jsonParser(), urlencodedParser({ extended: false }), morgan)
 
 // mid- and post-route middleware
-app.use('/api', require('./routes'), notFoundHandler, errorHandler)
+app.use('/api', require('./controllers'), notFoundHandler, errorHandler)
 
 // WIP
 // app.get('/api', (req, res) => res.sendFile(path.join(__dirname + '/api.html')))
