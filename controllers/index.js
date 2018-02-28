@@ -2,6 +2,7 @@
 
 const router = require('express').Router()
 const user = require('./user')
+const auth = require('./auth')
 const contract = require('./contract')
 const product = require('./product')
 const report = require('./report')
@@ -12,9 +13,9 @@ const uploadMiddleware = require('../utils/uploadMiddleware')
 const asyncMiddleware = require('../utils/asyncMiddleware')
 
 // routes that do not require token authentication
-router.post('/auth/login', asyncMiddleware(user.login))
-router.post('/auth/forgot', asyncMiddleware(user.forgot))
-router.put('/auth/validate/:hash', asyncMiddleware(user.validate))
+router.post('/auth/login', asyncMiddleware(auth.login))
+router.post('/auth/forgot_password', asyncMiddleware(auth.forgot_password))
+router.put('/auth/validate/:hash', asyncMiddleware(auth.validate))
 
 // all routes that require token authentication
 // router.use('*', require('./utils/token').verify)
