@@ -3,8 +3,6 @@
 const User = require('../models/user')
 const success = require('../utils/respond')
 const sendMagicLinkTo = require('../utils/mailer')
-const error = require('../utils/error')
-const {isValid} = require('mongoose').Types.ObjectId
 
 module.exports = {
   GET: async (req, res, next) => {
@@ -62,15 +60,8 @@ module.exports = {
     const result = await User.findByIdAndUpdate(userId, update, options)
 
     success(res, result)
-  },
+  }
   // DELETE: async (req, res, next) => {
   //   success(res, await User.findByIdAndRemove(req.params.userId))
-  // },
-  validate: async (req, res, next) => {
-    req.params.id
-      ? isValid(req.params.id) && await User.findById(req.params.id).lean()
-        ? next()
-        : error(404, `invalid userId ${req.params.id}`)
-      : next()
-  }
+  // }
 }

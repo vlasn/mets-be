@@ -16,7 +16,7 @@ module.exports = {
       {fields: {__v: 0, hash: 0}, lean: true}
     )
 
-    if (!user) error(401, 'Authentication failed: E-mail and password don\'t match')
+    if (!user) error(401, 'Invalid email or password')
 
     const token = signTokenWith({email})
 
@@ -57,11 +57,4 @@ module.exports = {
 
     success(res, result)
   }
-  // validate: async (req, res, next) => {
-  //   req.params.id
-  //     ? isValid(req.params.id) && await User.findById(req.params.id).lean()
-  //       ? next()
-  //       : error(404, `invalid userId ${req.params.id}`)
-  //     : next()
-  // }
 }
