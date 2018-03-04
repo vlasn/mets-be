@@ -23,13 +23,16 @@ const mapResourceToModel = {
 
 const validateResource = async (req, res, next) => {
   const resourceId = req.params.id
-  const resource = req.path.split('/')[1]
-  const model = mapResourceToModel[resource]
-  const isInvalidId = !isValid(resourceId)
-  const isNotInDb = !await model.findById(resourceId).lean()
 
-  if (isInvalidId || isNotInDb) {
-    error(404, `Invalid parameter id: ${resourceId}`)
+  if (resourceId) {
+    const resource = req.path.split('/')[1]
+    const model = mapResourceToModel[resource]
+    const isInvalidId = !isValid(resourceId)
+    const isNotInDb = !await model.findById(resourceId).lean()
+
+    if (isInvalidId || isNotInDb) {
+      error(404, `Invalid parameter id: ${resourceId}`)
+    }
   }
 
   next()
