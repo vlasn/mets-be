@@ -15,24 +15,22 @@ const user = require('../models/user')
 const contract = require('../models/contract')
 const product = require('../models/product')
 
-const mapResourceToModel = {
-  contracts: contract,
-  users: user,
-  products: product
-}
-
 const validateResource = async (req, res, next) => {
   const resourceId = req.params.id
 
   if (resourceId) {
+    if (!isValid(resourceId)) error(400, 'Invalid id')
+
+    const mapResourceToModel = {
+      contracts: contract,
+      users: user,
+      products: product
+    }
     const resource = req.path.split('/')[1]
     const model = mapResourceToModel[resource]
-    const isInvalidId = !isValid(resourceId)
-    const isNotInDb = !await model.findById(resourceId).lean()
+    const isFound = await model.findById(resourceId).lean()
 
-    if (isInvalidId || isNotInDb) {
-      error(404, `Invalid parameter id: ${resourceId}`)
-    }
+    if (!isFound) error(404, 'Resource not found')
   }
 
   next()
@@ -42,7 +40,7 @@ router.post('/auth/login', asyncMiddleware(authController.login))
 router.post('/auth/forgot_password', asyncMiddleware(authController.forgot_password))
 router.put('/auth/validate/:hash', asyncMiddleware(authController.validate))
 
-router.route('/users/:id*?')
+router.route('/users/:id?')
   .all(asyncMiddleware(validateResource))
   .post(asyncMiddleware(userController.POST))
   .get(asyncMiddleware(userController.GET))
