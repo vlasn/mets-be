@@ -28,7 +28,7 @@
     "nodemailer": "^4.0.1",
     "nodemon": "^1.15.0",
     "pdfkit": "^0.8.2",
-    "standard": "^10.0.3",
+    "standard": "^13.0.0",
     "supertest": "^3.0.0",
     "xlsx": "^0.12.2"
   }
